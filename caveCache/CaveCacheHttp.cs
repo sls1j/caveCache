@@ -17,7 +17,7 @@ namespace caveCache
 
         public CaveCacheHttp()
         {
-            _cmd = new CommandRunner(false);
+            _cmd = new CommandRunner(new ConfigurationReader(), false);
             _guard = new ExecutionGuard();
 
             _listener = new HttpListener();

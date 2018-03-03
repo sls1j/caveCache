@@ -14,14 +14,17 @@ namespace caveCache
     {
         private Database.CaveCacheContext _db;
         private RandomNumberGenerator _rng;
+        private IConfiguration _config;
         private bool _isCommandLine;
         private Dictionary<Type, Func<object, object>> _commands;
 
-        public CommandRunner(bool isCommandLine = false)
+        public CommandRunner(IConfiguration config, bool isCommandLine = false)
         {
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+
             this._isCommandLine = isCommandLine;
             // initialize the database
-            _db = new CaveCacheContext("");
+            _db = new CaveCacheContext(_config.Config["ConnectionString"]);
 
             Console.WriteLine($"Database at: {_db.ConnectionString}");
 

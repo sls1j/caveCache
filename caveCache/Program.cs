@@ -13,7 +13,7 @@ namespace caveCache
             {
                 if (args.Length == 0 || args[0] == "-i")
                 {
-                    CommandRunner cmd = new CommandRunner(true);
+                    CommandRunner cmd = new CommandRunner(new ConfigurationReader(), true);
 
                     if (args[0] == "-i")
                     {
