@@ -60,6 +60,7 @@ namespace caveCache.Database
 
         public static void OnModelCreating(ModelBuilder mb)
         {
+            // comment
             var tbl = mb.Entity<UserData>();
             tbl.HasKey(t => new { t.UserId, t.Name });
             Data.OnSubModelCreating(tbl);
