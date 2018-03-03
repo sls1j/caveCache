@@ -1,0 +1,23 @@
+<div>
+    <div>
+        <label>Cave Data (CSV format)</label>
+        <div>* Required fields "Name", "Latitude", "Longitude"</div>
+        <div>* Predefined fields "Description", "Altitude", "Accuracy"</div>
+    </div>
+    <div>
+        <textarea data-bind="value: csvData"></textarea>
+    </div>
+    <div>
+        <button data-bind="click: importData">Import</button>
+        <button data-bind="click: cancelImport">Cancel</button>
+    </div>
+
+    <div>
+        <label>Log</label>
+    </div>
+    <div>
+        <div style="height: 300px; overflow-y: scroll; padding:10px; border: 2px solid black">
+            <pre data-bind="text: logs"></pre>
+        </div>
+    </div>
+</div>

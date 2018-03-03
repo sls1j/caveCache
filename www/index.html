@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>New Cave Survey</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet", type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/messageBox.css">
+    <script src="utils/utils.js"></script>
+    <script src="controls/messageBox.js"></script>
+    <script src="controls/dynoGrid.js"></script>
+    <script src="views/navigator.js"></script>
+    <script src="agents/ncsAgent.js"></script>
+    <script src="viewmodels/viewModel.js"></script>
+    <script src="viewmodels/loginViewModel.js"></script>
+    <script src="viewmodels/homeViewModel.js"></script>
+    <script src="viewmodels/showCaveViewModel.js"></script>
+    <script src="viewmodels/editCaveViewModel.js"></script>
+    <script src="viewmodels/cavesImportViewModel.js"></script>
+    <script src="viewmodels/locationEditViewModel.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="banner">
+            <h1>Utah Diggers Data Tools</h1>
+        </div>
+        <div style="position: relative">
+            <div id="messagebox" class="messagebox" style="display:none">
+                <div id="messabox-inner" class="messagebox-inner">
+                    <div id="messagebox-message" class="messagebox-message"></div>
+                    <div class="messagebox-button-panel" class="messagebox-button-panel">
+                        <button id="messagebox-yes">Yes</button>
+                        <button id="messagebox-no">No</button>
+                    </div>
+                </div>
+            </div>
+            <div id="page-container">
+            </div>
+
+        </div>
+    </div>
+    <script>
+        let url = null;
+        if (window.location.hostname === "localhost")
+            url = "http://localhost:1222";
+        else
+            url = window.location.protocol + "//" + (window.location.host || "localhost");
+        var agent = new NewCaveSurveyAgent(url);
+        var nav = new PageNavigator(document.getElementById("page-container"));
+        nav.addPage("login", "views/login.html");
+        nav.addPage("home", "views/home.html");
+        nav.addPage("cave-show", "views/showCave.html");
+        nav.addPage("cave-edit", "views/editCave.html");
+        nav.addPage("caves-import", "views/cavesImport.html");
+        nav.addPage("location-edit", "views/editLocation.html");
+
+        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, EditCaveViewModel, CavesImportViewModel, EditLocationViewModel];
+        var viewModels = [];
+        for (let i = 0; i < viewModelClasses.length; i++) {
+            let classCon = viewModelClasses[i];
+            viewModels.push(new classCon(nav, agent));
+        }
+
+        nav.navigateTo("login");
+    </script>
+</body>
+
+</html>

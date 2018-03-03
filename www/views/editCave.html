@@ -1,0 +1,63 @@
+<div>    
+    <div>
+        <h1>Name
+            <input type="text" fieldName="Name" data-bind="textInput: Cave.Name"></input>
+        </h1>
+        <div>Description</div>
+        <textarea fieldName="Description" data-bind="value: Cave.Description"></textarea>
+        <h2>Positional Data</h2>
+        <div>
+            <label>Coordinates:</label>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Altitude</th>
+                        <th>Accuracy</th>
+                        <th>Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: Cave.Locations">
+                    <tr>
+                        <td data-bind="text: CaptureDate"></td>
+                        <td data-bind="text: Latitude"></td>
+                        <td data-bind="text: Longitude"></td>
+                        <td data-bind="text: Altitude"></td>
+                        <td data-bind="text: Accuracy"></td>
+                        <td data-bind="text: Source"></td>
+                        <td>
+                            <span data-bind="ifnot: $parent.isSelected($data)">
+                                <a href="#" data-bind="click: $parent.selectLocation">Select</a>
+                            </span>
+                            <a href="#" data-bind="click: $parent.editLocation">Edit</a>
+                            <a href="#" data-bind="click: $parent.deleteLocation">Remove</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <a href="#" data-bind="click: addLocation">Add Location</a>
+        </div>
+        <div>
+            <h2>Data</h2>
+            <div id="cave-data-grid"></div>
+            <div style="margin-top:4px;font-weight: 800">Add New Data Field</div>
+            <div id="cave-data-add-row">
+                <input data-bind="value: caveDataAddRowName"></input>
+                <select data-bind="selectedOptions: caveDataAddRowType">
+                    <option value="number">Number</option>
+                    <option value="date">Date</option>
+                    <option value="checkbox">Check</option>
+                    <option value="text">Text</option>
+                    <option value="textarea">Text Area</option>
+                </select>
+                <button data-bind="click: caveDataAddRow">Add</button>
+            </div>
+            <h2>Media</h2>
+        </div>
+    </div>
+    <a href="#" data-bind="click: cancel">Cancel</a>
+    <a href="#" data-bind="click: save">Save</a>
+</div>

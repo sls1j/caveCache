@@ -1,0 +1,74 @@
+<html>
+<header>
+</header>
+
+<body>
+    <div>Data Here</div>
+    <div id="data-holder">
+    </div>
+    <script>
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            var string = msg.toLowerCase();
+            var substring = "script error";
+            if (string.indexOf(substring) > -1) {
+                alert('Script Error: See Browser Console for Detail');
+            } else {
+                var message = [
+                    'Message: ' + msg,
+                    'URL: ' + url,
+                    'Line: ' + lineNo,
+                    'Column: ' + columnNo,
+                    'Error object: ' + JSON.stringify(error)
+                ].join(' - ');
+
+                alert(message);
+            }
+        }
+
+        function sendCommand (command) {            
+            return new Promise(function (resolve, reject) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", "http://localhost:1222/API/"+command.ResquestType);
+              xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                  resolve(JSON.parse( xhr.response));
+                } else {
+                  reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                  });
+                }
+              };
+              xhr.onerror = function () {
+                reject({
+                  status: this.status,
+                  statusText: xhr.statusText
+                });
+              };
+              let data = JSON.stringify(command);
+              xhr.send(data);
+            });
+          }
+          
+          let login = {
+            ResquestType: "LoginRequest",
+            RequestId: 1,
+            Email: "admin",
+            Password: "password"
+          };
+          sendCommand(login)
+          .then( loginResponse => {
+              var sessionId = loginResponse.SessionId;
+
+              let userGetInfo = {
+                  ResquestType: "UserGetInfoRequest",
+                  SessionId: sessionId,
+                  RequestId: 2                  
+              };
+              return sendCommand(userGetInfo)
+          } )
+          .then( userGetInfoResponse => document.getElementById("data-holder").innerHTML = JSON.stringify(userGetInfoResponse));          
+    </script>
+</body>
+
+</html>
