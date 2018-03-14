@@ -66,6 +66,7 @@ namespace caveCache.Database
 
     public class CaveLocation
     {
+        public int CaveId { get; set; }
         public int LocationId { get; set; }
         public DateTime? CaptureDate { get; set; }
         public decimal Latitude { get; set; }
@@ -81,7 +82,7 @@ namespace caveCache.Database
         {
             var tbl = mb.Entity<CaveLocation>();
             tbl.ToTable("CaveLocation");
-            tbl.HasKey("LocationId");
+            tbl.HasKey( t => new { t.CaveId, t.LocationId });
             tbl.Property(t => t.Latitude)
                 .IsRequired()
                 .HasColumnType("decimal(11,8)");

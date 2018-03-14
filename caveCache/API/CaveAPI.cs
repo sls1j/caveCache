@@ -84,7 +84,7 @@ namespace caveCache.API
 
         public Database.CaveLocation[] Locations;
         public Database.Data[] CaveData;
-        public MediaData[] Media;
+        public MediaMetaData[] Media;
 
         public CaveInfoFull()
         {

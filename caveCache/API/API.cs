@@ -44,9 +44,9 @@ namespace caveCache.API
 
     class LoginResponse : SessionResponse
     {
-    }   
+    }
 
-    class MediaData
+    class MediaMetaData
     {
         public int MediaId;
         public string Name;
@@ -55,5 +55,6 @@ namespace caveCache.API
         public string MimeType;
         public int FileSize;
         public string Url;
-    } 
+    }
+
 }

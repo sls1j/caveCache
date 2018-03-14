@@ -7,6 +7,8 @@ using caveCache.Database;
 using System.Net;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
 
 namespace caveCache
 {
@@ -15,16 +17,18 @@ namespace caveCache
         private Database.CaveCacheContext _db;
         private RandomNumberGenerator _rng;
         private IConfiguration _config;
+        private IMediaCache _cache;
         private bool _isCommandLine;
         private Dictionary<Type, Func<object, object>> _commands;
 
-        public CommandRunner(IConfiguration config, bool isCommandLine = false)
+        public CommandRunner(IConfiguration config, IMediaCache cache, CaveCacheContext db, bool isCommandLine = false)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _cache = cache ?? throw new ArgumentNullException(nameof(config));
+            _db = db ?? throw new ArgumentNullException(nameof(db));
 
-            this._isCommandLine = isCommandLine;
-            // initialize the database
-            _db = new CaveCacheContext(_config.Config["ConnectionString"]);
+
+            this._isCommandLine = isCommandLine;            
 
             Console.WriteLine($"Database at: {_db.ConnectionString}");
 
@@ -306,6 +310,7 @@ namespace caveCache
                 if (null != session && session.Timeout < DateTime.UtcNow)
                 {
                     _db.Sessions.Remove(session);
+                    _db.SaveChanges();
                     isExpired = true;
                 }
                 else
@@ -399,20 +404,24 @@ namespace caveCache
 
             if (!isNew)
             {
-                _db.Database.ExecuteSqlCommand(new RawSqlString("DELETE FROM CaveLocations WHERE CaveId = ?"), cave.CaveId);
-                _db.Database.ExecuteSqlCommand(new RawSqlString("DELETE FROM CaveData WHERE CaveId = ?"), cave.CaveId);
-                _db.Database.ExecuteSqlCommand(new RawSqlString("DELETE FROM CaveUsers WHERE CaveId = ? AND UserId = ?"), cave.CaveId, session.UserId);
+                cave.LocationId = null;
+                _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => cl.CaveId == cave.CaveId).ToArray());
+                _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
+                _db.CaveUsers.Remove(_db.CaveUsers.Where(cu => cu.CaveId == cave.CaveId && cu.UserId == session.UserId).First());
+                _db.SaveChanges();
             }
 
             cave.Name = request.Name;
-            cave.Description = request.Description;
-            cave.LocationId = request.LocationId;
+            cave.Description = request.Description ?? string.Empty;
             cave.IsDeleted = false;
+            _db.Caves.Add(cave);
+
+            _db.SaveChanges();
 
             if (request.Data != null)
             {
-                _db.CaveData.AddRange(request.Data.Select(d => new CaveData() { CaveId = cave.CaveId, Name = d.Name, Type = d.Type, MetaData = d.MetaData, Value = d.Value }));
-            }
+                _db.CaveData.AddRange(request.Data.Select(d => new CaveData() { CaveId = cave.CaveId, Name = d.Name, Type = d.Type, MetaData = d.MetaData??string.Empty, Value = d.Value }));
+            }            
 
             var caveUser = new CaveUser()
             {
@@ -421,6 +430,26 @@ namespace caveCache
             };
 
             _db.CaveUsers.Add(caveUser);
+
+            foreach (var l in request.Locations)
+            {
+                var location = new CaveLocation()
+                {
+                    CaveId = cave.CaveId,
+                    LocationId = l.LocationId,
+                    Accuracy = l.Accuracy,
+                    Altitude = l.Altitude,
+                    AltitudeAccuracy = l.AltitudeAccuracy,
+                    CaptureDate = l.CaptureDate,
+                    Latitude = l.Latitude,
+                    Longitude = l.Longitude,
+                    Notes = l.Notes??string.Empty,
+                    Source = l.Source??string.Empty,
+                    Unit = l.Unit??"Emperial",
+                };
+
+                _db.CaveLocations.Add(location);
+            }
 
             if (isNew)
                 _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, "Cave added by {0}", session.User.Name));
@@ -486,7 +515,7 @@ namespace caveCache
             response.Media =
              (from m in _db.UserMedia.Include(t => t.Media)
               where m.UserId == session.UserId
-              select new API.MediaData()
+              select new API.MediaMetaData()
               {
                   MediaId = m.MediaId,
                   Name = m.Media.Name,

@@ -15,9 +15,9 @@ namespace caveCache
         private HttpListener _listener;
         private CommandRunner _cmd;
 
-        public CaveCacheHttp()
+        public CaveCacheHttp( IConfiguration conf, IMediaCache cache, Database.CaveCacheContext db )
         {
-            _cmd = new CommandRunner(new ConfigurationReader(), false);
+            _cmd = new CommandRunner(conf, cache, db, false);
             _guard = new ExecutionGuard();
 
             _listener = new HttpListener();

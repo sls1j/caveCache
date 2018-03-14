@@ -16,7 +16,7 @@ namespace caveCache
 
         public void Dispose()
         {
-            
+
         }
     }
     class ConsoleLogger : ILogger
@@ -41,6 +41,7 @@ namespace caveCache
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+
             Write($"Level: {logLevel}, Event ID: {eventId}");
 
             if (state != null)
@@ -52,6 +53,7 @@ namespace caveCache
                 Write($", Exception: {exception.Message}");
             }
             WriteLine();
+
         }
     }
 }

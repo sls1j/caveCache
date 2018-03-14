@@ -1,3 +1,4 @@
 ﻿{
-  "connectionString" :  "Server=192.168.31.147; Database=caveCache; Uid=root; Pwd=password"
+  "ConnectionString": "Server=192.168.31.147; Database=caveCache; Uid=root; Pwd=password",
+  "MediaDirectory" :  "/usr/share/caveCache/media"
 }

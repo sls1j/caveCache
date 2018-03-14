@@ -17,7 +17,7 @@ namespace caveCache.API
         public string Profile;
         public string Permissions;
         public Database.Data[] Data;
-        public MediaData[] Media;
+        public MediaMetaData[] Media;
         public SurveyInfo[] Surveys;
         public CaveInfoShort[] Caves;
     }

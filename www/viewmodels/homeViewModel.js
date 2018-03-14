@@ -59,7 +59,7 @@ function HomeViewModel(nav, agent) {
             private.allCaves.forEach(c => public.Caves.push(c));
         else{
             if (private.allCaves) {
-                let ls = search.gtoLowerCase();
+                let ls = search.toLowerCase();
                 for (let i = 0; i < private.allCaves.length; i++) {
                     let c = private.allCaves[i];
                     let cn = c.Name;

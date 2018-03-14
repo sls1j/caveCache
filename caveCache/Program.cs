@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,7 +15,15 @@ namespace caveCache
             {
                 if (args.Length == 0 || args[0] == "-i")
                 {
-                    CommandRunner cmd = new CommandRunner(new ConfigurationReader(), true);
+                    // initialize the database
+                    var config = new ConfigurationReader();
+                    var db = new Database.CaveCacheContext(config.ConnectionString);
+                    var loggerFactory = db.GetService<ILoggerFactory>();
+                    loggerFactory.AddProvider(new ConsoleLoggerProvider());
+                    var mediaCache = new MediaCache(config);
+                    
+
+                    CommandRunner cmd = new CommandRunner(config, mediaCache, db, true);
 
                     if (args[0] == "-i")
                     {
@@ -33,7 +43,13 @@ namespace caveCache
                 }
                 else if (args[0] == "-runhttpapi")
                 {
-                    using (var api = new CaveCacheHttp())
+                    var config = new ConfigurationReader();
+                    var db = new Database.CaveCacheContext(config.ConnectionString);
+                    var loggerFactory = db.GetService<ILoggerFactory>();
+                    loggerFactory.AddProvider(new ConsoleLoggerProvider());
+                    var mediaCache = new MediaCache(config);
+
+                    using (var api = new CaveCacheHttp( config, mediaCache, db ))
                     {
                         while (true)
                             System.Threading.Thread.Sleep(250);
