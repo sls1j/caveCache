@@ -1,0 +1,25 @@
+<div>
+    <div>
+        <h1>Cave
+            <span data-bind="text: Cave.Name"></span>
+        </h1>
+        <div data-bind="text: Cave.Description"></div>
+        <h2>Media</h2>
+        <div data-bind="foreach: Media">
+            <h3>
+                <span data-bind="text:Name"></span>
+            </h3>
+            <img data-bind="attr:{src: MediaPath}" />
+            <div data-bind="text:Description"></div>
+            <div data-bind="text:Created"></div>
+            <div>
+                <a href="#" data-bind="click: $parent.editMedia">Edit</a>
+                <a href="#" data-bind="click: $parent.deleteMedia">Delete</a>
+            </div>
+        </div>
+        <div>
+            <a href="#" data-bind="click: uploadNewMedia">Upload</a>            
+        </div>
+    </div>
+    <a href="#" data-bind="click: returnToHome">Back</a>
+</div>

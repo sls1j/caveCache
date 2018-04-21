@@ -10,6 +10,8 @@ namespace caveCache.Database
     public class Cave
     {
         public int CaveId { get; set; }
+        public bool Saved { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int? LocationId { get; set; }

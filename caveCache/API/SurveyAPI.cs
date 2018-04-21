@@ -12,6 +12,6 @@ namespace caveCache.API
         public string Name;
         public string Description;
         public Database.Data[] Data;
-        public MediaMetaData[] Media;
+        public Database.Media[] Media;
     }
 }

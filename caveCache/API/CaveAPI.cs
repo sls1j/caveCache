@@ -6,9 +6,18 @@ using System.Threading.Tasks;
 
 namespace caveCache.API
 {
-    class CaveAddUpdateRequest : SessionRequest
+    class CaveCreateRequest : SessionRequest
+    {        
+    }
+
+    class CaveCreateResponse : SessionResponse
     {
-        public int? CaveId;
+        public int CaveId;        
+    }
+
+    class CaveUpdateRequest : SessionRequest
+    {
+        public int CaveId;
         public string Name;
         public string Description;
         public int LocationId;
@@ -16,14 +25,14 @@ namespace caveCache.API
         public Database.CaveLocation[] Locations;
         public Database.Data[] Data;
 
-        public CaveAddUpdateRequest()
+        public CaveUpdateRequest()
         {
             Locations = new Database.CaveLocation[0];
             Data = new Database.Data[0];
         }
     }
 
-    class CaveAddUpdateResponse : SessionResponse
+    class CaveUpdateResponse : SessionResponse
     {
         public int CaveId;
     }
@@ -53,9 +62,9 @@ namespace caveCache.API
 
     class CaveListByLocationResponse : CaveListResponse
     {
-    }
+    }  
 
-    class CaveInfoShort
+    class CaveInfo
     {
         public int CaveId;
         public string Name;
@@ -64,32 +73,12 @@ namespace caveCache.API
 
         public Database.Data[] CaveData;
         public Database.CaveLocation[] Locations;
+        public Database.Media[] Media;
 
-        public CaveInfoShort()
+        public CaveInfo()
         {
             Locations = new Database.CaveLocation[0];
             CaveData = new Database.Data[0];
-        }
-    }
-
-    class CaveInfoFull
-    {
-        public int CaveId;
-        public string Name;
-        public string Description;
-        public string Latitude;
-        public string Longitude; // these are string because of how javascript handles numbers as float.  Not enough accuracy.
-        public int? Accuracy;
-        public int? Altitude;
-
-        public Database.CaveLocation[] Locations;
-        public Database.Data[] CaveData;
-        public MediaMetaData[] Media;
-
-        public CaveInfoFull()
-        {
-            Locations = new Database.CaveLocation[0];
-            CaveData = new Database.Data[0];
-        }
+        }       
     }    
 }

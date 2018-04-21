@@ -40,6 +40,11 @@ namespace caveCache.Database
             tbl.Property(t => t.FileSize)
                 .IsRequired();
         }
+
+        public Media Clone()
+        {
+            return MemberwiseClone() as Media;
+        }
     }
 
     class MediaBody
@@ -88,6 +93,26 @@ namespace caveCache.Database
             var tbl = mb.Entity<UserMedia>();
             tbl.ToTable("UserMedia");
             tbl.HasKey(t => new { t.UserId, t.MediaId });
+        }
+    }
+
+    class MediaSetSession
+    {
+        public int MediaId { get; set; }
+        public string SessionId { get; set; }
+        public DateTime ExpireTime { get; set; }
+
+        public static void OnModelCreating(ModelBuilder mb)
+        {
+            var tbl = mb.Entity<MediaSetSession>();
+            tbl.ToTable("MediaSetSessions");
+            tbl.HasKey(m => m.MediaId);
+            tbl.Property(m => m.SessionId)
+                .IsRequired()
+                .HasMaxLength(25);
+            tbl.Property(m => m.ExpireTime)
+                .IsRequired()
+                .HasColumnType("datetime");
         }
     }
 }

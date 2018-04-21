@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading;
 
 namespace caveCache
 {
@@ -14,8 +15,9 @@ namespace caveCache
         private ExecutionGuard _guard;
         private HttpListener _listener;
         private CommandRunner _cmd;
+        private Timer _timer;
 
-        public CaveCacheHttp( IConfiguration conf, IMediaCache cache, Database.CaveCacheContext db )
+        public CaveCacheHttp(IConfiguration conf, IMediaCache cache, Database.CaveCacheContext db)
         {
             _cmd = new CommandRunner(conf, cache, db, false);
             _guard = new ExecutionGuard();
@@ -25,6 +27,17 @@ namespace caveCache
             _listener.Start();
             _listener.BeginGetContext(HandleAPI, _listener);
             Console.WriteLine("Listening");
+
+            _timer = new Timer(OnUpdate, null, 0, 60 * 1000);
+        }
+
+        private void OnUpdate(object state)
+        {
+            _guard.Execute(() =>
+           {
+               lock (_cmd)
+                   _cmd.Cleanup();
+           });
         }
 
         private void HandleAPI(IAsyncResult ar)
@@ -34,11 +47,11 @@ namespace caveCache
                var listener = ar.AsyncState as HttpListener;
                var context = listener.EndGetContext(ar);
 
-                // allows handling multiple requests at the same time
-                listener.BeginGetContext(HandleAPI, listener);
+               // allows handling multiple requests at the same time
+               listener.BeginGetContext(HandleAPI, listener);
 
-                // allows for cross-domain access from a script.
-                var response = context.Response;
+               // allows for cross-domain access from a script.
+               var response = context.Response;
                var request = context.Request;
                response.AddHeader("Access-Control-Allow-Origin", "*");
                response.AddHeader("Access-Control-Allow-Credentials", "true");
@@ -74,19 +87,20 @@ namespace caveCache
 
         private void HandlePostAPI(HttpListenerContext context)
         {
-            Console.WriteLine("POST {0}", context.Request.RawUrl);
+            var raw = context.Request.RawUrl;
+            Console.WriteLine("POST {0}", raw);
 
-            if (context.Request.RawUrl.StartsWith("/API/"))
-            {
-                RunCommand(context);
-            }
+            if (raw.StartsWith("/API/"))
+                RunAPICommand(context);
+            else if (raw.StartsWith("/Media/"))
+                Handle_SetMedia(context);
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
             Console.WriteLine("POST {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
         }
 
-        private void RunCommand(HttpListenerContext context)
+        private void RunAPICommand(HttpListenerContext context)
         {
             try
             {
@@ -103,7 +117,10 @@ namespace caveCache
 
                 if (request != null)
                 {
-                    var response = _cmd.GenericInvokeCommand(request);
+                    object response = null;
+                    lock (_cmd)
+                        response = _cmd.GenericInvokeCommand(request);
+
                     if (response != null)
                     {
                         string json = JsonConvert.SerializeObject(response);
@@ -136,23 +153,99 @@ namespace caveCache
 
         private void HandleGetAPI(HttpListenerContext context)
         {
-            Console.WriteLine("GET {0}", context.Request.RawUrl);
+            var raw = context.Request.RawUrl;
+            Console.WriteLine("GET {0}", raw);
 
-            if (context.Request.RawUrl.StartsWith("/Media/"))
-                Handle_Media(context);
+            if (raw.StartsWith("/Media/"))
+                Handle_GetMedia(context);
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
             Console.WriteLine("GET {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
         }
 
-        private void Handle_Media(HttpListenerContext context)
+        private void Handle_GetMedia(HttpListenerContext context)
         {
             var request = context.Request;
             var response = context.Response;
 
-            // build the commandRunner command
-            // issue the request
+            var sessionId = request.Headers["X-CaveCache-SessionId"];
+            var mediaIdStr = request.RawUrl.Substring(8);
+            int mediaId;
+            if (int.TryParse(mediaIdStr, out mediaId))
+            {
+                // build the commandRunner command
+                API.GetMediaStream getMediaStream = new API.GetMediaStream()
+                {
+                    SessionId = sessionId,
+                    MediaId = mediaId
+                };
+
+                // issue the request
+
+                API.GetMediaStreamResponse resp = null;
+                lock (_cmd)
+                    resp = _cmd.GetMediaStream(getMediaStream);
+
+                if (resp.Status == (int)HttpStatusCode.OK)
+                {
+                    response.StatusCode = (int)HttpStatusCode.OK;
+                    try
+                    {
+                        try
+                        {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead = 0;
+                            while ((bytesRead = resp.Stream.Read(buffer, 0, buffer.Length)) > 0)
+                                response.OutputStream.Write(buffer, 0, bytesRead);
+                        }
+                        finally
+                        {
+                            resp.Stream.Close();
+                        }
+                    }
+                    finally
+                    {
+                        response.OutputStream.Close();
+                    }
+
+                }
+                else
+                {
+                    response.StatusCode = resp.Status;
+                    response.StatusDescription = resp.Error;
+                }
+            }
+            else
+            {
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.StatusDescription = "Unable to parse the media ID.  It must be an integer.";
+            }
+        }
+
+        private void Handle_SetMedia(HttpListenerContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+
+            var sessionId = request.Headers["X-CaveCache-SessionId"];
+            var mediaIdStr = request.RawUrl.Substring(8);
+            int mediaId;
+            if (int.TryParse(mediaIdStr, out mediaId))
+            {
+                var setMediaStream = new API.SetMediaStream()
+                {
+                    SessionId = sessionId,
+                    MediaId = mediaId,
+                    InputStream = request.InputStream
+                };
+
+                API.SetMediaStreamResponse setMediaResponse = null;
+                lock (_cmd)
+                    setMediaResponse = _cmd.SetMediaStream(setMediaStream);
+                response.StatusCode = setMediaResponse.Status;
+                response.StatusDescription = setMediaResponse.Error;
+            }
         }
 
         private void API_Test(HttpListenerContext context)

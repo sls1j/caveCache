@@ -212,7 +212,7 @@ namespace caveCache
                     if (args.Length < 7)
                         response = "Invalid Command: -addcave <Name> <Description> <Latitude> <Longitude> <Accuracy> <Altitude>";
                     else
-                        response = cmd.CaveAddUpdate(new API.CaveAddUpdateRequest()
+                        response = cmd.CaveAddUpdate(new API.CaveUpdateRequest()
                         {
                             SessionId = sessionId,
                             Name = args[1],

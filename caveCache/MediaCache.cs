@@ -12,7 +12,7 @@ namespace caveCache
     }
 
     class MediaCache : IMediaCache
-    {
+    {        
         private IConfiguration _config;
         public MediaCache(IConfiguration config)
         {
@@ -54,7 +54,7 @@ namespace caveCache
                 }
             }
             catch (Exception ex)
-            {
+            {                
                 throw ex;
             }
         }

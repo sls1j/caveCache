@@ -5,7 +5,7 @@ function EditCaveViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    protected.navigatedTo = function (data) {
+    protected.navigatedTo = function(data) {
         private.method = data.data.method;
 
         if (private.method === "edit" || private.method === "add") {
@@ -73,21 +73,21 @@ function EditCaveViewModel(nav, agent) {
         else if (private.method === "cancel-add-location") {
             // this assumes all the cave data from before the location edit hasn't been cleared out
         }
-        else if (private.method === "select-active-location"){
+        else if (private.method === "select-active-location") {
 
         }
 
         private.update();
     }
 
-    private.update = function () {
+    private.update = function() {
         // populate the cave data view
         let grid = document.getElementById("cave-data-grid");
         DynoGrid(grid, true);
         grid.addRows(public.Cave.CaveData);
     }
 
-    public.getData = function (key, defaultValue = "") {
+    public.getData = function(key, defaultValue = "") {
         if (public.Cave) {
             let caveData = public.Cave.CaveData.find(cd => cd.Key === key);
             if (caveData)
@@ -98,14 +98,14 @@ function EditCaveViewModel(nav, agent) {
 
     }
 
-    public.isSelected = function (location) {
+    public.isSelected = function(location) {
         return public.Cave.isSelected(location);
     }
 
     public.caveDataAddRowType = ko.observable(["number"]);
     public.caveDataAddRowName = ko.observable("");
 
-    public.caveDataAddRow = function () {
+    public.caveDataAddRow = function() {
         let name = public.caveDataAddRowName();
         let typeSelected = public.caveDataAddRowType();
         let type = "text";
@@ -116,11 +116,11 @@ function EditCaveViewModel(nav, agent) {
         grid.addRow(name, type, "", null);
     }
 
-    public.returnToHome = function () {
+    public.returnToHome = function() {
         private.nav.navigateTo("home");
     }
 
-    public.save = function () {
+    public.save = function() {
         // disable buttons
         // extract data from the form
         var cave = {
@@ -147,36 +147,50 @@ function EditCaveViewModel(nav, agent) {
             .then(() => {
                 private.nav.navigateTo("home");
             },
-            () => { });
+                () => {});
 
     }
 
-    public.cancel = function () {
+    public.cancel = function() {
         private.nav.navigateTo("home");
     }
 
-    public.editLocation = function (location) {
+    public.editLocation = function(location) {
         console.info("editLocation: ", location);
-        private.nav.navigateTo("location-edit", { location: location });
+        private.nav.navigateTo("location-edit", {location: location});
     }
 
-    public.deleteLocation = function (location) {
+    public.deleteLocation = function(location) {
         console.info("deleteLocation: ", location);
     }
 
-    public.addLocation = function () {
-        private.nav.navigateTo("location-edit", { location: new Location() });
+    public.addLocation = function() {
+        private.nav.navigateTo("location-edit", {location: new Location()});
         console.info("addLocation");
     }
 
-    public.selectLocation = function (location) {
+    public.selectLocation = function(location) {
         console.info("selectLocation: ", location);
         public.Cave.LocationId = location.LocationId;
-        private.nav.navigateTo("cave-edit", {method:"select-active-location"})
+        private.nav.navigateTo("cave-edit", {method: "select-active-location"})
     }
 
-    public.isSelected = function (location) {
+    public.isSelected = function(location) {
         var retVal = location.LocationId === public.Cave.LocationId;
         return retVal;
+    }
+
+    public.fileUpload = function(data, event) {
+        
+        var fin = event.currentTarget.files[0];
+
+        if (null != fin && fin.size < 5*1024*1024) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                var preview = document.getElementById("img");
+                preview.src = reader.result;
+            }
+            reader.readAsDataURL(event.currentTarget.files[0]);
+        }
     }
 }

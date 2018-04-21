@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace caveCache.API
 {
-    class CreateMediaRecord : SessionRequest
+    class CreateMediaRecordRequest : SessionRequest
     {
         public string AttachType; // user, cave, survey
         public int AttachToId;
@@ -12,11 +13,33 @@ namespace caveCache.API
         public string Description;
         public string FileName;
         public string MimeType;
-        public int FileSize;
+        public int FileSize;        
     }
 
     class CreateMediaRecordResponse : SessionResponse
     {
         public int? MediaId;
+    }
+
+    class SetMediaStream : SessionRequest
+    {
+        public int MediaId;
+        public Stream InputStream;
+    }
+
+    class SetMediaStreamResponse : SessionResponse
+    {
+        public int MediaId;
+    }
+
+    class GetMediaStream : SessionRequest
+    {
+        public int MediaId;
+    }
+
+    class GetMediaStreamResponse : SessionResponse
+    {
+        public int MediaId;
+        public Stream Stream;
     }
 }

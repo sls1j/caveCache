@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
+using caveCache.API;
 
 namespace caveCache
 {
@@ -28,7 +29,7 @@ namespace caveCache
             _db = db ?? throw new ArgumentNullException(nameof(db));
 
 
-            this._isCommandLine = isCommandLine;            
+            this._isCommandLine = isCommandLine;
 
             Console.WriteLine($"Database at: {_db.ConnectionString}");
 
@@ -57,6 +58,20 @@ namespace caveCache
             BootStrap();
         }
 
+        public void Cleanup()
+        {
+            DateTime now = DateTime.Now;
+            // clean up unsaved caves older than 1 day
+            var uncleanCaves = _db.Caves.Where(c =>  (!c.Saved) && (now - c.CreatedDate).TotalDays >= 1.0).ToArray();
+            var caveIds = new HashSet<int>(uncleanCaves.Select(c => c.CaveId));
+            _db.CaveData.RemoveRange(_db.CaveData.Where(cd => caveIds.Contains(cd.CaveId)));
+            _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => caveIds.Contains(cl.CaveId)));
+            _db.CaveMedia.RemoveRange(_db.CaveMedia.Where(cm => caveIds.Contains(cm.CaveId)));
+            _db.CaveUsers.RemoveRange(_db.CaveUsers.Where(cu => caveIds.Contains(cu.CaveId)));
+            _db.Caves.RemoveRange(uncleanCaves);
+            _db.SaveChanges();                        
+        }
+
         public void BootStrap()
         {
             // check that the boot strap hasn't already run            
@@ -75,7 +90,7 @@ namespace caveCache
                 Expire = null,
                 Name = "Admin",
                 Permissions = "admin",
-                Profile = ""                
+                Profile = ""
             };
 
             string password = "password";
@@ -193,6 +208,133 @@ namespace caveCache
             }
         }
 
+        public GetMediaStreamResponse GetMediaStream(GetMediaStream request)
+        {
+            var resp = new GetMediaStreamResponse();
+
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+                if (CheckGetMediaPermission(session, request.MediaId))
+                {
+                    var stream = _cache.GetMediaDataStream(request.MediaId);
+                    return new GetMediaStreamResponse()
+                    {
+                        RequestId = request.RequestId,
+                        SessionId = request.SessionId,
+                        MediaId = request.MediaId,
+                        Stream = stream,
+                        Error = string.Empty,
+                        Status = (int)HttpStatusCode.OK
+                    };
+                }
+                else
+                    return Fail<GetMediaStreamResponse>(request, HttpStatusCode.BadRequest, "Do not have permissions to access requested media.");
+            }
+            else
+                return Fail<GetMediaStreamResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }
+
+        public CreateMediaRecordResponse CreateMediaRecord(CreateMediaRecordRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+
+                var media = new Media()
+                {
+                    Description = request.Description,
+                    FileName = request.FileName,
+                    FileSize = request.FileSize,
+                    MimeType = request.MimeType,
+                    Name = request.Name
+                };
+
+                if (request.FileSize > _config.MaxMediaSize)
+                    return Fail<CreateMediaRecordResponse>(request, HttpStatusCode.BadRequest, "Media too large.");
+
+                _db.Media.Add(media);
+                _db.SaveChanges();
+
+                var mediaSession = new MediaSetSession() { MediaId = media.MediaId, SessionId = session.SessionId, ExpireTime = DateTime.Now.AddMinutes(1) };
+                _db.MediaSetSession.Add(mediaSession);
+                _db.SaveChanges();
+
+                var resp = new CreateMediaRecordResponse()
+                {
+                    MediaId = media.MediaId,
+                    RequestId = request.RequestId,
+                    SessionId = request.SessionId,
+                    Error = string.Empty,
+                    Status = (int)HttpStatusCode.OK
+                };
+
+                return resp;
+            }
+            else
+                return Fail<CreateMediaRecordResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }
+
+
+        public SetMediaStreamResponse SetMediaStream(SetMediaStream request)
+        {
+            var resp = new SetMediaStreamResponse();
+
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+                var mediaSession = _db.MediaSetSession.Find(request.MediaId);
+
+                if (mediaSession != null)
+                {
+                    _cache.SetMediaDataStream(request.MediaId, request.InputStream);
+                    _db.MediaSetSession.Remove(mediaSession);
+                    HistoryEntry(session.UserId, null, null, request.MediaId, $"Media {request.MediaId} body added");
+
+                    _db.SaveChanges();
+
+                    return new SetMediaStreamResponse()
+                    {
+                        RequestId = request.RequestId,
+                        SessionId = request.SessionId,
+                        MediaId = request.MediaId,
+                        Error = string.Empty,
+                        Status = (int)HttpStatusCode.OK
+                    };
+                }
+                else
+                    return Fail<SetMediaStreamResponse>(request, HttpStatusCode.BadRequest, "MediaId must be set via the CreateMediaRecord command first before it can accept the media.");
+            }
+            else
+                return Fail<SetMediaStreamResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }
+
+        private bool CheckGetMediaPermission(UserSession session, int mediaId)
+        {
+            // have permission if the media is owned by the user
+            var userMedia = _db.UserMedia.Any(um => um.UserId == session.UserId && um.MediaId == mediaId);
+            if (userMedia)
+                return true;
+
+            // via cave media
+            var haveCaveMedia =
+                (from cu in _db.CaveUsers
+                 join cm in _db.CaveMedia on cu.CaveId equals cm.CaveId
+                 where cu.UserId == session.UserId && cm.MediaId == mediaId
+                 select cm).Any();
+
+            if (haveCaveMedia)
+                return true;
+
+            // via survey media            
+
+            // via survey cave media
+
+
+            // have permission if the 
+            return false;
+        }
+
         private T Fail<T>(API.SessionRequest request, HttpStatusCode code, string errorMessage) where T : API.SessionResponse, new()
         {
             var response = new T();
@@ -252,6 +394,8 @@ namespace caveCache
             };
         }
 
+
+
         private string GenerateUserPassword()
         {
             string[] words = new[]{
@@ -290,7 +434,7 @@ namespace caveCache
 
         private UserSession FindSession(string sessionId)
         {
-            
+
             UserSession session = null;
 
             bool isExpired = false;
@@ -299,7 +443,7 @@ namespace caveCache
                 var sessionQuery =
                     from s in _db.Sessions
                     join u in _db.Users.Include(t => t.Data) on s.UserId equals u.UserId
-                    select Combine( s, u );
+                    select Combine(s, u);
 
                 if (_isCommandLine)
                     session = sessionQuery.FirstOrDefault(s => s.IsCommandLine);
@@ -379,49 +523,62 @@ namespace caveCache
             };
         }
 
-        public API.CaveAddUpdateResponse CaveAddUpdate(API.CaveAddUpdateRequest request)
+        public API.CaveCreateResponse CaveCreate(API.CaveCreateRequest request)
         {
             var session = FindSession(request.SessionId);
             if (session == null)
-                return Fail<API.CaveAddUpdateResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+                return Fail<API.CaveCreateResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+
+            int nameId = 1;
+            if (_db.Caves.Count() > 0)
+                nameId = _db.Caves.Max(c => c.CaveId) + 1;
+
+            Cave cave = new Cave() { Name = $"CC #{nameId}" };
+            _db.Caves.Add(cave);            
+            _db.SaveChanges();
+
+            _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, $"Created new cave {cave.CaveId}"));
+            _db.SaveChanges();
+
+            return new CaveCreateResponse()
+            {
+                CaveId = cave.CaveId,
+                SessionId = request.SessionId,
+                RequestId = request.RequestId,
+                Status = (int)HttpStatusCode.OK
+            };
+        }
+
+        public API.CaveUpdateResponse CaveAddUpdate(API.CaveUpdateRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session == null)
+                return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
 
             if (string.IsNullOrEmpty(request.Name))
-                return Fail<API.CaveAddUpdateResponse>(request, HttpStatusCode.BadRequest, "Cave must have a name.");
+                return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cave must have a name.");
 
-            bool isNew = false;
             Cave cave = null;
-            if (request.CaveId.HasValue)
-            {
-                cave = _db.Caves.FirstOrDefault(c => c.CaveId == request.CaveId.Value);
-                if (null == cave)
-                    return Fail<API.CaveAddUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
-            }
-            else
-            {
-                cave = new Cave();
-                isNew = true;
-            }
+            cave = _db.Caves.FirstOrDefault(c => c.CaveId == request.CaveId);
+            if (null == cave)
+                return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
 
-            if (!isNew)
-            {
-                cave.LocationId = null;
-                _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => cl.CaveId == cave.CaveId).ToArray());
-                _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
-                _db.CaveUsers.Remove(_db.CaveUsers.Where(cu => cu.CaveId == cave.CaveId && cu.UserId == session.UserId).First());
-                _db.SaveChanges();
-            }
+            cave.LocationId = null;
+            _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => cl.CaveId == cave.CaveId).ToArray());
+            _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
+            _db.CaveUsers.Remove(_db.CaveUsers.Where(cu => cu.CaveId == cave.CaveId && cu.UserId == session.UserId).First());
+            _db.SaveChanges();
 
             cave.Name = request.Name;
             cave.Description = request.Description ?? string.Empty;
             cave.IsDeleted = false;
-            _db.Caves.Add(cave);
 
             _db.SaveChanges();
 
             if (request.Data != null)
             {
-                _db.CaveData.AddRange(request.Data.Select(d => new CaveData() { CaveId = cave.CaveId, Name = d.Name, Type = d.Type, MetaData = d.MetaData??string.Empty, Value = d.Value }));
-            }            
+                _db.CaveData.AddRange(request.Data.Select(d => new CaveData() { CaveId = cave.CaveId, Name = d.Name, Type = d.Type, MetaData = d.MetaData ?? string.Empty, Value = d.Value }));
+            }
 
             var caveUser = new CaveUser()
             {
@@ -443,22 +600,19 @@ namespace caveCache
                     CaptureDate = l.CaptureDate,
                     Latitude = l.Latitude,
                     Longitude = l.Longitude,
-                    Notes = l.Notes??string.Empty,
-                    Source = l.Source??string.Empty,
-                    Unit = l.Unit??"Emperial",
+                    Notes = l.Notes ?? string.Empty,
+                    Source = l.Source ?? string.Empty,
+                    Unit = l.Unit ?? "Emperial",
                 };
 
                 _db.CaveLocations.Add(location);
             }
 
-            if (isNew)
-                _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, "Cave added by {0}", session.User.Name));
-            else
-                _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, "Cave updated by {0}", session.User.Name));
+            _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, "Cave updated by {0}", session.User.Name));
 
             _db.SaveChanges();
 
-            return new API.CaveAddUpdateResponse()
+            return new API.CaveUpdateResponse()
             {
                 RequestId = request.RequestId,
                 SessionId = request.SessionId,
@@ -515,15 +669,7 @@ namespace caveCache
             response.Media =
              (from m in _db.UserMedia.Include(t => t.Media)
               where m.UserId == session.UserId
-              select new API.MediaMetaData()
-              {
-                  MediaId = m.MediaId,
-                  Name = m.Media.Name,
-                  Description = m.Media.Description,
-                  FileName = m.Media.FileName,
-                  FileSize = m.Media.FileSize,
-                  MimeType = m.Media.MimeType
-              }).ToArray();
+              select m.Media.Clone()).ToArray();
 
             // get survey data
             // TODO
@@ -532,15 +678,26 @@ namespace caveCache
             response.Caves =
                (from cu in _db.CaveUsers.Include(t => t.Cave)
                 join cd in _db.CaveData on cu.CaveId equals cd.CaveId into caveData
+                join md in _db.CaveMedia.Include(t => t.Media) on cu.CaveId equals md.CaveId into caveMedia
                 where cu.UserId == user.UserId
-                select new API.CaveInfoShort()
+                select new API.CaveInfo()
                 {
                     CaveId = cu.CaveId,
                     LocationId = cu.Cave.LocationId,
                     Locations = cu.Cave.Locations.ToArray(),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
-                    CaveData = (from cd in caveData select cd.Clone()).ToArray()
+                    CaveData = (from cd in caveData select cd.Clone()).ToArray(),
+                    Media = (from m in caveMedia
+                             select new Database.Media()
+                             {
+                                 Description = m.Media.Description,
+                                 FileName = m.Media.FileName,
+                                 FileSize = m.Media.FileSize,
+                                 MediaId = m.MediaId,
+                                 MimeType = m.Media.MimeType,
+                                 Name = m.Media.Name,
+                             }).ToArray()
                 }).OrderBy(c => c.Name).ToArray();
 
             return response;
@@ -610,7 +767,7 @@ namespace caveCache
         //    response.Templates = apiTemplates.ToArray();
         //    response.Status = (int)HttpStatusCode.OK;
         //    return response;
-        //}
+        //}            
 
         public object GenericInvokeCommand(object request)
         {

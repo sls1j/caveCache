@@ -5,29 +5,29 @@ function HomeViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    protected.navigatedTo = function (data) {
+    protected.navigatedTo = function(data) {
         private.doLoadUserdata();
     }
 
-    private.doLoadUserdata = function () {
-        let dp = function(obj, name, getFunc){
-            Object.defineProperty(obj, name, { get: getFunc });
+    private.doLoadUserdata = function() {
+        let dp = function(obj, name, getFunc) {
+            Object.defineProperty(obj, name, {get: getFunc});
         }
 
-        let mix = function(cave){
-            cave.findLocation = function(id){
-                for(let i=0; i < cave.Locations.length; i++){
-                    if ( cave.Locations[i].LocationId === id)
+        let mix = function(cave) {
+            cave.findLocation = function(id) {
+                for (let i = 0; i < cave.Locations.length; i++) {
+                    if (cave.Locations[i].LocationId === id)
                         return cave.Locations[i];
                 }
 
                 return null;
             }
 
-            dp( cave, "Latitude", ()=> cave.findLocation(cave.LocationId).Latitude );
-            dp( cave, "Longitude", ()=> cave.findLocation(cave.LocationId).Longitude );
-            dp( cave, "Accuracy", ()=> cave.findLocation(cave.LocationId).Accuracy );            
-            dp( cave, "Altitude", ()=> cave.findLocation(cave.LocationId).Altitude );            
+            dp(cave, "Latitude", () => cave.findLocation(cave.LocationId).Latitude);
+            dp(cave, "Longitude", () => cave.findLocation(cave.LocationId).Longitude);
+            dp(cave, "Accuracy", () => cave.findLocation(cave.LocationId).Accuracy);
+            dp(cave, "Altitude", () => cave.findLocation(cave.LocationId).Altitude);
         }
 
         private.agent.userGetInfo()
@@ -36,8 +36,8 @@ function HomeViewModel(nav, agent) {
                 userInfo.Caves.forEach(c => {
                     Cave(c);
                     // sometimes the locationId is bad if so set to valid location
-                    if ( c.findLocation( c.LocationId ) == null){
-                        if (c.Locations.length > 0){
+                    if (c.findLocation(c.LocationId) == null) {
+                        if (c.Locations.length > 0) {
                             c.LocationId = c.Locations[0].LocationId;
                         }
                     }
@@ -46,18 +46,18 @@ function HomeViewModel(nav, agent) {
                 private.allCaves = userInfo.Caves;
                 console.log(userInfo);
             },
-            rejectData => {
+                rejectData => {
 
-            });
+                });
     }
 
-    private.searchCaves = function () {
+    private.searchCaves = function() {
         public.Caves.removeAll();
 
         let search = public.search();
         if (search === "" || search === null)
             private.allCaves.forEach(c => public.Caves.push(c));
-        else{
+        else {
             if (private.allCaves) {
                 let ls = search.toLowerCase();
                 for (let i = 0; i < private.allCaves.length; i++) {
@@ -72,35 +72,39 @@ function HomeViewModel(nav, agent) {
     }
 
 
-    public.loadData = function () {
+    public.loadData = function() {
         private.doLoadUserdata();
     }
 
-    public.logOut = function () {
+    public.logOut = function() {
         private.nav.navigateTo("login");
     }
 
     public.Caves = ko.observableArray();
 
-    public.removeCave = function () {
+    public.removeCave = function() {
         // ask are you sure?
         private.agent.removeCave(this.CaveId)
-            .then(() => { private.doLoadUserdata() });
+            .then(() => {private.doLoadUserdata()});
     }
 
-    public.editCave = function () {
-        private.nav.navigateTo("cave-edit", { method: "edit", cave: this });
+    public.editCave = function() {
+        private.nav.navigateTo("cave-edit", {method: "edit", cave: this});
     }
 
-    public.addCave = function () {
-        private.nav.navigateTo("cave-edit", { method: "new", cave: null });
+    public.editCaveMedia = function() {
+        private.nav.navigateTo("cave-media", {method: "normal", cave: this});
     }
 
-    public.showCave = function () {
+    public.addCave = function() {
+        private.nav.navigateTo("cave-edit", {method: "new", cave: null});
+    }
+
+    public.showCave = function() {
         private.nav.navigateTo("cave-show", this);
     }
 
-    public.importCaves = function () {
+    public.importCaves = function() {
         private.nav.navigateTo("caves-import", null);
     }
 

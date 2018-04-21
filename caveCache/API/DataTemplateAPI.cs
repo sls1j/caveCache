@@ -47,6 +47,6 @@ namespace caveCache.API
 
     class AttachTemplateToCaveResponse : SessionRequest
     {
-        public CaveInfoFull Cave;
+        public CaveInfo Cave;
     }
 }

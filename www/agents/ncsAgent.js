@@ -6,7 +6,7 @@ function NewCaveSurveyAgent(url) {
     private.sessionId = "";
     private.nextRequestId = 1;
 
-    public.login = function (email, password) {
+    public.login = function(email, password) {
         return new Promise((resolve, reject) => {
             let login = {
                 ResquestType: "LoginRequest",
@@ -23,11 +23,11 @@ function NewCaveSurveyAgent(url) {
                     else
                         reject("Failed to login");
                 },
-                (err) => reject("API command failed: " + err.status + "," + err.Error));
+                    (err) => reject("API command failed: " + err.status + "," + err.Error));
         });
-    }
+    }    
 
-    public.userGetInfo = function () {
+    public.userGetInfo = function() {
         return new Promise((resolve, reject) => {
             let userGetInfo = {
                 ResquestType: "UserGetInfoRequest",
@@ -45,9 +45,9 @@ function NewCaveSurveyAgent(url) {
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );
         });
-    }
+    }    
 
-    public.caveSave = function (cave, isNew) {
+    public.caveSave = function(cave, isNew) {
         return new Promise((resolve, reject) => {
             let caveSave = {
                 ResquestType: "CaveAddUpdateRequest",
@@ -73,12 +73,74 @@ function NewCaveSurveyAgent(url) {
         });
     }
 
-    private.sendCommand = function (command) {
-        return new Promise(function (resolve, reject) {
+    public.caveGetMedia = function(caveId)
+    {
+        return new Promise((resolve, reject) => {
+            let 
+        });
+    }
+
+    public.mediaSave = function(attachType, attachId, name, description, file) {
+        return new Promise((resolve, reject) => {
+            let mediaSave = {
+                RequestType: "CreateMediaRecordRequets",
+                SessionId: private.sessionId,
+                RequestId: private.nextRequestId++,
+                AttachType: attachType,
+                AttachToId: attachId,
+                Name: name,
+                Description: description,
+                FileName: file.FileName,
+                MimeType: private.GetMimeType(file),
+                FileSize: file.Size
+            };
+
+            var failed = function(error) {
+                reject("API command '" + mediaSave.RequestType + "'failed: " + err.status + "," + err, statusText);
+            }
+
+            var streamMedia = function(response) {
+                var mediaId = response.MediaId;
+                var mime = mediaSave.MimeType;
+                var reader = new FileReader();
+                reader.onload = function() {
+                    private.sendFile(mediaId, mime, reader.result)
+                }
+                reader.readAsArrayBuffer(event.currentTarget.files[0]);
+
+
+            }
+
+            var allFinished = function(response) {
+                if (response.status == 200)
+                    resolve(response);
+                else
+                    reject("API command '" + mediaSave.RequestType + "'failed: " + response.status + "," + response, statusText);
+            }
+
+            private.sendCommand(mediaSave)
+                .then(streamMedia, failed)
+                .then(allFinished, failed);
+        })
+    }
+
+    private.GetMimeType = function(file) {
+        // get file extension
+        // guess via extension
+        switch (ext) {
+            case "jpg": return "image/jpeg";
+            case "bm": case "bmp": return "image/bmp";
+
+        }
+        return "applicatoin/octet-stream";
+    }
+
+    private.sendCommand = function(command) {
+        return new Promise(function(resolve, reject) {
             var xhr = new XMLHttpRequest();
             let dest = private.url + "/API/" + command["ResquestType"];
             xhr.open("POST", dest);
-            xhr.onload = function () {
+            xhr.onload = function() {
                 console.log("received response");
                 if (this.status >= 200 && this.status < 300) {
                     let userInfo = JSON.parse(xhr.response)
@@ -90,7 +152,7 @@ function NewCaveSurveyAgent(url) {
                     });
                 }
             };
-            xhr.onerror = function () {
+            xhr.onerror = function() {
                 reject({
                     status: this.status,
                     statusText: xhr.statusText
@@ -98,6 +160,37 @@ function NewCaveSurveyAgent(url) {
             };
             let data = JSON.stringify(command);
             console.log(dest, " ", data);
+            xhr.send(data);
+        });
+    }
+
+    private.sendFile = function(mediaId, mime, data) {
+        return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            let dest = private.url + "/Media/" + mediaId.toString();
+            xhr.open("POST", dest);
+            xhr.onload = function() {
+                console.log("received response");
+                if (this.status >= 200 && this.status < 300) {
+                    resolve({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function() {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.setRequestHeader("Content-Type", mime);
+            xhr.setRequestHeader("X-CaveCache-SessionId", private.sessionId);
             xhr.send(data);
         });
     }
@@ -119,8 +212,8 @@ function Location(loc = null) {
 
 function Cave(cave = null) {
 
-    let dp = function (obj, name, getFunc) {
-        Object.defineProperty(obj, name, { get: getFunc });
+    let dp = function(obj, name, getFunc) {
+        Object.defineProperty(obj, name, {get: getFunc});
     }
 
     if (cave === null) {
@@ -134,7 +227,7 @@ function Cave(cave = null) {
     }
 
     // fill in helper methods and properties
-    cave.findLocation = function (id) {
+    cave.findLocation = function(id) {
         for (let i = 0; i < cave.Locations.length; i++) {
             if (cave.Locations[i].LocationId === id)
                 return cave.Locations[i];

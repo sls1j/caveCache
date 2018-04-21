@@ -22,6 +22,7 @@ namespace caveCache.Database
         public DbSet<History> History { get; set; }
         public DbSet<Media> Media { get; set; }
         public DbSet<MediaBody> MediaBody { get; set; }
+        public DbSet<MediaSetSession> MediaSetSession { get; set; }
 
         public string ConnectionString { get; set; }
 
