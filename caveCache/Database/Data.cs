@@ -34,7 +34,7 @@ namespace caveCache.Database
 
         public override string ToString()
         {
-            return string.Format("{1}=>{2}", Name, Value);
+            return $"{Name}=>{Value}";
         }
 
         public static void OnSubModelCreating<T>(EntityTypeBuilder<T> tbl) where T : Data

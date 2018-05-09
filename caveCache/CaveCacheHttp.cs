@@ -156,12 +156,24 @@ namespace caveCache
             var raw = context.Request.RawUrl;
             Console.WriteLine("GET {0}", raw);
 
-            if (raw.StartsWith("/Media/"))
+            if (raw.StartsWith("/Help"))
+                Handle_GenerateHelp(context);
+            else if (raw.StartsWith("/Media/"))
                 Handle_GetMedia(context);
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
             Console.WriteLine("GET {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
+        }
+
+        private void Handle_GenerateHelp( HttpListenerContext context)
+        {
+            API.APIHelpGenerator gen = new API.APIHelpGenerator();
+
+            var r = context.Response;
+            byte[] data = Encoding.UTF8.GetBytes(gen.HTML);
+            r.OutputStream.Write(data, 0, data.Length);
+            r.StatusCode = (int)HttpStatusCode.OK;
         }
 
         private void Handle_GetMedia(HttpListenerContext context)
@@ -175,7 +187,7 @@ namespace caveCache
             if (int.TryParse(mediaIdStr, out mediaId))
             {
                 // build the commandRunner command
-                API.GetMediaStream getMediaStream = new API.GetMediaStream()
+                API.GetMediaStreamRequest getMediaStream = new API.GetMediaStreamRequest()
                 {
                     SessionId = sessionId,
                     MediaId = mediaId
@@ -213,7 +225,7 @@ namespace caveCache
                 else
                 {
                     response.StatusCode = resp.Status;
-                    response.StatusDescription = resp.Error;
+                    response.StatusDescription = resp.StatusDescription;
                 }
             }
             else
@@ -233,7 +245,7 @@ namespace caveCache
             int mediaId;
             if (int.TryParse(mediaIdStr, out mediaId))
             {
-                var setMediaStream = new API.SetMediaStream()
+                var setMediaStream = new API.SetMediaStreamRequest()
                 {
                     SessionId = sessionId,
                     MediaId = mediaId,
@@ -244,7 +256,7 @@ namespace caveCache
                 lock (_cmd)
                     setMediaResponse = _cmd.SetMediaStream(setMediaStream);
                 response.StatusCode = setMediaResponse.Status;
-                response.StatusDescription = setMediaResponse.Error;
+                response.StatusDescription = setMediaResponse.StatusDescription;
             }
         }
 

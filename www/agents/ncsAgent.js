@@ -23,7 +23,7 @@ function NewCaveSurveyAgent(url) {
                     else
                         reject("Failed to login");
                 },
-                    (err) => reject("API command failed: " + err.status + "," + err.Error));
+                    (err) => reject("API command failed: " + err.status + "," + err.StatusDescription));
         });
     }    
 
@@ -40,7 +40,7 @@ function NewCaveSurveyAgent(url) {
                     if (response.Status == 200)
                         resolve(response);
                     else
-                        reject("UserGetInfoRequest failed: " + response.Status, + " " + response.Error);
+                        reject("UserGetInfoRequest failed: " + response.Status, + " " + response.StatusDescription);
                 },
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );
@@ -66,7 +66,7 @@ function NewCaveSurveyAgent(url) {
                     if (response.Status == 200)
                         resolve(response);
                     else
-                        reject("CaveAddUpdateRequest failed: " + response.Status, + " " + response.Error);
+                        reject("CaveAddUpdateRequest failed: " + response.Status, + " " + response.StatusDescription);
                 },
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );

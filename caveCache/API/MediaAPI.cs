@@ -21,7 +21,7 @@ namespace caveCache.API
         public int? MediaId;
     }
 
-    class SetMediaStream : SessionRequest
+    class SetMediaStreamRequest : SessionRequest
     {
         public int MediaId;
         public Stream InputStream;
@@ -32,7 +32,7 @@ namespace caveCache.API
         public int MediaId;
     }
 
-    class GetMediaStream : SessionRequest
+    class GetMediaStreamRequest : SessionRequest
     {
         public int MediaId;
     }

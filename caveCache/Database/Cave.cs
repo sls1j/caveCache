@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace caveCache.Database
-{
+{   
     public class Cave
     {
         public int CaveId { get; set; }
