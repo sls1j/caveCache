@@ -25,7 +25,7 @@ namespace caveCache
 
                     CommandRunner cmd = new CommandRunner(config, mediaCache, db, true);
 
-                    if (args[0] == "-i")
+                    if (args.Length > 0 && args[0] == "-i")
                     {
                         Console.WriteLine("New Cave Survey Server {0} Interaction Mode", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
                         Console.Write("> ");
