@@ -5,7 +5,8 @@ using System.Text;
 
 namespace caveCache.API
 {
-    class CreateMediaRecordRequest : SessionRequest
+    [HelpIgnore]
+    class SetMediaRequest : SessionRequest
     {
         public string AttachType; // user, cave, survey
         public int AttachToId;
@@ -13,31 +14,22 @@ namespace caveCache.API
         public string Description;
         public string FileName;
         public string MimeType;
-        public int FileSize;        
+        public int FileSize;
+        public Stream Media;
     }
 
-    class CreateMediaRecordResponse : SessionResponse
+    class SetMediaResponse : SessionResponse
     {
         public int? MediaId;
     }
 
-    class SetMediaStreamRequest : SessionRequest
-    {
-        public int MediaId;
-        public Stream InputStream;
-    }
-
-    class SetMediaStreamResponse : SessionResponse
+    [HelpIgnore]
+    class GetMediaRequest : SessionRequest
     {
         public int MediaId;
     }
 
-    class GetMediaStreamRequest : SessionRequest
-    {
-        public int MediaId;
-    }
-
-    class GetMediaStreamResponse : SessionResponse
+    class GetMediaResponse : SessionResponse
     {
         public int MediaId;
         public Stream Stream;

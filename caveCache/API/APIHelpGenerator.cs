@@ -50,6 +50,9 @@ namespace caveCache.API
 
             foreach (var p in pairs.OrderBy( a=>a.request.Name))
             {
+                if (p.request.GetCustomAttribute(typeof(HelpIgnoreAttribute), false) != null)
+                    continue;
+
                 var command = container.Div().Css("command");
 
                 command.H(3, p.request.Name);

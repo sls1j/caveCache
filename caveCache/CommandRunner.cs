@@ -208,9 +208,9 @@ namespace caveCache
             }
         }
 
-        public GetMediaStreamResponse GetMediaStream(GetMediaStreamRequest request)
+        public GetMediaResponse GetMediaStream(GetMediaRequest request)
         {
-            var resp = new GetMediaStreamResponse();
+            var resp = new GetMediaResponse();
 
             var session = FindSession(request.SessionId);
             if (session != null)
@@ -218,7 +218,7 @@ namespace caveCache
                 if (CheckGetMediaPermission(session, request.MediaId))
                 {
                     var stream = _cache.GetMediaDataStream(request.MediaId);
-                    return new GetMediaStreamResponse()
+                    return new GetMediaResponse()
                     {
                         RequestId = request.RequestId,
                         SessionId = request.SessionId,
@@ -229,13 +229,13 @@ namespace caveCache
                     };
                 }
                 else
-                    return Fail<GetMediaStreamResponse>(request, HttpStatusCode.BadRequest, "Do not have permissions to access requested media.");
+                    return Fail<GetMediaResponse>(request, HttpStatusCode.BadRequest, "Do not have permissions to access requested media.");
             }
             else
-                return Fail<GetMediaStreamResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+                return Fail<GetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
         }
 
-        public CreateMediaRecordResponse CreateMediaRecord(CreateMediaRecordRequest request)
+        public SetMediaResponse SetMedia(SetMediaRequest request)
         {
             var session = FindSession(request.SessionId);
             if (session != null)
@@ -251,63 +251,37 @@ namespace caveCache
                 };
 
                 if (request.FileSize > _config.MaxMediaSize)
-                    return Fail<CreateMediaRecordResponse>(request, HttpStatusCode.BadRequest, "Media too large.");
+                    return Fail<SetMediaResponse>(request, HttpStatusCode.BadRequest, "Media too large.");
 
                 _db.Media.Add(media);
                 _db.SaveChanges();
 
-                var mediaSession = new MediaSetSession() { MediaId = media.MediaId, SessionId = session.SessionId, ExpireTime = DateTime.Now.AddMinutes(1) };
-                _db.MediaSetSession.Add(mediaSession);
-                _db.SaveChanges();
-
-                var resp = new CreateMediaRecordResponse()
+                if (_cache.SetMediaDataStream(media.MediaId, request.Media))
                 {
-                    MediaId = media.MediaId,
-                    RequestId = request.RequestId,
-                    SessionId = request.SessionId,
-                    StatusDescription = string.Empty,
-                    Status = (int)HttpStatusCode.OK
-                };
 
-                return resp;
-            }
-            else
-                return Fail<CreateMediaRecordResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-        }
-
-
-        public SetMediaStreamResponse SetMediaStream(SetMediaStreamRequest request)
-        {
-            var resp = new SetMediaStreamResponse();
-
-            var session = FindSession(request.SessionId);
-            if (session != null)
-            {
-                var mediaSession = _db.MediaSetSession.Find(request.MediaId);
-
-                if (mediaSession != null)
-                {
-                    _cache.SetMediaDataStream(request.MediaId, request.InputStream);
-                    _db.MediaSetSession.Remove(mediaSession);
-                    HistoryEntry(session.UserId, null, null, request.MediaId, $"Media {request.MediaId} body added");
-
-                    _db.SaveChanges();
-
-                    return new SetMediaStreamResponse()
+                    var resp = new SetMediaResponse()
                     {
+                        MediaId = media.MediaId,
                         RequestId = request.RequestId,
                         SessionId = request.SessionId,
-                        MediaId = request.MediaId,
                         StatusDescription = string.Empty,
                         Status = (int)HttpStatusCode.OK
                     };
+
+                    return resp;
                 }
                 else
-                    return Fail<SetMediaStreamResponse>(request, HttpStatusCode.BadRequest, "MediaId must be set via the CreateMediaRecord command first before it can accept the media.");
+                {
+                    // remove the record that failed to save.
+                    _db.Media.Remove(media);
+                    _db.SaveChanges();
+
+                    return Fail<SetMediaResponse>(request, HttpStatusCode.InternalServerError, "Failed to save the media. Disk IO error.");
+                }
             }
             else
-                return Fail<SetMediaStreamResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-        }
+                return Fail<SetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }     
 
         private bool CheckGetMediaPermission(UserSession session, int mediaId)
         {
@@ -533,8 +507,12 @@ namespace caveCache
             if (_db.Caves.Count() > 0)
                 nameId = _db.Caves.Max(c => c.CaveId) + 1;
 
-            Cave cave = new Cave() { Name = $"CC #{nameId}" };
+            Cave cave = new Cave() { Name = $"CC #{nameId}", Description=string.Empty, CreatedDate = DateTime.Now };
             _db.Caves.Add(cave);
+            _db.SaveChanges();
+
+            CaveUser caveUser = new CaveUser() { UserId = session.UserId, CaveId = cave.CaveId };
+            _db.CaveUsers.Add(caveUser);
             _db.SaveChanges();
 
             _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, $"Created new cave {cave.CaveId}"));

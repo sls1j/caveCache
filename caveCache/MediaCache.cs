@@ -8,7 +8,7 @@ namespace caveCache
     interface IMediaCache
     {
         Stream GetMediaDataStream(int mediaId);
-        void SetMediaDataStream(int mediaId, Stream stream);
+        bool SetMediaDataStream(int mediaId, Stream stream);
     }
 
     class MediaCache : IMediaCache
@@ -38,7 +38,7 @@ namespace caveCache
                 throw new FileNotFoundException($"File for media {mediaId} not found at expected location '{path}'");
         }
 
-        public void SetMediaDataStream(int mediaId, Stream stream)
+        public bool SetMediaDataStream(int mediaId, Stream stream)
         {
             try
             {
@@ -52,10 +52,12 @@ namespace caveCache
                         fout.Write(buffer, 0, readCount);
                     }
                 }
+
+                return true;
             }
             catch (Exception ex)
-            {                
-                throw ex;
+            {
+                return false;
             }
         }
     }

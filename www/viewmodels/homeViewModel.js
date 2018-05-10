@@ -84,7 +84,7 @@ function HomeViewModel(nav, agent) {
 
     public.removeCave = function() {
         // ask are you sure?
-        private.agent.removeCave(this.CaveId)
+        private.agent.caveRemove(this.CaveId)
             .then(() => {private.doLoadUserdata()});
     }
 
@@ -97,7 +97,12 @@ function HomeViewModel(nav, agent) {
     }
 
     public.addCave = function() {
-        private.nav.navigateTo("cave-edit", {method: "new", cave: null});
+        
+        agent.caveAdd().then( response => {
+            var cave = new Cave();
+            cave.CaveId = response.CaveId;
+            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave});
+        });
     }
 
     public.showCave = function() {

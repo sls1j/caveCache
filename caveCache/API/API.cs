@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace caveCache.API
 {
+    [HelpIgnore]
     class Request
     {        
         [Parameter("The name of the message.")]
@@ -13,6 +14,8 @@ namespace caveCache.API
         [Parameter("A unique identifier for the request.  This will be repeated int the response allowing the request/response to be matched.")]
         public int RequestId;
     }
+
+    [HelpIgnore]
     class SessionRequest : Request
     {
         [Parameter("A session that identifies the user.  It is returned via the LoginRequest/LoginResponse message")]
@@ -76,5 +79,9 @@ namespace caveCache.API
 
         public static readonly ParameterAttribute Empty = new ParameterAttribute(string.Empty);
 
+    }
+
+    class HelpIgnoreAttribute : Attribute
+    {
     }
 }

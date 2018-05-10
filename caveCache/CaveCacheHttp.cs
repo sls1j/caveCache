@@ -166,7 +166,7 @@ namespace caveCache
             Console.WriteLine("GET {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
         }
 
-        private void Handle_GenerateHelp( HttpListenerContext context)
+        private void Handle_GenerateHelp(HttpListenerContext context)
         {
             API.APIHelpGenerator gen = new API.APIHelpGenerator();
 
@@ -181,21 +181,20 @@ namespace caveCache
             var request = context.Request;
             var response = context.Response;
 
-            var sessionId = request.Headers["X-CaveCache-SessionId"];
-            var mediaIdStr = request.RawUrl.Substring(8);
+            var sessionId = request.QueryString["SessionId"];
+            var mediaIdStr = request.QueryString["MediaId"];
             int mediaId;
             if (int.TryParse(mediaIdStr, out mediaId))
             {
                 // build the commandRunner command
-                API.GetMediaStreamRequest getMediaStream = new API.GetMediaStreamRequest()
+                API.GetMediaRequest getMediaStream = new API.GetMediaRequest()
                 {
                     SessionId = sessionId,
                     MediaId = mediaId
                 };
 
                 // issue the request
-
-                API.GetMediaStreamResponse resp = null;
+                API.GetMediaResponse resp = null;
                 lock (_cmd)
                     resp = _cmd.GetMediaStream(getMediaStream);
 
@@ -240,24 +239,23 @@ namespace caveCache
             var request = context.Request;
             var response = context.Response;
 
-            var sessionId = request.Headers["X-CaveCache-SessionId"];
-            var mediaIdStr = request.RawUrl.Substring(8);
-            int mediaId;
-            if (int.TryParse(mediaIdStr, out mediaId))
-            {
-                var setMediaStream = new API.SetMediaStreamRequest()
-                {
-                    SessionId = sessionId,
-                    MediaId = mediaId,
-                    InputStream = request.InputStream
-                };
+            API.SetMediaRequest setMedia = new API.SetMediaRequest();
+            setMedia.SessionId = request.Headers["CC-SessionId"];
+            setMedia.AttachType = request.Headers["CC-AttachType"];
+            setMedia.AttachToId = int.Parse(request.Headers["CC-AttachId"]);
+            setMedia.Description = request.Headers["CC-Description"];
+            setMedia.FileName = request.Headers["CC-FileName"];
+            setMedia.FileSize = (int)request.ContentLength64;
+            setMedia.MimeType = request.ContentType;
+            setMedia.Name = request.Headers["CC-Name"];
+            setMedia.Media = request.InputStream;
 
-                API.SetMediaStreamResponse setMediaResponse = null;
-                lock (_cmd)
-                    setMediaResponse = _cmd.SetMediaStream(setMediaStream);
-                response.StatusCode = setMediaResponse.Status;
-                response.StatusDescription = setMediaResponse.StatusDescription;
-            }
+            API.SetMediaResponse setMediaResponse = null;
+            lock (_cmd)
+                setMediaResponse = _cmd.SetMedia(setMedia);
+
+            response.StatusCode = setMediaResponse.Status;
+            response.StatusDescription = setMediaResponse.StatusDescription;
         }
 
         private void API_Test(HttpListenerContext context)

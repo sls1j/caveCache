@@ -25,7 +25,7 @@ function NewCaveSurveyAgent(url) {
                 },
                     (err) => reject("API command failed: " + err.status + "," + err.StatusDescription));
         });
-    }    
+    }
 
     public.userGetInfo = function() {
         return new Promise((resolve, reject) => {
@@ -45,12 +45,32 @@ function NewCaveSurveyAgent(url) {
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );
         });
-    }    
+    }
 
-    public.caveSave = function(cave, isNew) {
+    public.caveAdd = function() {
         return new Promise((resolve, reject) => {
-            let caveSave = {
-                ResquestType: "CaveAddUpdateRequest",
+            let newCave = {
+                ResquestType: "CaveCreateRequest",
+                SessionId: private.sessionId,
+                RequestId: private.nextRequestId
+            };
+
+            private.sendCommand(newCave).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(response);
+                    else
+                        reject("CaveCreateRequest failed: " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + " " + err.statusText)
+            )
+        });
+    }
+
+    public.caveUpdate = function(cave) {
+        return new Promise((resolve, reject) => {
+            let caveUpdate = {
+                ResquestType: "CaveUpdateRequest",
                 SessionId: private.sessionId,
                 RequestId: private.nextRequestId++,
                 CaveId: cave.CaveId,
@@ -61,22 +81,28 @@ function NewCaveSurveyAgent(url) {
                 Data: cave.CaveData
             };
 
-            private.sendCommand(caveSave).then(
+            private.sendCommand(caveUpdate).then(
                 response => {
                     if (response.Status == 200)
                         resolve(response);
                     else
-                        reject("CaveAddUpdateRequest failed: " + response.Status, + " " + response.StatusDescription);
+                        reject("CaveAddUpdateRequest failed: " + response.Status + " " + response.StatusDescription);
                 },
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );
         });
     }
 
-    public.caveGetMedia = function(caveId)
+    public.caveRemove = function(caveId)
     {
+        return new Promise((resolve, reject) =>{
+            reject("not implemented");
+        });
+    }
+
+    public.caveGetMedia = function(caveId) {
         return new Promise((resolve, reject) => {
-            let 
+            reject("Not yet implemented");
         });
     }
 

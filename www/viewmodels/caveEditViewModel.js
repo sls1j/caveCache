@@ -1,4 +1,4 @@
-function EditCaveViewModel(nav, agent) {
+function CaveEditViewModel(nav, agent) {
     ViewModel(this, "cave-edit", nav, agent);
 
     var public = this;
@@ -13,9 +13,6 @@ function EditCaveViewModel(nav, agent) {
                 public.Cave = Object.deepClone(data.data.cave);
 
                 console.info(public.Cave);
-            }
-            else if (method === "add") {
-                public.Cave = new Cave();
             }
 
             if (data.data.location) {
@@ -143,12 +140,11 @@ function EditCaveViewModel(nav, agent) {
         cave.CaveData = grid.valuesAsObject();
 
         // send off to the agent
-        private.agent.caveSave(cave)
+        private.agent.caveUpdate(cave)
             .then(() => {
                 private.nav.navigateTo("home");
             },
                 () => {});
-
     }
 
     public.cancel = function() {

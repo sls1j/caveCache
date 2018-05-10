@@ -10,7 +10,7 @@ namespace caveCache
     {
 
         static void Main(string[] args)
-        {
+        {            
             try
             {
                 if (args.Length == 0 || args[0] == "-i")
@@ -45,8 +45,8 @@ namespace caveCache
                 {
                     var config = new ConfigurationReader();
                     var db = new Database.CaveCacheContext(config.ConnectionString);
-                    var loggerFactory = db.GetService<ILoggerFactory>();
-                    loggerFactory.AddProvider(new ConsoleLoggerProvider());
+                    //var loggerFactory = db.GetService<ILoggerFactory>();
+                    //loggerFactory.AddProvider(new ConsoleLoggerProvider());
                     var mediaCache = new MediaCache(config);
 
                     using (var api = new CaveCacheHttp( config, mediaCache, db ))
