@@ -99,8 +99,8 @@ function HomeViewModel(nav, agent) {
     public.addCave = function() {
         
         agent.caveAdd().then( response => {
-            var cave = new Cave();
-            cave.CaveId = response.CaveId;
+            var cave = new Cave(response.Cave);
+            public.Caves.push(cave);            
             private.nav.navigateTo("cave-edit", {method: "edit", cave: cave});
         });
     }

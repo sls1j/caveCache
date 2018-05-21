@@ -1,0 +1,281 @@
+Use Cases for Cache Cave
+
+==========================================================================
+Actors: Administrator, Cave Cache (CC), New User
+Goal: New User gets a valid login
+Condition: New User has a valid email and a valid request.
+
+Main Use Case
+---------------------------------------------------------------------
+1. New User visits cave cache and fills out the new registration form
+2. CC sends a notification to the administrator
+3. The administrator verifies to the system that the request is valid.
+4. CC builds a new user database record
+5. CC sends a verification email to the New User to verify the email
+6. The New User follows the verification link within the received email
+7. CC marks the user as verified
+8. The New User now logs in.
+
+Extensions:
+2a. The administrator ignores the request.
+	2a.1. The New User sends another request.
+3a. The administrator determines that the request is not valid and removes the request and just ignores it.
+5a. The email fails to sends
+	5a.1. CC removes the new user record.
+6a. The New User does not follow the link within 3 days
+	6a.1. CC removes the New User record
+
+==========================================================================
+
+Actors: User, Cave Cache(CC)
+Goal: User can't remember their password and wants to reset password
+Condition: User's email is associated with a user.
+
+Main Use Case
+	1. User can't login 
+	2. User requests password reset via a web form
+	2.1 User provides email
+	3. CC sends an email with a password reset link
+	4. User follows link in email
+	5. CC creates a new password and sets the user db record with the new record
+	6. CC displays a web page including the new credentials
+	7. CC sends an email to the User including the new credentials.
+
+Extensions:
+3a. The email provided is not valid.
+	3a.1. The request is ignored.
+3b. The email provided is valid, but not sent by the account user
+	3ba.1 The owner of the email may notify the administrator that someone has tried to reset his/her account.
+	
+==========================================================================
+Actors: User, Front End (FE), Back End (BE)
+Goal: Login and create an active user session.
+Condition: The user has been registered.
+
+Main Use Case:
+	1. User fills out the login screen email/password and pushes the login button.
+	2. FE sends "LoginRequest"
+	3. BE verifies that the email/password is valid.
+	4. BE updates the UserSession information, including a login date/time.
+	5. BE sends "LoginResponse" with the new SessionId
+	6. FE navigates to the home page.
+	
+Extensions:
+	3a. BE fails to verify the email/password.
+		3a.1 BE sends a failed "LoginResponse".
+		3a.2 FE navigates back to the login page.
+		
+==========================================================================
+Actors: Front End (FE), Back End (BE)
+Goal: Prevent some categories of unauthorized users from accessing the database.
+Condition: The user is logged in.
+
+Main Use Case:
+	1. BE finds a UserSession that matches a SessionId in a derivative of SessionRequest.
+	2. BE verifies the UserSession has not expired. 
+	3. BE updates the UserSession to keep it alive as it's in current use.
+	4. BE allows the request to complete.	
+
+Extensions:
+	1a. BE does not find a matching session.
+		1a.1 BE sends FE a failed response for what ever message was received
+		1a.2 BE immediately stops fulfillment of request.		
+		1a.3 FE navigates to the login page.
+	2a. BE determines that the session has expired
+		2a.1 BE sends FE a failed response for what ever message was received
+		2a.2 BE immediately stops fulfillment of request.		
+		2a.3 FE navigates to the login page.
+	
+	
+	
+==========================================================================
+Actors: User, Cave Cache front-end (FE), Cave Cache Back-end (BE)
+Goal: Display home page
+Condition: The user is logged in.
+
+Main Use Case	
+	1. User or FE navigates to the home page URL.
+	2. FE sends "UserGetInfoRequest" to BE
+	3. BE access user data from the database.
+	4. BE sends response to FE
+	5. FE displays the information received from the response.
+	5.1 FE highlights newly add/imported caves.
+	
+==========================================================================
+
+Actors: User, Cave Cache front-end (FE), Cave Cache Back-end (BE)
+Goal: User is creating a new cave record
+Condition: The user is logged in.
+
+Main Use Case:
+	1. User clicks the "Add New" button on home page.
+	2. FE sends message to add a new cave
+	3. BE creates an empty cave record
+	4. BE sends empty cave records in the "CreateCaveResponse" to FE message.
+	5. FE displays a cave edit form to allow the user to edit the cave
+	6. User edits the cave information
+	7. User clicks the "Save" button
+	8. FE sends a "CaveUpdateRequest" message to BE
+	9. BE saves the information to the db
+	10. FE navigates to the Home URL
+
+Extensions:
+
+7a. User clicks the "Cancel" button
+	7a.1 FE throws away all changes and restores the original cave.
+	7a.2 FE sends "DeleteCaveRequest" to the BE
+	7a.3 BE removes all associated DB records.
+	7a.4 Goes to step 10.
+
+==========================================================================
+
+Actors: User, Front End (FE), Back End (BE)
+Goal: User wants to delete a cave.
+Condition: User is logged in.
+
+Main Use Case:
+	1. User clicks "delete button" on the cave's home page table.
+	2. FE asks user if deleting the cave is the true intent.
+	3. FE sends a "DeleteCaveRequest" to the BE
+	4. BE removes CaveUser record.	
+	5. BE sends response to FE
+	6. FE navigates to the home page. (Refreshes the data)
+
+Extensions:
+	4a. There are no CaveUser records pointing to the cave.
+		4a.1 BE removes all associated Cave records (Locations, Media, etc.)
+	
+	
+==========================================================================
+Actors: User, Front End (FE), Back End (BE)
+Goal: User want to test if cave location already exists in the DB.
+Condition: User is logged in.
+
+Main Use Case:
+	1. User enters lat/long into form and pushes the locate button.
+	2. FE sends "CaveLocateRequest"
+	3. BE tests that user has not exceeded the daily quota for cave location tests.
+	4. BE looks up any caves that fall within a X distance of the given cave location.
+	5. BE sends response with matching caves with activation token.
+	6. FE presents with matches, and asks if the user wants to include the results.
+	7. The user confirms that is wishes to import the cave records.
+	8. FE sends "CaveImportByIdRequest" with valid activation token.
+	9. BE verifies activation token.
+	10. BE adds CaveUser records as specified in request.
+	11. BE sends response
+	X. FE navigates to the home page.
+
+Extensions:
+	3a. BE determines that the user has exceeded his/her quota for cave location lookups.
+		3a.1 BE sends response with access deny.
+		3a.2 BE logs history of occurrence.
+		3a.4 go to step X
+	7a. User rejects import prompt.
+		7a.1 go to step X
+	9a. BE determines that the activation token is invalid.
+		9a.1 BE logs hacking attempt.
+		9a.2 BE sends failed response.
+		9a.3 go to step X
+	10a. BE determines there is no matching caveId in the db.
+		10a.1 BE logs possible hacking attempt.
+		10a.2 BE sends failed response.
+		10a.3 go to step X
+		
+		
+==========================================================================
+Actors: User, Front End (FE), Back End (BE)
+Goal: User wants to add a set of predefined fields to a cave.
+Condition: User is logged in. User is editing a cave.
+
+Main Use Case:
+	1. FE sends a "FieldTemplatesEnumerateRequest"
+	2. BE retrieves all of the field templates from the DB
+	3. BE sends a response
+	4. FE displays the list of possible templates.
+	5. User picks a template(s) to be applied.
+	6. FE adds all of the defined fields to the cave.	
+	7. FE returns to normal cave edit mode.
+	
+Extensions:
+	4a. There are no templates
+		4a.1 Display message box explaining that there are no templates.
+		4a.2 Go to step 7;
+		
+==========================================================================
+Actors: User, Front End (FE), Back End (BE)
+Goal: User wants to share a cave record with another user.
+Condition: User is logged in.
+
+Main Use Case:
+	1. User selects a cave's Share link
+	2. FE sends a "UserEnumerateRequest" command
+	3. BE builds a list of all users including, "UserId, Name, and Description", but excluding the Administrator user.
+	4. BE sends a response to FE.
+	5. FE displays a dialog displaying the appropriate user information
+	6. User selects the displayed user to share the cave record with.
+	7. FE sends a "CaveShareRequest" including the selected cave and user id.
+	8. BE checks to make sure the User has access to the cave pointed at by the cave id.
+	9. BE checks that the caveId is valid and the sharing userId is valid
+	10. BE creates a CaveUser record for the cave with the new user identifier.
+	11. BE sends a response to FE
+	12. FE displays a confirmation of the sharing.
+	13. FE navigates to home.
+
+Extensions:
+	6a. The user cancels
+		6a.1 go to step 13.
+	8a. The User doesn't have access to the cave (thus it cannot share it)
+		8a.1 BE logs hacking attempt.
+		8a.2 BE sends FE a failed response to "CaveShareRequest";
+		8a.3 FE displays failure message.
+		8a.5 go to step 13
+		
+	9a. The cave or user does not exist
+		8a.1 BE sends FE a failed response to "CaveShareRequest"
+		8a.2 FE displays a failure message.
+		8a.3 go to step 13
+		
+==========================================================================
+Actors: User, Front End (FE), Back End (BE)
+Goal: User wants to edit a cave
+Condition: User is logged in.
+
+Main Use Case:
+	1. User clicks "Edit" link for a cave.
+	2. FE sends "CaveGetRequest" to BE
+	3. BE returns the specified cave information
+	4. FE displays the edit page.
+	5. The user edits the cave in various ways.
+	6. The user clicks the "Save" link
+	7. FE sends a "CaveUpdateRequest"
+	8. BE verifies the cave id exists.
+	9. BE saves the information to the db
+	10. BE sends a response to FE
+	11. FE updates cave record with cave info provided in the response
+	12. FE navigates to home
+	
+Extensions:
+	6a The user clicks the "Cancel" link
+		6a.1 go to step 12.
+	8a There is no cave with the given id.
+		8a.1 BE sends a failed response.
+		8a.2 go to step 12.
+		
+=============================================================================
+Actors: User, Front End (FE)
+Goal: User wants to add a new cave location
+Condition: User is logged in, and editing a cave.
+
+Main Use Case:
+	1. User clicks Add
+	2. FE displays Location editing page.
+	3. User adds location information
+	4. User selects "Use as main location" check box.
+	5. User clicks 'Save'
+	6. FE forms a Location javascript object and adds it to the end of the cave object's locations property.
+	7. FE updates the cave's locationId property to reflect the new location
+	8. FE navigates back to the edit cave page.
+
+Extensions:
+	7a. If User left "Use as main location" check box unchecked.
+		7a.1 skips step 7 and goes directly to step 8

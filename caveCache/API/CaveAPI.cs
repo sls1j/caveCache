@@ -14,7 +14,7 @@ namespace caveCache.API
     class CaveCreateResponse : SessionResponse
     {
         [Parameter("The unique cave identifier.")]
-        public int CaveId;
+        public CaveInfo Cave;
     }
 
     [Request("Update the details, locations, and custom data of the specified cave.")]

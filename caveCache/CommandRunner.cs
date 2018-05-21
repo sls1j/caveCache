@@ -156,6 +156,8 @@ namespace caveCache
                 return new API.LoginResponse() { RequestId = request.RequestId, Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
             }
 
+            user.LastLoggedIn = DateTime.Now;
+
             var sessionKey = new byte[8];
             _rng.GetBytes(sessionKey);
 
@@ -354,9 +356,12 @@ namespace caveCache
 
             GenerateUserPasswordHash(user, request.Password);
 
+            _db.Users.Add(user);
             _db.SaveChanges();
 
-            HistoryEntry(session.UserId, null, null, null, "{0} Created user {1}", session.User, user);
+            _db.History.Add( HistoryEntry(session.UserId, null, null, null, "{0} Created user {1}", session.User, user) );
+            _db.SaveChanges();
+
 
             // return user object
             return new API.UserAddResponse()
@@ -518,9 +523,11 @@ namespace caveCache
             _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, $"Created new cave {cave.CaveId}"));
             _db.SaveChanges();
 
+            var ci = GetCaveInfo(cu => cu.Cave.CaveId == cave.CaveId).First();
+
             return new CaveCreateResponse()
             {
-                CaveId = cave.CaveId,
+                Cave = ci.Cave,
                 SessionId = request.SessionId,
                 RequestId = request.RequestId,
                 Status = (int)HttpStatusCode.OK
@@ -611,10 +618,14 @@ namespace caveCache
             }
         }
 
-        private IEnumerable<CaveTuple> GetCaveInfo()
+        private IEnumerable<CaveTuple> GetCaveInfo(Func<CaveUser, bool> whereClause = null)
         {
+            IEnumerable<CaveUser> caveUsers = _db.CaveUsers.Include(t => t.Cave);
+            if (null != whereClause)
+                caveUsers = caveUsers.Where(whereClause);
+
             return
-                from cu in _db.CaveUsers.Include(t => t.Cave)
+                from cu in caveUsers
                 join cd in _db.CaveData on cu.CaveId equals cd.CaveId into caveData
                 join md in _db.CaveMedia.Include(t => t.Media) on cu.CaveId equals md.CaveId into caveMedia
                 select new CaveTuple(cu.UserId, new API.CaveInfo()

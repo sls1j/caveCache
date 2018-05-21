@@ -32,7 +32,11 @@ namespace caveCache.API
                 new CaveCreateResponse(){
                     RequestId = 2,
                     SessionId = _sessionId,
-                    CaveId = 1,
+                    Cave = new CaveInfo(){
+                        Name = "CC 34",
+                        CaveId = 2,
+                        Description = "New Cave"                        
+                    },
                     StatusDescription = "OK",
                     Status = (int)HttpStatusCode.OK
                 },

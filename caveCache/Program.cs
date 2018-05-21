@@ -8,22 +8,31 @@ namespace caveCache
 {
     class Program
     {
-
         static void Main(string[] args)
-        {            
+        {
+            var p = new Program();
+            p.ProgMain(args);
+        }
+
+        private ConfigurationReader _config;
+        private Database.CaveCacheContext _db;
+        private MediaCache _mediaCache;
+
+        void ProgMain(string[] args)
+        {
+            _config = new ConfigurationReader();
+            _db = new Database.CaveCacheContext(_config.ConnectionString);
+            _mediaCache = new MediaCache(_config);
+            //var loggerFactory = db.GetService<ILoggerFactory>();
+            //loggerFactory.AddProvider(new ConsoleLoggerProvider());
+
             try
             {
                 if (args.Length == 0 || args[0] == "-i")
                 {
                     // initialize the database
-                    var config = new ConfigurationReader();
-                    var db = new Database.CaveCacheContext(config.ConnectionString);
-                    var loggerFactory = db.GetService<ILoggerFactory>();
-                    loggerFactory.AddProvider(new ConsoleLoggerProvider());
-                    var mediaCache = new MediaCache(config);
                     
-
-                    CommandRunner cmd = new CommandRunner(config, mediaCache, db, true);
+                    CommandRunner cmd = new CommandRunner(_config, _mediaCache, _db, true);
 
                     if (args.Length > 0 && args[0] == "-i")
                     {
@@ -43,13 +52,7 @@ namespace caveCache
                 }
                 else if (args[0] == "-runhttpapi")
                 {
-                    var config = new ConfigurationReader();
-                    var db = new Database.CaveCacheContext(config.ConnectionString);
-                    //var loggerFactory = db.GetService<ILoggerFactory>();
-                    //loggerFactory.AddProvider(new ConsoleLoggerProvider());
-                    var mediaCache = new MediaCache(config);
-
-                    using (var api = new CaveCacheHttp( config, mediaCache, db ))
+                    using (var api = new CaveCacheHttp( _config, _mediaCache, _db ))
                     {
                         while (true)
                             System.Threading.Thread.Sleep(250);
@@ -135,7 +138,7 @@ namespace caveCache
             return args.ToArray();
         }
 
-        private static void RunCommand(string[] args, CommandRunner cmd)
+        private void RunCommand(string[] args, CommandRunner cmd)
         {
             string sessionId = cmd.GetAdminSession();
             Console.WriteLine("sessionId = {0}", sessionId);
@@ -143,48 +146,48 @@ namespace caveCache
             switch (args[0])
             {
                 // admin commands
-                case "-bootstrap":
+                case "bootstrap":
                     cmd.BootStrap();
                     break;
-                case "-listusers":
+                case "listusers":
                     response = cmd.UserList(new API.UserListRequest() { RequestId = 0, SessionId = sessionId });
                     break;
-                case "-adduser":
+                case "adduser":
                     {
                         if (args.Length == 4 || args.Length == 3)
                         {
                             string password = (args.Length == 3) ? string.Empty : args[3];
-                            response = cmd.AddUser(new API.UserAddRequest() { Email = args[1], Name = args[2], Password = password });
+                            response = cmd.AddUser(new API.UserAddRequest() { Email = args[1], Name = args[2], Password = password, Profile = string.Empty });
                         }
                         else
-                            response = "Invalid command: -adduser <email> <name> [<password>]";
+                            response = "Invalid command: adduser <email> <name> [<password>]";
                     }
                     break;
-                case "-listsessions":
+                case "listsessions":
                     response = cmd.SessionList(new API.SessionListRequest());
                     break;
-                case "-resetuserpassword":
+                case "resetuserpassword":
                     if (args.Length != 2)
                     {
-                        response = "Invalid Command: -resetuserpassword <email>";
+                        response = "Invalid Command: resetuserpassword <email>";
                     }
                     else
                         response = cmd.ResetPassword(new API.UserResetPasswordRequest() { Email = args[1] });
                     break;
-                case "-listallcaves":
+                case "listallcaves":
                     response = cmd.CaveList(new API.CaveListRequest()
                     {
                         SessionId = sessionId,
                         allCaves = true
                     });
                     break;
-                case "-restorecave":
+                case "restorecave":
                     break;
-                case "-listallsurveys":
+                case "listallsurveys":
                     break;
 
                 // normal user commands
-                case "-login":
+                case "login":
                     {
                         string email = "admin";
                         string password;
@@ -201,16 +204,16 @@ namespace caveCache
                         {
                             Email = email,
                             Password = password,
-                            RequestId = 0
+                            RequestId = 0,
                         };
                         response = cmd.Login(login);
                     }
                     break;
-                case "-addsurvey":
+                case "addsurvey":
                     break;
-                case "-addcave":
+                case "addcave":
                     if (args.Length < 7)
-                        response = "Invalid Command: -addcave <Name> <Description> <Latitude> <Longitude> <Accuracy> <Altitude>";
+                        response = "Invalid Command: addcave <Name> <Description> <Latitude> <Longitude> <Accuracy> <Altitude>";
                     else
                         response = cmd.CaveAddUpdate(new API.CaveUpdateRequest()
                         {
@@ -229,26 +232,32 @@ namespace caveCache
                             }
                         });
                     break;
-                case "-removecave":
+                case "removecave":
                     break;
-                case "-sharecave":
+                case "sharecave":
                     break;
-                case "-listcaves":
+                case "listcaves":
                     response = cmd.CaveList(new API.CaveListRequest() { allCaves = false, SessionId = sessionId });
                     break;
-                case "-addsurveyuser":
+                case "addsurveyuser":
                     break;
-                case "-modsuveyuser":
+                case "modsuveyuser":
                     break;
-                case "-delsurveyuser":
+                case "delsurveyuser":
                     break;
-                case "-addsurveycave":
+                case "addsurveycave":
                     break;
-                case "-removesurveycave":
+                case "removesurveycave":
                     break;
-                case "-usergetinfo":
+                case "usergetinfo":
                     response = cmd.UserGetInfo(new API.UserGetInfoRequest() { SessionId = sessionId });
                     break;
+                case "http":
+                    using (var api = new CaveCacheHttp(_config, _mediaCache, _db))
+                    {
+                        while (true)
+                            System.Threading.Thread.Sleep(250);
+                    }                    
             }
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented));
