@@ -615,13 +615,14 @@ namespace caveCache
 
             return
                 from cu in caveUsers
+                join cl in _db.CaveLocations on cu.CaveId equals cl.CaveId into caveLocation
                 join cd in _db.CaveData on cu.CaveId equals cd.CaveId into caveData
                 join md in _db.CaveMedia.Include(t => t.Media) on cu.CaveId equals md.CaveId into caveMedia
                 select new CaveTuple(cu.UserId, new API.CaveInfo()
                 {
                     CaveId = cu.CaveId,
                     LocationId = cu.Cave.LocationId,
-                    Locations = SafeToArray(cu.Cave.Locations),
+                    Locations = SafeToArray(from cl in caveLocation select cl.Clone()),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
                     CaveData = SafeToArray(from cd in caveData select cd.Clone()),

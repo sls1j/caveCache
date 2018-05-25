@@ -107,6 +107,12 @@ namespace caveCache.Database
                 .IsRequired()
                 .HasColumnType("mediumText");
         }
+
+        public CaveLocation Clone()
+        {
+            var cloned = base.MemberwiseClone() as CaveLocation;
+            return cloned;
+        }
     }
 
     public static class Units
