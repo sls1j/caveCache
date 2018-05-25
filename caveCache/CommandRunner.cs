@@ -283,7 +283,7 @@ namespace caveCache
             }
             else
                 return Fail<SetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-        }     
+        }
 
         private bool CheckGetMediaPermission(UserSession session, int mediaId)
         {
@@ -359,7 +359,7 @@ namespace caveCache
             _db.Users.Add(user);
             _db.SaveChanges();
 
-            _db.History.Add( HistoryEntry(session.UserId, null, null, null, "{0} Created user {1}", session.User, user) );
+            _db.History.Add(HistoryEntry(session.UserId, null, null, null, "{0} Created user {1}", session.User, user));
             _db.SaveChanges();
 
 
@@ -476,29 +476,10 @@ namespace caveCache
 
         public API.UserResetPasswordResponse ResetPassword(API.UserResetPasswordRequest request)
         {
-            var session = FindSession(request.SessionId);
-            if (session == null || !session.User.Permissions.Contains("admin"))
-                return Fail<API.UserResetPasswordResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
-
-            // find the user
-            var user = _db.Users.FirstOrDefault(u => string.Equals(u.Email, request.Email, StringComparison.CurrentCultureIgnoreCase));
-            if (null == user)
-                return Fail<API.UserResetPasswordResponse>(request, HttpStatusCode.NotFound, "No user with matching email found.");
-
-            var newPassword = GenerateUserPassword();
-            GenerateUserPasswordHash(user, newPassword);
-
-            _db.History.Add(HistoryEntry(session.User.UserId, null, null, null, "Reset user {0} password", user));
-            _db.History.Add(HistoryEntry(user.UserId, null, null, null, "Password was reset by {0}", session.User));
-            _db.SaveChanges();
-
-
             return new API.UserResetPasswordResponse()
             {
-                Status = (int)HttpStatusCode.OK,
+                Status = (int)HttpStatusCode.NotImplemented,
                 RequestId = request.RequestId,
-                SessionId = request.SessionId,
-                NewPassword = newPassword
             };
         }
 
@@ -512,7 +493,7 @@ namespace caveCache
             if (_db.Caves.Count() > 0)
                 nameId = _db.Caves.Max(c => c.CaveId) + 1;
 
-            Cave cave = new Cave() { Name = $"CC #{nameId}", Description=string.Empty, CreatedDate = DateTime.Now };
+            Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
             _db.Caves.Add(cave);
             _db.SaveChanges();
 
@@ -618,6 +599,14 @@ namespace caveCache
             }
         }
 
+        private T[] SafeToArray<T>(IEnumerable<T> list)
+        {
+            if (list == null)
+                return new T[0];
+            else
+                return list.ToArray();
+        }
+
         private IEnumerable<CaveTuple> GetCaveInfo(Func<CaveUser, bool> whereClause = null)
         {
             IEnumerable<CaveUser> caveUsers = _db.CaveUsers.Include(t => t.Cave);
@@ -632,20 +621,20 @@ namespace caveCache
                 {
                     CaveId = cu.CaveId,
                     LocationId = cu.Cave.LocationId,
-                    Locations = cu.Cave.Locations.ToArray(),
+                    Locations = SafeToArray(cu.Cave.Locations),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
-                    CaveData = (from cd in caveData select cd.Clone()).ToArray(),
-                    Media = (from m in caveMedia
-                             select new Database.Media()
-                             {
-                                 Description = m.Media.Description,
-                                 FileName = m.Media.FileName,
-                                 FileSize = m.Media.FileSize,
-                                 MediaId = m.MediaId,
-                                 MimeType = m.Media.MimeType,
-                                 Name = m.Media.Name,
-                             }).ToArray()
+                    CaveData = SafeToArray(from cd in caveData select cd.Clone()),
+                    Media = SafeToArray(from m in caveMedia
+                                        select new Database.Media()
+                                        {
+                                            Description = m.Media.Description,
+                                            FileName = m.Media.FileName,
+                                            FileSize = m.Media.FileSize,
+                                            MediaId = m.MediaId,
+                                            MimeType = m.Media.MimeType,
+                                            Name = m.Media.Name,
+                                        })
                 });
         }
 
@@ -687,10 +676,10 @@ namespace caveCache
             };
 
             // media data
-            response.Media =
-             (from m in _db.UserMedia.Include(t => t.Media)
-              where m.UserId == session.UserId
-              select m.Media.Clone()).ToArray();
+            //response.Media =
+            // (from m in _db.UserMedia.Include(t => t.Media)
+            //  where m.UserId == session.UserId
+            //  select m.Media.Clone()).ToArray();
 
             // get survey data
             // TODO

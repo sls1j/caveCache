@@ -45,19 +45,7 @@ namespace caveCache.API
             this.SessionId = request.SessionId;
         }
     }
-    
-    [Request( "Starts a user session.")]
-    class LoginRequest : Request
-    {
-        [Parameter( "The email of the user.  Email address is used as the user identifier.")]
-        public string Email;
-        [Parameter( "The password of the user.  https is used which is why this is not encrypted or hashed in the message.")]
-        public string Password;
-    }
-
-    class LoginResponse : SessionResponse
-    {
-    }
+       
 
     class RequestAttribute : Attribute
     {

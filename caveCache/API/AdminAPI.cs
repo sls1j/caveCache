@@ -27,11 +27,7 @@ namespace caveCache.API
     {
         public Database.User[] Users;
     }
-
-    class UserResetPasswordRequest : SessionRequest
-    {
-        public string Email;
-    }
+    
     class UserResetPasswordResponse : SessionResponse
     {
         public string NewPassword;
