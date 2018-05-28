@@ -283,7 +283,7 @@ namespace caveCache
             }
             else
                 return Fail<SetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-        }
+        }       
 
         private bool CheckGetMediaPermission(UserSession session, int mediaId)
         {
@@ -499,8 +499,6 @@ namespace caveCache
 
             CaveUser caveUser = new CaveUser() { UserId = session.UserId, CaveId = cave.CaveId };
             _db.CaveUsers.Add(caveUser);
-            _db.SaveChanges();
-
             _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, $"Created new cave {cave.CaveId}"));
             _db.SaveChanges();
 
@@ -532,7 +530,6 @@ namespace caveCache
             cave.LocationId = null;
             _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => cl.CaveId == cave.CaveId).ToArray());
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
-            _db.CaveUsers.Remove(_db.CaveUsers.Where(cu => cu.CaveId == cave.CaveId && cu.UserId == session.UserId).First());
             _db.SaveChanges();
 
             cave.Name = request.Name;
@@ -545,14 +542,6 @@ namespace caveCache
             {
                 _db.CaveData.AddRange(request.Data.Select(d => new CaveData() { CaveId = cave.CaveId, Name = d.Name, Type = d.Type, MetaData = d.MetaData ?? string.Empty, Value = d.Value }));
             }
-
-            var caveUser = new CaveUser()
-            {
-                CaveId = cave.CaveId,
-                UserId = session.UserId
-            };
-
-            _db.CaveUsers.Add(caveUser);
 
             foreach (var l in request.Locations)
             {
@@ -585,6 +574,35 @@ namespace caveCache
                 CaveId = cave.CaveId,
                 Status = (int)HttpStatusCode.OK
             };
+        }
+
+        public CaveRemoveResponse CaveRemove(CaveRemoveRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session == null)
+                return Fail<API.CaveRemoveResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+
+            var caveUser = _db.CaveUsers.FirstOrDefault(cu => cu.UserId == session.UserId && cu.CaveId == request.CaveId);
+            if (caveUser == null )
+                return Fail<API.CaveRemoveResponse>(request, HttpStatusCode.NotFound, $"Cave with id {request.CaveId} not found.");
+
+            var userCount = _db.Caves.Where(cu => cu.CaveId == request.CaveId).Count();
+
+            if (userCount == 1)
+            {
+                var cave = _db.Caves.FirstOrDefault(c => c.CaveId == request.CaveId);
+                _db.Caves.Remove(cave);
+                _db.History.Add(HistoryEntry(session.UserId, request.CaveId, null, null, "Cave deleted."));
+            }
+            else
+            {
+                _db.CaveUsers.Remove(caveUser);
+                _db.History.Add(HistoryEntry(session.UserId, request.CaveId, null, null, "Cave user deleted."));
+            }
+
+            _db.SaveChanges();
+
+            return new API.CaveRemoveResponse() { RequestId = request.RequestId, SessionId = request.SessionId, Status = (int)HttpStatusCode.OK, StatusDescription = "OK" };
         }
 
         private class CaveTuple

@@ -9,7 +9,7 @@ function NewCaveSurveyAgent(url) {
     public.login = function(email, password) {
         return new Promise((resolve, reject) => {
             let login = {
-                ResquestType: "LoginRequest",
+                RequestType: "LoginRequest",
                 RequestId: private.nextRequestId++,
                 Email: email,
                 Password: password
@@ -30,7 +30,7 @@ function NewCaveSurveyAgent(url) {
     public.userGetInfo = function() {
         return new Promise((resolve, reject) => {
             let userGetInfo = {
-                ResquestType: "UserGetInfoRequest",
+                RequestType: "UserGetInfoRequest",
                 SessionId: private.sessionId,
                 RequestId: private.nextRequestId++
             };
@@ -50,7 +50,7 @@ function NewCaveSurveyAgent(url) {
     public.caveAdd = function() {
         return new Promise((resolve, reject) => {
             let newCave = {
-                ResquestType: "CaveCreateRequest",
+                RequestType: "CaveCreateRequest",
                 SessionId: private.sessionId,
                 RequestId: private.nextRequestId
             };
@@ -70,7 +70,7 @@ function NewCaveSurveyAgent(url) {
     public.caveUpdate = function(cave) {
         return new Promise((resolve, reject) => {
             let caveUpdate = {
-                ResquestType: "CaveUpdateRequest",
+                RequestType: "CaveUpdateRequest",
                 SessionId: private.sessionId,
                 RequestId: private.nextRequestId++,
                 CaveId: cave.CaveId,
@@ -96,7 +96,23 @@ function NewCaveSurveyAgent(url) {
     public.caveRemove = function(caveId)
     {
         return new Promise((resolve, reject) =>{
-            reject("not implemented");
+            let caveRemove = {
+                RequestType: "CaveRemoveRequest",
+                SessionId: private.sessionId, 
+                RequestId: private.nextRequestId++,
+                CaveId: caveId
+            };
+
+            private.sendCommand(caveRemove).then(
+                response => {
+                    if ( response.Status == 200)
+                        resolve(response);
+                    else
+                        reject("CaveRemoveRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+
+            );
         });
     }
 
@@ -164,7 +180,7 @@ function NewCaveSurveyAgent(url) {
     private.sendCommand = function(command) {
         return new Promise(function(resolve, reject) {
             var xhr = new XMLHttpRequest();
-            let dest = private.url + "/API/" + command["ResquestType"];
+            let dest = private.url + "/API/" + command["RequestType"];
             xhr.open("POST", dest);
             xhr.onload = function() {
                 console.log("received response");

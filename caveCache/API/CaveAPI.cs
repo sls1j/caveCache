@@ -88,4 +88,18 @@ namespace caveCache.API
         public Database.Media[] Media;
     }
 
+    [Request("Removes the cave include *all* of it's data.")]
+    class CaveRemoveRequest : SessionRequest
+    {
+        public CaveRemoveRequest()
+        {
+        }
+
+        [Parameter("The cave to be removed.")]
+        public int CaveId { get; set; }
+    }
+
+    class CaveRemoveResponse : SessionResponse
+    {
+    }
 }

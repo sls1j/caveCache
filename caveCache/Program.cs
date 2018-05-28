@@ -233,6 +233,10 @@ namespace caveCache
                         });
                     break;
                 case "removecave":
+                    if (args.Length < 2)
+                        response = "Invalid Command: removecave <cave id>";
+                    else
+                        response = cmd.CaveRemove(new API.CaveRemoveRequest() { CaveId = int.Parse(args[1]) });
                     break;
                 case "sharecave":
                     break;
