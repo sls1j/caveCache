@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 08, 2018 at 06:43 PM
+-- Generation Time: May 28, 2018 at 08:48 PM
 -- Server version: 5.5.58-0+deb8u1
 -- PHP Version: 5.6.30-0+deb8u1
 
@@ -19,8 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `caveCache`
 --
-CREATE DATABASE IF NOT EXISTS `caveCache` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `caveCache`;
 
 -- --------------------------------------------------------
 
@@ -28,7 +26,6 @@ USE `caveCache`;
 -- Table structure for table `Cave`
 --
 
-DROP TABLE IF EXISTS `Cave`;
 CREATE TABLE IF NOT EXISTS `Cave` (
 `CaveId` int(11) NOT NULL,
   `Name` varchar(128) NOT NULL,
@@ -38,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `Cave` (
   `DateDeleted` datetime DEFAULT NULL,
   `CreatedDate` date NOT NULL,
   `Saved` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -46,7 +43,6 @@ CREATE TABLE IF NOT EXISTS `Cave` (
 -- Table structure for table `CaveData`
 --
 
-DROP TABLE IF EXISTS `CaveData`;
 CREATE TABLE IF NOT EXISTS `CaveData` (
   `CaveId` int(11) NOT NULL,
   `Name` varchar(128) NOT NULL,
@@ -61,7 +57,6 @@ CREATE TABLE IF NOT EXISTS `CaveData` (
 -- Table structure for table `CaveLocation`
 --
 
-DROP TABLE IF EXISTS `CaveLocation`;
 CREATE TABLE IF NOT EXISTS `CaveLocation` (
   `LocationId` int(11) NOT NULL,
   `CaveId` int(11) NOT NULL,
@@ -82,7 +77,6 @@ CREATE TABLE IF NOT EXISTS `CaveLocation` (
 -- Table structure for table `CaveMedia`
 --
 
-DROP TABLE IF EXISTS `CaveMedia`;
 CREATE TABLE IF NOT EXISTS `CaveMedia` (
   `CaveId` int(11) NOT NULL,
   `MediaId` int(11) NOT NULL
@@ -94,7 +88,6 @@ CREATE TABLE IF NOT EXISTS `CaveMedia` (
 -- Table structure for table `CaveUser`
 --
 
-DROP TABLE IF EXISTS `CaveUser`;
 CREATE TABLE IF NOT EXISTS `CaveUser` (
   `CaveId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL
@@ -103,10 +96,36 @@ CREATE TABLE IF NOT EXISTS `CaveUser` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `DataTemplateItem`
+--
+
+CREATE TABLE IF NOT EXISTS `DataTemplateItem` (
+  `DataTemplateId` int(11) NOT NULL,
+  `Name` text NOT NULL,
+  `Description` text NOT NULL,
+  `MetaData` text NOT NULL,
+  `Type` text NOT NULL,
+  `DefaultValue` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `DataTemplates`
+--
+
+CREATE TABLE IF NOT EXISTS `DataTemplates` (
+  `DataTemplateId` int(11) NOT NULL,
+  `Name` int(11) NOT NULL,
+  `Description` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Global`
 --
 
-DROP TABLE IF EXISTS `Global`;
 CREATE TABLE IF NOT EXISTS `Global` (
   `Key` varchar(128) NOT NULL,
   `Value` text NOT NULL
@@ -118,7 +137,6 @@ CREATE TABLE IF NOT EXISTS `Global` (
 -- Table structure for table `History`
 --
 
-DROP TABLE IF EXISTS `History`;
 CREATE TABLE IF NOT EXISTS `History` (
 `HistoryId` int(11) NOT NULL,
   `UserId` int(11) DEFAULT NULL,
@@ -128,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `History` (
   `EventDateTime` datetime NOT NULL,
   `Description` text NOT NULL,
   `Data` mediumtext NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -136,7 +154,6 @@ CREATE TABLE IF NOT EXISTS `History` (
 -- Table structure for table `Media`
 --
 
-DROP TABLE IF EXISTS `Media`;
 CREATE TABLE IF NOT EXISTS `Media` (
 `MediaId` int(11) NOT NULL,
   `Name` varchar(128) NOT NULL,
@@ -149,26 +166,62 @@ CREATE TABLE IF NOT EXISTS `Media` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `MediaBody`
+-- Table structure for table `Project`
 --
 
-DROP TABLE IF EXISTS `MediaBody`;
-CREATE TABLE IF NOT EXISTS `MediaBody` (
-  `MediaId` int(11) NOT NULL,
-  `Body` mediumblob NOT NULL
+CREATE TABLE IF NOT EXISTS `Project` (
+  `ProjectId` int(11) NOT NULL,
+  `Name` text NOT NULL,
+  `Description` text NOT NULL,
+  `IsPublic` tinyint(1) NOT NULL DEFAULT '0',
+  `IsActive` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `MediaSetSessions`
+-- Table structure for table `ProjectCave`
 --
 
-DROP TABLE IF EXISTS `MediaSetSessions`;
-CREATE TABLE IF NOT EXISTS `MediaSetSessions` (
-  `MediaId` int(11) NOT NULL,
-  `SessionId` varchar(24) NOT NULL,
-  `ExpireTime` datetime NOT NULL
+CREATE TABLE IF NOT EXISTS `ProjectCave` (
+  `ProjectId` int(11) NOT NULL,
+  `CaveId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ProjectData`
+--
+
+CREATE TABLE IF NOT EXISTS `ProjectData` (
+  `ProjectId` int(11) NOT NULL,
+  `Name` varchar(128) NOT NULL,
+  `Type` varchar(128) NOT NULL,
+  `MetaData` text NOT NULL,
+  `Value` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ProjectMedia`
+--
+
+CREATE TABLE IF NOT EXISTS `ProjectMedia` (
+  `ProjectId` int(11) NOT NULL,
+  `MediaId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ProjectUser`
+--
+
+CREATE TABLE IF NOT EXISTS `ProjectUser` (
+  `ProjectId` int(11) NOT NULL,
+  `UserId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -177,7 +230,6 @@ CREATE TABLE IF NOT EXISTS `MediaSetSessions` (
 -- Table structure for table `User`
 --
 
-DROP TABLE IF EXISTS `User`;
 CREATE TABLE IF NOT EXISTS `User` (
 `UserId` int(11) NOT NULL,
   `Name` varchar(128) NOT NULL,
@@ -189,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `Permissions` tinytext NOT NULL,
   `PasswordSalt` text NOT NULL,
   `PasswordHash` text NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -197,26 +249,12 @@ CREATE TABLE IF NOT EXISTS `User` (
 -- Table structure for table `UserData`
 --
 
-DROP TABLE IF EXISTS `UserData`;
 CREATE TABLE IF NOT EXISTS `UserData` (
-`DataId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL,
-  `Name` varchar(64) NOT NULL,
-  `Value` tinytext NOT NULL,
-  `Type` tinytext NOT NULL,
-  `MetaData` text NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `UserMedia`
---
-
-DROP TABLE IF EXISTS `UserMedia`;
-CREATE TABLE IF NOT EXISTS `UserMedia` (
-  `UserId` int(11) NOT NULL,
-  `MediaId` int(11) NOT NULL
+  `Name` varchar(128) NOT NULL,
+  `Type` varchar(128) NOT NULL,
+  `MetaData` text NOT NULL,
+  `Value` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -225,7 +263,6 @@ CREATE TABLE IF NOT EXISTS `UserMedia` (
 -- Table structure for table `UserSession`
 --
 
-DROP TABLE IF EXISTS `UserSession`;
 CREATE TABLE IF NOT EXISTS `UserSession` (
   `UserId` int(11) NOT NULL,
   `SessionId` varchar(24) NOT NULL,
@@ -286,16 +323,34 @@ ALTER TABLE `Media`
  ADD PRIMARY KEY (`MediaId`);
 
 --
--- Indexes for table `MediaBody`
+-- Indexes for table `Project`
 --
-ALTER TABLE `MediaBody`
- ADD PRIMARY KEY (`MediaId`);
+ALTER TABLE `Project`
+ ADD PRIMARY KEY (`ProjectId`);
 
 --
--- Indexes for table `MediaSetSessions`
+-- Indexes for table `ProjectCave`
 --
-ALTER TABLE `MediaSetSessions`
- ADD PRIMARY KEY (`MediaId`);
+ALTER TABLE `ProjectCave`
+ ADD KEY `CaveId` (`CaveId`), ADD KEY `ProjectId` (`ProjectId`);
+
+--
+-- Indexes for table `ProjectData`
+--
+ALTER TABLE `ProjectData`
+ ADD KEY `ProjectId` (`ProjectId`);
+
+--
+-- Indexes for table `ProjectMedia`
+--
+ALTER TABLE `ProjectMedia`
+ ADD KEY `ProjectId` (`ProjectId`), ADD KEY `MediaId` (`MediaId`);
+
+--
+-- Indexes for table `ProjectUser`
+--
+ALTER TABLE `ProjectUser`
+ ADD KEY `ProjectId` (`ProjectId`), ADD KEY `UserId` (`UserId`);
 
 --
 -- Indexes for table `User`
@@ -307,13 +362,7 @@ ALTER TABLE `User`
 -- Indexes for table `UserData`
 --
 ALTER TABLE `UserData`
- ADD PRIMARY KEY (`DataId`), ADD UNIQUE KEY `UserId_2` (`UserId`,`Name`), ADD KEY `UserId` (`UserId`);
-
---
--- Indexes for table `UserMedia`
---
-ALTER TABLE `UserMedia`
- ADD PRIMARY KEY (`UserId`,`MediaId`), ADD KEY `MediaId` (`MediaId`);
+ ADD KEY `UserId` (`UserId`);
 
 --
 -- Indexes for table `UserSession`
@@ -329,12 +378,12 @@ ALTER TABLE `UserSession`
 -- AUTO_INCREMENT for table `Cave`
 --
 ALTER TABLE `Cave`
-MODIFY `CaveId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=62;
+MODIFY `CaveId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=82;
 --
 -- AUTO_INCREMENT for table `History`
 --
 ALTER TABLE `History`
-MODIFY `HistoryId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=63;
+MODIFY `HistoryId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=151;
 --
 -- AUTO_INCREMENT for table `Media`
 --
@@ -344,12 +393,7 @@ MODIFY `MediaId` int(11) NOT NULL AUTO_INCREMENT;
 -- AUTO_INCREMENT for table `User`
 --
 ALTER TABLE `User`
-MODIFY `UserId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
---
--- AUTO_INCREMENT for table `UserData`
---
-ALTER TABLE `UserData`
-MODIFY `DataId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+MODIFY `UserId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
 --
 -- Constraints for dumped tables
 --
@@ -358,58 +402,66 @@ MODIFY `DataId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
 -- Constraints for table `CaveData`
 --
 ALTER TABLE `CaveData`
-ADD CONSTRAINT `CaveData_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`);
+ADD CONSTRAINT `CaveData_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `CaveLocation`
 --
 ALTER TABLE `CaveLocation`
-ADD CONSTRAINT `CaveLocation_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`);
+ADD CONSTRAINT `CaveLocation_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `CaveMedia`
 --
 ALTER TABLE `CaveMedia`
-ADD CONSTRAINT `CaveMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`),
-ADD CONSTRAINT `CaveMedia_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`);
+ADD CONSTRAINT `CaveMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`) ON DELETE CASCADE,
+ADD CONSTRAINT `CaveMedia_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `CaveUser`
 --
 ALTER TABLE `CaveUser`
-ADD CONSTRAINT `CaveUser_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`),
-ADD CONSTRAINT `CaveUser_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`);
+ADD CONSTRAINT `CaveUser_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`) ON DELETE CASCADE,
+ADD CONSTRAINT `CaveUser_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
--- Constraints for table `MediaBody`
+-- Constraints for table `ProjectCave`
 --
-ALTER TABLE `MediaBody`
-ADD CONSTRAINT `MediaBody_ibfk_1` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`);
+ALTER TABLE `ProjectCave`
+ADD CONSTRAINT `ProjectCave_ibfk_2` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE,
+ADD CONSTRAINT `ProjectCave_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
--- Constraints for table `MediaSetSessions`
+-- Constraints for table `ProjectData`
 --
-ALTER TABLE `MediaSetSessions`
-ADD CONSTRAINT `MediaSetSessions_ibfk_1` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`);
+ALTER TABLE `ProjectData`
+ADD CONSTRAINT `ProjectData_ibfk_1` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `ProjectMedia`
+--
+ALTER TABLE `ProjectMedia`
+ADD CONSTRAINT `ProjectMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`) ON DELETE CASCADE,
+ADD CONSTRAINT `ProjectMedia_ibfk_1` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `ProjectUser`
+--
+ALTER TABLE `ProjectUser`
+ADD CONSTRAINT `ProjectUser_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`) ON DELETE CASCADE,
+ADD CONSTRAINT `ProjectUser_ibfk_1` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `UserData`
 --
 ALTER TABLE `UserData`
-ADD CONSTRAINT `UserData_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`);
-
---
--- Constraints for table `UserMedia`
---
-ALTER TABLE `UserMedia`
-ADD CONSTRAINT `UserMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`),
-ADD CONSTRAINT `UserMedia_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`);
+ADD CONSTRAINT `UserData_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `UserSession`
 --
 ALTER TABLE `UserSession`
-ADD CONSTRAINT `UserSession_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`);
+ADD CONSTRAINT `UserSession_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`) ON DELETE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
