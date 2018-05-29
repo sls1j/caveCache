@@ -7,29 +7,9 @@ function HomeViewModel(nav, agent) {
 
     protected.navigatedTo = function(data) {
         private.doLoadUserdata();
-    }
+    }    
 
-    private.doLoadUserdata = function() {
-        let dp = function(obj, name, getFunc) {
-            Object.defineProperty(obj, name, {get: getFunc});
-        }
-
-        let mix = function(cave) {
-            cave.findLocation = function(id) {
-                for (let i = 0; i < cave.Locations.length; i++) {
-                    if (cave.Locations[i].LocationId === id)
-                        return cave.Locations[i];
-                }
-
-                return null;
-            }
-
-            dp(cave, "Latitude", () => cave.findLocation(cave.LocationId).Latitude);
-            dp(cave, "Longitude", () => cave.findLocation(cave.LocationId).Longitude);
-            dp(cave, "Accuracy", () => cave.findLocation(cave.LocationId).Accuracy);
-            dp(cave, "Altitude", () => cave.findLocation(cave.LocationId).Altitude);
-        }
-
+    private.doLoadUserdata = function() {                
         private.agent.userGetInfo()
             .then(userInfo => {
                 public.Caves.removeAll();
@@ -84,8 +64,12 @@ function HomeViewModel(nav, agent) {
 
     public.removeCave = function() {
         // ask are you sure?
-        private.agent.caveRemove(this.CaveId)
+        var caveId = this.CaveId;
+        executeMessageBox( "Are you sure you want to delete the cave.  It will delete everything.",
+        () =>{
+            private.agent.caveRemove(caveId)
             .then(() => {private.doLoadUserdata()});
+        } );
     }
 
     public.editCave = function() {
@@ -99,8 +83,9 @@ function HomeViewModel(nav, agent) {
     public.addCave = function() {
         
         agent.caveAdd().then( response => {
-            var cave = new Cave(response.Cave);
-            public.Caves.push(cave);            
+            var cave = response.Cave;
+            Cave(cave);
+            public.Caves().push(cave);            
             private.nav.navigateTo("cave-edit", {method: "edit", cave: cave});
         });
     }
