@@ -644,7 +644,7 @@ namespace caveCache
                     Locations = SafeToArray(from cl in caveLocation select cl.Clone()),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
-                    Notes = cu.Cave.Notes,
+                    Notes = cu.Cave.Notes ?? string.Empty,
                     CaveData = SafeToArray(from cd in caveData select cd.Clone()),
                     Media = SafeToArray(from m in caveMedia
                                         select new Database.Media()
