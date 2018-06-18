@@ -78,7 +78,8 @@ function NewCaveSurveyAgent(url) {
                 Description: cave.Description,
                 LocationId: cave.LocationId,
                 Locations: cave.Locations,
-                Data: cave.CaveData
+                Data: cave.CaveData,
+                Notes: cave.Notes,
             };
 
             private.sendCommand(caveUpdate).then(
@@ -88,7 +89,7 @@ function NewCaveSurveyAgent(url) {
                     else
                         reject("CaveAddUpdateRequest failed: " + response.Status + " " + response.StatusDescription);
                 },
-                err => reject("API command failed: " + err.status + "," + err, statusText)
+                err => reject("API command failed: " + err.status + "," + err.statusText)
             );
         });
     }

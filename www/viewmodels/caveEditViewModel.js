@@ -13,7 +13,7 @@ function CaveEditViewModel(nav, agent) {
                 public.Cave = Object.deepClone(data.data.cave);
 
                 console.info(public.Cave);
-            }
+            }            
 
             if (data.data.location) {
                 // had a location to update or add via the locationEditViewModel
@@ -77,11 +77,14 @@ function CaveEditViewModel(nav, agent) {
         private.update();
     }
 
-    private.update = function() {
+    private.update = function() {        
         // populate the cave data view
         let grid = document.getElementById("cave-data-grid");
         DynoGrid(grid, true);
-        grid.addRows(public.Cave.CaveData);
+        grid.addRows(public.Cave.CaveData);   
+        
+        document.getElementById("ce_notes").value = public.Cave.Notes;
+        WYSIWYG.attachAll(wysiwygSettings);      
     }
 
     public.getData = function(key, defaultValue = "") {
@@ -117,7 +120,9 @@ function CaveEditViewModel(nav, agent) {
         private.nav.navigateTo("home");
     }
 
-    public.save = function() {
+    public.save = function() {      
+        WYSIWYG.updateTextArea("ce_notes");        
+  
         // disable buttons
         // extract data from the form
         var cave = {
@@ -137,7 +142,7 @@ function CaveEditViewModel(nav, agent) {
 
         // get the cave data
         let grid = document.getElementById("cave-data-grid");
-        cave.CaveData = grid.valuesAsObject();
+        cave.CaveData = grid.valuesAsObject();        
 
         // send off to the agent
         private.agent.caveUpdate(cave)

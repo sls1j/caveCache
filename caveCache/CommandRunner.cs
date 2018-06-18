@@ -493,7 +493,7 @@ namespace caveCache
             if (_db.Caves.Count() > 0)
                 nameId = _db.Caves.Max(c => c.CaveId) + 1;
 
-            Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
+            Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now, Notes = string.Empty };
             _db.Caves.Add(cave);
             _db.SaveChanges();
 
@@ -534,6 +534,7 @@ namespace caveCache
 
             cave.Name = request.Name;
             cave.Description = request.Description ?? string.Empty;
+            cave.Notes = request.Notes;
             cave.IsDeleted = false;
 
             _db.SaveChanges();
@@ -643,6 +644,7 @@ namespace caveCache
                     Locations = SafeToArray(from cl in caveLocation select cl.Clone()),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
+                    Notes = cu.Cave.Notes,
                     CaveData = SafeToArray(from cd in caveData select cd.Clone()),
                     Media = SafeToArray(from m in caveMedia
                                         select new Database.Media()
@@ -689,7 +691,7 @@ namespace caveCache
                 SessionId = request.SessionId,
                 Name = user.Name,
                 Profile = user.Profile,
-                Permissions = user.Permissions,
+                Permissions = user.Permissions,                
                 Status = (int)HttpStatusCode.OK,
                 Data = user.Data.Select(d => d.Clone()).ToArray()
             };

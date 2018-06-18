@@ -4,7 +4,7 @@
             <input type="text" fieldName="Name" data-bind="textInput: Cave.Name"></input>
         </h1>
         <div>Description</div>
-        <textarea fieldName="Description" data-bind="value: Cave.Description"></textarea>
+        <input size="120" type="text" fieldName="Description" data-bind="value: Cave.Description"></inpu>
         <h2>Positional Data</h2>
         <div>
             <label>Coordinates:</label>
@@ -55,6 +55,10 @@
                 </select>
                 <button data-bind="click: caveDataAddRow">Add</button>
             </div>            
+        </div>
+        <div>
+            <h2>Notes</h2>
+            <textarea id="ce_notes" fieldName="Notes" data-bind="Cave.Notes"></textarea>
         </div>
     </div>
     <a href="#" data-bind="click: cancel">Cancel</a>

@@ -1,3 +1,6 @@
+body{
+    padding-bottom: 10em;
+}
 .container-fluid{
     padding-left: 48px;
     padding-right: 48px;
@@ -122,4 +125,11 @@
     background: none!important;
     height: 300px;
     width: 500px;
+}
+
+.notes{
+    padding: 12px;
+    border: 1px solid black;
+    box-shadow: 4px 4px 8px 2px black;
+    margin-bottom: 2em;
 }

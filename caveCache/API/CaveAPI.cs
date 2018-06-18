@@ -27,12 +27,14 @@ namespace caveCache.API
         [Parameter("A description of the cave")]
         public string Description;
         [Parameter("The identifier of the location that will be displayed.  A cave may have more than one location depending on collection methods.  Phone, GPS, from Map etc.")]
-        public int LocationId;
+        public int? LocationId;
 
         [Parameter("A list of locations.")]
         public Database.CaveLocation[] Locations;
         [Parameter("A list of custom data items.")]
         public Database.Data[] Data;
+        [Parameter("Notes pertaining to the cave.")]
+        public string Notes;
 
         public CaveUpdateRequest()
         {
@@ -82,6 +84,7 @@ namespace caveCache.API
         public string Name;
         public string Description;
         public int? LocationId;
+        public string Notes;
 
         public Database.Data[] CaveData;
         public Database.CaveLocation[] Locations;
