@@ -57,6 +57,8 @@ namespace caveCache
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error writing media: {ex.GetType().Name} : {ex.Message}");
+                Console.WriteLine($"{ex.StackTrace}");
                 return false;
             }
         }
