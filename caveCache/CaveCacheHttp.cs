@@ -92,7 +92,7 @@ namespace caveCache
 
             if (raw.StartsWith("/API/"))
                 RunAPICommand(context);
-            else if (raw == "/Media")
+            else if (raw == "/Media/Upload")
                 Handle_SetMedia(context);
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
