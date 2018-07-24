@@ -182,7 +182,7 @@ namespace caveCache
             var response = context.Response;
 
             var sessionId = request.Cookies["SessionId"].Value;
-            var mediaIdStr = "1";// request.Url.
+            var mediaIdStr = request.RawUrl.Split('/').Last();
             int mediaId;
             if (int.TryParse(mediaIdStr, out mediaId))
             {
