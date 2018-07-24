@@ -55,7 +55,7 @@ namespace caveCache
                var request = context.Request;
                response.AddHeader("Access-Control-Allow-Origin", "*");
                response.AddHeader("Access-Control-Allow-Credentials", "true");
-               response.AddHeader("Access-Control-Allow-Headers", "Overwrite, Destination, Content-Type, Depth, User-Agent, Translate, Range, Content-Range, Timeout, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control, Location, Lock-Token, If");
+               response.AddHeader("Access-Control-Allow-Headers", "Overwrite, Destination, Content-Type, Depth, User-Agent, Translate, Range, Content-Range, Timeout, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control, Location, Lock-Token, If, CC-SessionId, CC-AttachType, CC-AttachId, CC-FileName");
                response.AddHeader("Access-Control-Allow-Methods", "DELETE, GET, MOVE, OPTIONS, POST, PUT, UPDATE");
                response.AddHeader("Access-Control-Expose-Headers", "DAV, content-length, Allow");
                response.AddHeader("Access-Control-Max-Age", "1728000");
@@ -92,7 +92,7 @@ namespace caveCache
 
             if (raw.StartsWith("/API/"))
                 RunAPICommand(context);
-            else if (raw.StartsWith("/Media/"))
+            else if (raw == "/Media")
                 Handle_SetMedia(context);
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -181,8 +181,8 @@ namespace caveCache
             var request = context.Request;
             var response = context.Response;
 
-            var sessionId = request.QueryString["SessionId"];
-            var mediaIdStr = request.QueryString["MediaId"];
+            var sessionId = request.Cookies["SessionId"].Value;
+            var mediaIdStr = "1";// request.Url.
             int mediaId;
             if (int.TryParse(mediaIdStr, out mediaId))
             {
@@ -243,11 +243,9 @@ namespace caveCache
             setMedia.SessionId = request.Headers["CC-SessionId"];
             setMedia.AttachType = request.Headers["CC-AttachType"];
             setMedia.AttachToId = int.Parse(request.Headers["CC-AttachId"]);
-            setMedia.Description = request.Headers["CC-Description"];
             setMedia.FileName = request.Headers["CC-FileName"];
             setMedia.FileSize = (int)request.ContentLength64;
             setMedia.MimeType = request.ContentType;
-            setMedia.Name = request.Headers["CC-Name"];
             setMedia.Media = request.InputStream;
 
             API.SetMediaResponse setMediaResponse = null;
@@ -256,6 +254,14 @@ namespace caveCache
 
             response.StatusCode = setMediaResponse.Status;
             response.StatusDescription = setMediaResponse.StatusDescription;
+
+            // write out the new media id
+            if (setMediaResponse.MediaId.HasValue)
+            {
+                string mediaId = setMediaResponse.MediaId.ToString();
+                byte[] bytes = Encoding.UTF8.GetBytes(mediaId);
+                response.OutputStream.Write(bytes, 0, bytes.Length);
+            }
         }
 
         private void API_Test(HttpListenerContext context)

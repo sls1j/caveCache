@@ -245,11 +245,9 @@ namespace caveCache
 
                 var media = new Media()
                 {
-                    Description = request.Description,
                     FileName = request.FileName,
                     FileSize = request.FileSize,
                     MimeType = request.MimeType,
-                    Name = request.Name
                 };
 
                 if (request.FileSize > _config.MaxMediaSize)
@@ -649,12 +647,10 @@ namespace caveCache
                     Media = SafeToArray(from m in caveMedia
                                         select new Database.Media()
                                         {
-                                            Description = m.Media.Description,
                                             FileName = m.Media.FileName,
                                             FileSize = m.Media.FileSize,
                                             MediaId = m.MediaId,
                                             MimeType = m.Media.MimeType,
-                                            Name = m.Media.Name,
                                         })
                 });
         }

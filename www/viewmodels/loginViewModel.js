@@ -11,9 +11,10 @@ function LoginViewModel(nav, agent) {
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
             private.agent.login(email, password)
-                .then(sessionId => {
+                .then(sessionId => {                    
                     console.log("logged in with sessionId: ", sessionId);
                     private.nav.navigateTo("home");
+                    document.cookie = "sessionId=" + sessionId;
                 },
                 reason => {
                     console.log("failed to login with reason: ", reason);

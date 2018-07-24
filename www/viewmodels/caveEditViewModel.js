@@ -84,6 +84,7 @@ function CaveEditViewModel(nav, agent) {
         grid.addRows(public.Cave.CaveData);   
         
         document.getElementById("ce_notes").value = public.Cave.Notes;
+        wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+public.Cave.CaveId + "&mediaAttachmentType=cave";
         WYSIWYG.attachAll(wysiwygSettings);      
     }
 

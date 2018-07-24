@@ -10,8 +10,6 @@ namespace caveCache.Database
     class Media
     {
         public int MediaId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
         public string FileName { get; set; }
         public string MimeType { get; set; }
         public int FileSize { get; set; }
@@ -21,13 +19,6 @@ namespace caveCache.Database
             var tbl = mb.Entity<Media>();
 
             tbl.HasKey("MediaId");
-            tbl.Property(t => t.Name)
-                .IsRequired()
-                .HasMaxLength(128);
-
-            tbl.Property(t => t.Description)
-                .IsRequired()
-                .HasColumnType("mediumtext");
 
             tbl.Property(t => t.FileName)
                 .IsRequired()

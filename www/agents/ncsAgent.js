@@ -6,6 +6,8 @@ function NewCaveSurveyAgent(url) {
     private.sessionId = "";
     private.nextRequestId = 1;
 
+    public.sessionId = () => private.sessionId;
+
     public.login = function(email, password) {
         return new Promise((resolve, reject) => {
             let login = {
@@ -94,19 +96,18 @@ function NewCaveSurveyAgent(url) {
         });
     }
 
-    public.caveRemove = function(caveId)
-    {
-        return new Promise((resolve, reject) =>{
+    public.caveRemove = function(caveId) {
+        return new Promise((resolve, reject) => {
             let caveRemove = {
                 RequestType: "CaveRemoveRequest",
-                SessionId: private.sessionId, 
+                SessionId: private.sessionId,
                 RequestId: private.nextRequestId++,
                 CaveId: caveId
             };
 
             private.sendCommand(caveRemove).then(
                 response => {
-                    if ( response.Status == 200)
+                    if (response.Status == 200)
                         resolve(response);
                     else
                         reject("CaveRemoveRequest failed:  " + response.Status + " " + response.StatusDescription);
