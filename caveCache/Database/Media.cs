@@ -71,22 +71,6 @@ namespace caveCache.Database
         }
     }
 
-    class UserMedia
-    {
-        public int UserId { get; set; }
-        public int MediaId { get; set; }
-
-        public User User { get; set; }
-        public Media Media { get; set; }
-
-        public static void OnModelCreating(ModelBuilder mb)
-        {
-            var tbl = mb.Entity<UserMedia>();
-            tbl.ToTable("UserMedia");
-            tbl.HasKey(t => new { t.UserId, t.MediaId });
-        }
-    }
-
     class MediaSetSession
     {
         public int MediaId { get; set; }

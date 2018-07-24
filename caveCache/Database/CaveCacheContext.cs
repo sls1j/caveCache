@@ -16,7 +16,6 @@ namespace caveCache.Database
         public DbSet<CaveData> CaveData { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserData> UserData { get; set; }
-        public DbSet<UserMedia> UserMedia { get; set; }
         public DbSet<UserSession> Sessions { get; set; }
         public DbSet<Global> Globals { get; set; }
         public DbSet<History> History { get; set; }

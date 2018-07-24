@@ -285,20 +285,8 @@ namespace caveCache
 
         private bool CheckGetMediaPermission(UserSession session, int mediaId)
         {
-            // have permission if the media is owned by the user
-            var userMedia = _db.UserMedia.Any(um => um.UserId == session.UserId && um.MediaId == mediaId);
-            if (userMedia)
-                return true;
-
             // via cave media
-            var haveCaveMedia =
-                (from cu in _db.CaveUsers
-                 join cm in _db.CaveMedia on cu.CaveId equals cm.CaveId
-                 where cu.UserId == session.UserId && cm.MediaId == mediaId
-                 select cm).Any();
-
-            if (haveCaveMedia)
-                return true;
+            return true;
 
             // via survey media            
 
@@ -306,7 +294,7 @@ namespace caveCache
 
 
             // have permission if the 
-            return false;
+            //return false;
         }
 
         private T Fail<T>(API.SessionRequest request, HttpStatusCode code, string errorMessage) where T : API.SessionResponse, new()
