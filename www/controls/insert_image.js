@@ -170,7 +170,7 @@ function ImageLoader() {
 		return new Promise(function(resolve, reject) {
 			// post the image to the server		
 			let xhr = new XMLHttpRequest();
-			xhr.open("POST", private.url + "/Media");
+			xhr.open("POST", private.url + "/Media/Upload");
 			xhr.setRequestHeader("CC-SessionId", private.image_properties.sessionId);
 			xhr.setRequestHeader("CC-AttachType", private.image_properties.mediaAttachmentType);
 			xhr.setRequestHeader("CC-AttachId", private.image_properties.mediaAttachmentHandle);
