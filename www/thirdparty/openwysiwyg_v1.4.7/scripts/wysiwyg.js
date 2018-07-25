@@ -1091,8 +1091,8 @@ var WYSIWYG = {
 
 		// Check the insert image popup implementation
 		var imagePopupFile = this.config[n].PopupsDir + 'insert_image.html';
-		var imagePopupWidth = 400;
-		var imagePopupHeight = 210;
+		var imagePopupWidth = 500;
+		var imagePopupHeight = 280;
 		if (typeof this.config[n].ImagePopupFile != "undefined" && this.config[n].ImagePopupFile != "") {
 			imagePopupFile = this.config[n].ImagePopupFile;
 		}
