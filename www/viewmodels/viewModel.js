@@ -30,7 +30,7 @@ function ViewModel(public, name, nav, agent) {
                 protected.navigatedFrom(data);
             }
         }
-    }   
+    }       
 
     private.nav.addEventListener("navigated-to", private.inner_navigatedTo);
     private.nav.addEventListener("navigating-from", private.inner_navigatingFrom);
@@ -39,5 +39,5 @@ function ViewModel(public, name, nav, agent) {
         let container = document.getElementById(private.inner_pageElement);
         ko.cleanNode(container);
         ko.applyBindings(container);
-    }
+    }   
 }

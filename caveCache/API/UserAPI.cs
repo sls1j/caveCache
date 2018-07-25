@@ -27,6 +27,7 @@ namespace caveCache.API
 
     class UserGetInfoResponse : SessionResponse
     {
+        public int UserId;
         public string Name;
         public string Profile;
         public string Permissions;

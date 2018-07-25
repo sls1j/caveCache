@@ -5,26 +5,32 @@ function EditNoteViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    Object.defineProperty(public, "Method", { get: () => private.method });
-    public.CreatedTimestamp = ko.observable();
+    public.Method = ko.observable();
+    public.CreatedDate = ko.observable();
     public.Notes = ko.observable();
 
-    protected.navigatedTo = function (data) {
-        let n = data.data.note;
-        private.note = n;
-        public.CreatedTimestamp(n.CreatedTimestamp);
-        public.Notes(n.Notes);        
+    protected.navigatedTo = function (evt) {
+        let note = evt.data.note;
+        private.note = note;
+        public.Method(evt.data.method);
+        public.CreatedDate(note.CreatedDate);
+        public.Notes(note.Notes);          
+        
+        document.getElementById("ce_notes").value = note.Notes;
+        wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+note.CaveId + "&mediaAttachmentType=cave";
+        WYSIWYG.attachAll(wysiwygSettings);      
     }
 
     public.save = function () {
-        let n = {};
-        let pn = private.note;
-        n.NoteId = private.note.NoteId;
-        n.CreatedTimestamp = pn.CreatedTimestamp;
-        n.Notes = public.Notes();
-        n.UserId = pn.UserId;
-        n.AttachId = pn.AttachId;
-        n.AttachType = pn.AttachType;
+        WYSIWYG.updateTextArea("ce_notes");
+
+        let n = new Note();
+        let orignalNote = private.note;
+        n.NoteId = orignalNote.NoteId;
+        n.CreatedDate = orignalNote.CreatedDate;
+        n.Notes = document.getElementById("ce_notes").value;
+        n.UserId = orignalNote.UserId;
+        n.CaveId = orignalNote.CaveId;
 
         // navigate back to cave edit page
         private.nav.navigateTo("cave-edit", { method: "edit-note", note: n });

@@ -13,6 +13,7 @@ function HomeViewModel(nav, agent) {
         private.agent.userGetInfo()
             .then(userInfo => {
                 public.Caves.removeAll();
+                private.userInfo = userInfo;
                 userInfo.Caves.forEach(c => {
                     Cave(c);
                     // sometimes the locationId is bad if so set to valid location
@@ -73,12 +74,8 @@ function HomeViewModel(nav, agent) {
     }
 
     public.editCave = function() {
-        private.nav.navigateTo("cave-edit", {method: "edit", cave: this});
-    }
-
-    public.editCaveMedia = function() {
-        private.nav.navigateTo("cave-media", {method: "normal", cave: this});
-    }
+        private.nav.navigateTo("cave-edit", {method: "edit", cave: this, userInfo: private.userInfo});
+    }    
 
     public.addCave = function() {
         
@@ -86,7 +83,7 @@ function HomeViewModel(nav, agent) {
             var cave = response.Cave;
             Cave(cave);
             public.Caves().push(cave);            
-            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave});
+            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave, userInfo: private.userInfo});
         });
     }
 

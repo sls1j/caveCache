@@ -5,19 +5,19 @@ function CaveEditViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    protected.navigatedTo = function(data) {
-        private.method = data.data.method;
+    protected.navigatedTo = function(evt) {
+        private.method = evt.data.method;
 
         if (private.method === "edit" || private.method === "add") {
-            if (data.data.method === "edit") {
-                public.Cave = Object.deepClone(data.data.cave);
-
+            if (evt.data.method === "edit") {
+                public.Cave = Object.deepClone(evt.data.cave);
+                private.userInfo = evt.data.userInfo;
                 console.info(public.Cave);
-            }            
+            }
 
-            if (data.data.location) {
+            if (evt.data.location) {
                 // had a location to update or add via the locationEditViewModel
-                let l = data.data.location;
+                let l = evt.data.location;
                 let found = false;
                 for (let i = 0; i < public.Cave.Locations.length; i++) {
                     var ol = public.Cave.Locations[i];
@@ -46,50 +46,66 @@ function CaveEditViewModel(nav, agent) {
             // this assumes all the cave data from before the location edit hasn't been cleared out
 
             // remove old
-            public.Cave.Locations.removeAll(l => l.LocationId === data.data.location.LocationId);
+            public.Cave.Locations.removeAll(l => l.LocationId === evt.data.location.LocationId);
             // add new
-            let loc = data.data.location;
+            let loc = evt.data.location;
             if (loc.LocationId === -1) {
                 // assign locationId
-                let locationNotUnique = true;
-                while (locationNotUnique) {
-                    locationNotUnique = false;
-                    loc.LocationId += 1;
+                let notUnique = true;
+                loc.LocationId = 1;
+                while (notUnique) {
+                    notUnique = false;
                     for (let i = 0; i < public.Cave.Locations.length; i++) {
                         if (public.Cave.Locations[i].LocationId === loc.LocationId) {
-                            locationNotUnique = true;
+                            notUnique = true;
+                            loc.LocationId++;
                             break;
                         }
                     }
                 }
             }
-            public.Cave.Locations.push(data.data.location);
+            public.Cave.Locations.push(evt.data.location);
             // make sure it's sorted
             public.Cave.Locations.sort((a, b) => a.CaptureDate - b.CaptureDate);
         }
         else if (private.method === "cancel-add-location") {
             // this assumes all the cave data from before the location edit hasn't been cleared out
         }
-        else if (private.method === "select-active-location") {
+        else if (private.method === "update") {
 
         }
-        else if (private.method === "add-note")
-        {
-            // add note via agent
+        else if (private.method === "edit-note") {
+            // remove old
+            let note = evt.data.note;
+            public.Cave.Notes.removeAll(n => n.NoteId === note.NoteId);
+            if (note.NoteId === -1) {
+                // assign noteId
+                let notUnique = true;
+                note.NoteId = 1;
+                while (notUnique) {
+                    notUnique = false;
+                    for (let i = 0; i < public.Cave.Notes.length; i++) {
+                        if (note.NoteId === public.Cave.Notes[i].NoteId) {
+                            notUnique = true;
+                            note.NoteId++; // try the next one
+                            break;
+                        }
+                    }
+                }
+            }
+
+            public.Cave.Notes.push(note);
+            public.Cave.Notes.sort((a, b) => b.CreatedDate - a.CreatedDate);
         }
 
         private.update();
     }
 
-    private.update = function() {        
+    private.update = function() {
         // populate the cave data view
         let grid = document.getElementById("cave-data-grid");
         DynoGrid(grid, true);
-        grid.addRows(public.Cave.CaveData);   
-        
-        //document.getElementById("ce_notes").value = public.Cave.Notes;
-        //wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+public.Cave.CaveId + "&mediaAttachmentType=cave";
-        //WYSIWYG.attachAll(wysiwygSettings);      
+        grid.addRows(public.Cave.CaveData);
     }
 
     public.getData = function(key, defaultValue = "") {
@@ -125,9 +141,7 @@ function CaveEditViewModel(nav, agent) {
         private.nav.navigateTo("home");
     }
 
-    public.save = function() {      
-        WYSIWYG.updateTextArea("ce_notes");        
-  
+    public.save = function() {
         // disable buttons
         // extract data from the form
         var cave = {
@@ -144,10 +158,11 @@ function CaveEditViewModel(nav, agent) {
 
         cave.LocationId = public.Cave.LocationId;
         cave.Locations = public.Cave.Locations;
+        cave.Notes = public.Cave.Notes;
 
         // get the cave data
         let grid = document.getElementById("cave-data-grid");
-        cave.CaveData = grid.valuesAsObject();        
+        cave.CaveData = grid.valuesAsObject();
 
         // send off to the agent
         private.agent.caveUpdate(cave)
@@ -167,7 +182,9 @@ function CaveEditViewModel(nav, agent) {
     }
 
     public.deleteLocation = function(location) {
-        console.info("deleteLocation: ", location);
+        public.Cave.Locations.removeAll( l => l.locationId === location.locationId);
+        private.nav.navigateTo("cave-edit", {method:"update"});
+        console.info("deleteLocation: ", location);        
     }
 
     public.addLocation = function() {
@@ -178,21 +195,25 @@ function CaveEditViewModel(nav, agent) {
     public.selectLocation = function(location) {
         console.info("selectLocation: ", location);
         public.Cave.LocationId = location.LocationId;
-        private.nav.navigateTo("cave-edit", {method: "select-active-location"})
+        private.nav.navigateTo("cave-edit", {method:"update"});
     }
 
-    public.addNote = function(){
-        let note = new Note();        
-
+    public.addNote = function() {
+        let note = new Note();
+        note.CaveId = public.Cave.CaveId;
+        note.UserId = private.userInfo.UserId;
+        note.CreatedDate = new Date();
         console.info("addNote: ", note)
+        private.nav.navigateTo("note-edit", {note: note, method: "Add"});
     }
 
-    public.editNote = function(note){
-
+    public.editNote = function(note) {
+        private.nav.navigateTo("note-edit", {note: note, method: "Edit"});
     }
 
-    public.deleteNote = function(note){
-        
+    public.deleteNote = function(note) {
+        public.Cave.Notes.removeAll(n => n.NoteId === note.NoteId);
+        private.nav.navigateTo("cave-edit", {method:"update"});
     }
 
 
@@ -202,12 +223,12 @@ function CaveEditViewModel(nav, agent) {
     }
 
     public.fileUpload = function(data, event) {
-        
+
         var fin = event.currentTarget.files[0];
 
-        if (null != fin && fin.size < 5*1024*1024) {
+        if (null != fin && fin.size < 5 * 1024 * 1024) {
             var reader = new FileReader();
-            reader.onload = function(){
+            reader.onload = function() {
                 var preview = document.getElementById("img");
                 preview.src = reader.result;
             }

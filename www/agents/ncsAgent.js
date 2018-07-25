@@ -256,12 +256,12 @@ function Location(loc = null) {
 
 var $Note_Empty = {
     NoteId: -1, CreatedTimestamp: null,
-    Notes: "", AttachId = -1, AttachType = "", UserId = -1
-}
+    Notes: "", AttachId: -1, AttachType: "", UserId: -1
+};
 
-function Note(note = null){
-    if ( null == note)
-    note = this;
+function Note(note = null) {
+    if (null == note)
+        note = this;
 
     return Object.deepExtend($Note_Empty, note);
 }

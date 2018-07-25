@@ -66,6 +66,7 @@ namespace caveCache
             var caveIds = new HashSet<int>(uncleanCaves.Select(c => c.CaveId));
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => caveIds.Contains(cd.CaveId)));
             _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => caveIds.Contains(cl.CaveId)));
+            _db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => caveIds.Contains(cn.CaveId)));
             _db.CaveUsers.RemoveRange(_db.CaveUsers.Where(cu => caveIds.Contains(cu.CaveId)));
             _db.Caves.RemoveRange(uncleanCaves);
             _db.SaveChanges();
@@ -704,21 +705,13 @@ namespace caveCache
             {
                 RequestId = request.RequestId,
                 SessionId = request.SessionId,
+                UserId = user.UserId,
                 Name = user.Name,
                 Profile = user.Profile,
                 Permissions = user.Permissions,
                 Status = (int)HttpStatusCode.OK,
                 Data = user.Data.Select(d => d.Clone()).ToArray()
-            };
-
-            // media data
-            //response.Media =
-            // (from m in _db.UserMedia.Include(t => t.Media)
-            //  where m.UserId == session.UserId
-            //  select m.Media.Clone()).ToArray();
-
-            // get survey data
-            // TODO
+            };            
 
             // get cave data
             response.Caves = GetCaveInfo().Where(c => c.UserId == user.UserId).Select(c => c.Cave).OrderBy(c => c.Name).ToArray();

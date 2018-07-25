@@ -123,6 +123,7 @@ namespace caveCache.Database
         public int CaveId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string Notes { get; set; }
+        public int UserId { get; set; }
 
         public static void OnModelCreating(ModelBuilder mb)
         {
@@ -140,6 +141,8 @@ namespace caveCache.Database
             tbl.Property(t => t.CreatedDate)
                 .IsRequired();
 
+            tbl.Property(t => t.UserId)
+                .IsRequired();
         }
 
         public CaveNote Clone()

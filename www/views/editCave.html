@@ -21,7 +21,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: Cave.Locations">
+                <tbody id="locations" data-bind="foreach: Cave.Locations">
                     <tr>
                         <td data-bind="text: CaptureDate"></td>
                         <td data-bind="text: Latitude"></td>
@@ -66,16 +66,17 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: Cave.Notes">
+                <tbody id="notes" data-bind="foreach: Cave.Notes">
                     <tr>
-                        <td data-bind="text: CreatedTimestamp"></td>
-                        <td><a href="#" data-bind="click: $parent.editNote">Edit</a></td>
-                        <td><a href="#" data-bind="click: $parent.deleteNote">Delete</a></td>
+                        <td data-bind="text: CreatedDate"></td>
+                        <td>
+                            <a href="#" data-bind="click: $parent.editNote">Edit</a>
+                            <a href="#" data-bind="click: $parent.deleteNote">Delete</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
             <a href="#" data-bind="click: addNote">Add Note</a>
-            <!--<textarea id="ce_notes" fieldName="Notes" data-bind="Cave.Notes"></textarea>-->
         </div>
     </div>
     <a href="#" data-bind="click: cancel">Cancel</a>
