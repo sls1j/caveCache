@@ -65,8 +65,7 @@ namespace caveCache
             var uncleanCaves = _db.Caves.Where(c => (!c.Saved) && (now - c.CreatedDate).TotalDays >= 1.0).ToArray();
             var caveIds = new HashSet<int>(uncleanCaves.Select(c => c.CaveId));
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => caveIds.Contains(cd.CaveId)));
-            _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => caveIds.Contains(cl.CaveId)));
-            _db.CaveMedia.RemoveRange(_db.CaveMedia.Where(cm => caveIds.Contains(cm.CaveId)));
+            _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => caveIds.Contains(cl.CaveId)));
             _db.CaveUsers.RemoveRange(_db.CaveUsers.Where(cu => caveIds.Contains(cu.CaveId)));
             _db.Caves.RemoveRange(uncleanCaves);
             _db.SaveChanges();
@@ -248,6 +247,8 @@ namespace caveCache
                     FileName = request.FileName,
                     FileSize = request.FileSize,
                     MimeType = request.MimeType,
+                    AttachId = request.AttachId,
+                    AttachType = request.AttachType
                 };
 
                 if (request.FileSize > _config.MaxMediaSize)
@@ -281,7 +282,7 @@ namespace caveCache
             }
             else
                 return Fail<SetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-        }       
+        }
 
         private bool CheckGetMediaPermission(UserSession session, int mediaId)
         {
@@ -299,11 +300,14 @@ namespace caveCache
 
         private T Fail<T>(API.SessionRequest request, HttpStatusCode code, string errorMessage) where T : API.SessionResponse, new()
         {
-            var response = new T();
-            response.RequestId = request.RequestId;
-            response.SessionId = request.SessionId;
-            response.Status = (int)code;
-            response.StatusDescription = errorMessage;
+            var response = new T()
+            {
+                RequestId = request.RequestId,
+                SessionId = request.SessionId,
+                Status = (int)code,
+                StatusDescription = errorMessage
+            };
+
             return response;
         }
 
@@ -514,16 +518,14 @@ namespace caveCache
                 return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
 
             cave.LocationId = null;
-            _db.CaveLocations.RemoveRange(_db.CaveLocations.Where(cl => cl.CaveId == cave.CaveId).ToArray());
+            _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => cl.CaveId == cave.CaveId).ToArray());
+            _db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => cn.CaveId == cave.CaveId).ToArray());
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
             _db.SaveChanges();
 
             cave.Name = request.Name;
             cave.Description = request.Description ?? string.Empty;
-            cave.Notes = request.Notes;
             cave.IsDeleted = false;
-
-            _db.SaveChanges();
 
             if (request.Data != null)
             {
@@ -547,12 +549,49 @@ namespace caveCache
                     Unit = l.Unit ?? "Emperial",
                 };
 
-                _db.CaveLocations.Add(location);
+                _db.CaveLocation.Add(location);
+            }
+
+            foreach (var n in request.Notes)
+            {
+                var cn = n.Clone();
+                _db.CaveNote.Add(cn);
             }
 
             _db.History.Add(HistoryEntry(session.UserId, cave.CaveId, null, null, "Cave updated by {0}", session.User.Name));
 
             _db.SaveChanges();
+
+            // get list of all associated media
+            var deadMedia = new HashSet<Media>();
+            foreach (var caveMedia in _db.Media.Where(m => m.AttachId == cave.CaveId && m.AttachType == "cave"))
+            {
+                bool notFound = true;
+                var reference = $"src=\"/Media/{caveMedia.MediaId}\"";
+                // check to see if it's contained in one of the notes
+                foreach (var n in request.Notes)
+                {
+                    if (n.Notes.Contains(reference))
+                    {
+                        notFound = false;
+                        break;
+                    }
+                }
+
+                if (notFound)
+                    deadMedia.Add(caveMedia);
+            }
+
+            if (deadMedia.Count > 0)
+            {
+                // remove the files
+                foreach (var m in deadMedia)
+                    _cache.RemoveMedia(m.MediaId);
+
+                // remove the database entries
+                _db.Media.RemoveRange(deadMedia);
+                _db.SaveChanges();
+            }
 
             return new API.CaveUpdateResponse()
             {
@@ -570,7 +609,7 @@ namespace caveCache
                 return Fail<API.CaveRemoveResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
 
             var caveUser = _db.CaveUsers.FirstOrDefault(cu => cu.UserId == session.UserId && cu.CaveId == request.CaveId);
-            if (caveUser == null )
+            if (caveUser == null)
                 return Fail<API.CaveRemoveResponse>(request, HttpStatusCode.NotFound, $"Cave with id {request.CaveId} not found.");
 
             var userCount = _db.Caves.Where(cu => cu.CaveId == request.CaveId).Count();
@@ -620,9 +659,9 @@ namespace caveCache
 
             return
                 from cu in caveUsers
-                join cl in _db.CaveLocations on cu.CaveId equals cl.CaveId into caveLocation
+                join cl in _db.CaveLocation on cu.CaveId equals cl.CaveId into caveLocation
                 join cd in _db.CaveData on cu.CaveId equals cd.CaveId into caveData
-                join md in _db.CaveMedia.Include(t => t.Media) on cu.CaveId equals md.CaveId into caveMedia
+                join cn in _db.CaveNote on cu.CaveId equals cn.CaveId into caveNotes
                 select new CaveTuple(cu.UserId, new API.CaveInfo()
                 {
                     CaveId = cu.CaveId,
@@ -630,16 +669,8 @@ namespace caveCache
                     Locations = SafeToArray(from cl in caveLocation select cl.Clone()),
                     Description = cu.Cave.Description,
                     Name = cu.Cave.Name,
-                    Notes = cu.Cave.Notes ?? string.Empty,
+                    Notes = SafeToArray(from cn in caveNotes select cn.Clone()),
                     CaveData = SafeToArray(from cd in caveData select cd.Clone()),
-                    Media = SafeToArray(from m in caveMedia
-                                        select new Database.Media()
-                                        {
-                                            FileName = m.Media.FileName,
-                                            FileSize = m.Media.FileSize,
-                                            MediaId = m.MediaId,
-                                            MimeType = m.Media.MimeType,
-                                        })
                 });
         }
 
@@ -675,7 +706,7 @@ namespace caveCache
                 SessionId = request.SessionId,
                 Name = user.Name,
                 Profile = user.Profile,
-                Permissions = user.Permissions,                
+                Permissions = user.Permissions,
                 Status = (int)HttpStatusCode.OK,
                 Data = user.Data.Select(d => d.Clone()).ToArray()
             };
@@ -764,8 +795,7 @@ namespace caveCache
         public object GenericInvokeCommand(object request)
         {
             Type requestType = request.GetType();
-            Func<object, object> exec = null;
-            if (_commands.TryGetValue(requestType, out exec))
+            if (_commands.TryGetValue(requestType, out Func<object, object> exec))
             {
                 return exec(request);
             }

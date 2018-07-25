@@ -131,7 +131,7 @@ function NewCaveSurveyAgent(url) {
                 SessionId: private.sessionId,
                 RequestId: private.nextRequestId++,
                 AttachType: attachType,
-                AttachToId: attachId,
+                AttachId: attachId,
                 Name: name,
                 Description: description,
                 FileName: file.FileName,
@@ -252,6 +252,18 @@ function Location(loc = null) {
         loc = this;
 
     return Object.deepExtend($Cave_EmptyLocation, loc);
+}
+
+var $Note_Empty = {
+    NoteId: -1, CreatedTimestamp: null,
+    Notes: "", AttachId = -1, AttachType = "", UserId = -1
+}
+
+function Note(note = null){
+    if ( null == note)
+    note = this;
+
+    return Object.deepExtend($Note_Empty, note);
 }
 
 function Cave(cave = null) {

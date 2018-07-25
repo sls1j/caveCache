@@ -28,6 +28,7 @@
     <script src="viewmodels/locationEditViewModel.js"></script>
     <script src="viewmodels/caveMediaViewModel.js"></script>
     <script src="viewmodels/caveMediaAddViewModel.js"></script>
+    <script src="viewmodels/noteEditViewModel.js"></script>
 </head>
 
 <body>
@@ -75,8 +76,9 @@
         nav.addPage("location-edit", "views/editLocation.html");
         nav.addPage("cave-media", "views/caveMedia.html");
         nav.addPage("cave-media-add", "views/caveMediaAdd.html");
+        nav.addPage("note-edit", "views/editNote.html");
 
-        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel,CaveMediaViewModel,CaveMediaAddViewModel];
+        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel,CaveMediaViewModel,CaveMediaAddViewModel, EditNoteViewModel];
         var viewModels = [];
         for (let i = 0; i < viewModelClasses.length; i++) {
             let classCon = viewModelClasses[i];

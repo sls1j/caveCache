@@ -68,7 +68,6 @@ namespace caveCache.API
                             }
                         },
                         CaveData = new Database.Data[0],
-                        Media = new Database.Media[0],
                         Name = "Simple Cave"
                         }
                     }

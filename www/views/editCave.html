@@ -1,10 +1,11 @@
-<div>    
+<div>
     <div>
         <h1>Name
             <input type="text" fieldName="Name" data-bind="textInput: Cave.Name"></input>
         </h1>
         <div>Description</div>
-        <input size="120" type="text" fieldName="Description" data-bind="value: Cave.Description"></inpu>
+        <input size="120" type="text" fieldName="Description" data-bind="value: Cave.Description">
+        </inpu>
         <h2>Positional Data</h2>
         <div>
             <label>Coordinates:</label>
@@ -54,11 +55,27 @@
                     <option value="textarea">Text Area</option>
                 </select>
                 <button data-bind="click: caveDataAddRow">Add</button>
-            </div>            
+            </div>
         </div>
         <div>
             <h2>Notes</h2>
-            <textarea id="ce_notes" fieldName="Notes" data-bind="Cave.Notes"></textarea>
+            <table class="table table-bordered table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: Cave.Notes">
+                    <tr>
+                        <td data-bind="text: CreatedTimestamp"></td>
+                        <td><a href="#" data-bind="click: $parent.editNote">Edit</a></td>
+                        <td><a href="#" data-bind="click: $parent.deleteNote">Delete</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <a href="#" data-bind="click: addNote">Add Note</a>
+            <!--<textarea id="ce_notes" fieldName="Notes" data-bind="Cave.Notes"></textarea>-->
         </div>
     </div>
     <a href="#" data-bind="click: cancel">Cancel</a>

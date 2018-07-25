@@ -11,8 +11,7 @@ namespace caveCache.Database
         public DbSet<Cave> Caves { get; set; }
         
         public DbSet<CaveUser> CaveUsers { get; set; }
-        public DbSet<CaveMedia> CaveMedia { get; set; }
-        public DbSet<CaveLocation> CaveLocations { get; set; }
+        public DbSet<CaveLocation> CaveLocation { get; set; }
         public DbSet<CaveData> CaveData { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserData> UserData { get; set; }
@@ -20,9 +19,7 @@ namespace caveCache.Database
         public DbSet<Global> Globals { get; set; }
         public DbSet<History> History { get; set; }
         public DbSet<Media> Media { get; set; }
-        public DbSet<MediaBody> MediaBody { get; set; }
-        public DbSet<MediaSetSession> MediaSetSession { get; set; }
-
+        public DbSet<CaveNote> CaveNote { get; set; }
         public string ConnectionString { get; set; }
 
         public CaveCacheContext()

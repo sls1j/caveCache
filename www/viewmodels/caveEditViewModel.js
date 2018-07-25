@@ -73,6 +73,10 @@ function CaveEditViewModel(nav, agent) {
         else if (private.method === "select-active-location") {
 
         }
+        else if (private.method === "add-note")
+        {
+            // add note via agent
+        }
 
         private.update();
     }
@@ -83,9 +87,9 @@ function CaveEditViewModel(nav, agent) {
         DynoGrid(grid, true);
         grid.addRows(public.Cave.CaveData);   
         
-        document.getElementById("ce_notes").value = public.Cave.Notes;
-        wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+public.Cave.CaveId + "&mediaAttachmentType=cave";
-        WYSIWYG.attachAll(wysiwygSettings);      
+        //document.getElementById("ce_notes").value = public.Cave.Notes;
+        //wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+public.Cave.CaveId + "&mediaAttachmentType=cave";
+        //WYSIWYG.attachAll(wysiwygSettings);      
     }
 
     public.getData = function(key, defaultValue = "") {
@@ -176,6 +180,21 @@ function CaveEditViewModel(nav, agent) {
         public.Cave.LocationId = location.LocationId;
         private.nav.navigateTo("cave-edit", {method: "select-active-location"})
     }
+
+    public.addNote = function(){
+        let note = new Note();        
+
+        console.info("addNote: ", note)
+    }
+
+    public.editNote = function(note){
+
+    }
+
+    public.deleteNote = function(note){
+        
+    }
+
 
     public.isSelected = function(location) {
         var retVal = location.LocationId === public.Cave.LocationId;

@@ -59,7 +59,11 @@
         <div id="cave-data-grid"></div>
 
         <h2>Notes</h2>
-        <div class="notes" data-bind="html: Cave.Notes"></div>
+        <div data-bind="foreach: Cave.Notes">
+            <hr>
+            <h3>text: CreatedTimestamp</h3>
+            <div class="notes" data-bind="html: Notes"></div>
+        </div>        
     </div>
     <a href="#" data-bind="click: returnToHome">Back</a>
 </div>

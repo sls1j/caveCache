@@ -31,8 +31,6 @@ namespace caveCache.API
         public string Profile;
         public string Permissions;
         public Database.Data[] Data;
-        public Database.Media[] Media;
-        public SurveyInfo[] Surveys;
         public CaveInfo[] Caves;
     }
 
@@ -50,7 +48,7 @@ namespace caveCache.API
     [Request("Finishes the process to reset a password.  The verification token must come from the link that is emailed by the UserResetPasswordRequest.  It will generate a new password and email it to the user.")]
     class UserVerifyPasswordResetRequest : Request
     {
-        public string VerifyToken;
+        public string VerifyToken = string.Empty;
     }
     
     class UserVerifyPasswordRestResponse : Response

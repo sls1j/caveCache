@@ -15,7 +15,7 @@ namespace caveCache
         private ExecutionGuard _guard;
         private HttpListener _listener;
         private CommandRunner _cmd;
-        private Timer _timer;
+        private readonly Timer _timer;
 
         public CaveCacheHttp(IConfiguration conf, IMediaCache cache, Database.CaveCacheContext db)
         {
@@ -183,8 +183,7 @@ namespace caveCache
 
             var sessionId = request.Cookies["SessionId"].Value;
             var mediaIdStr = request.RawUrl.Split('/').Last();
-            int mediaId;
-            if (int.TryParse(mediaIdStr, out mediaId))
+            if (int.TryParse(mediaIdStr, out int mediaId))
             {
                 // build the commandRunner command
                 API.GetMediaRequest getMediaStream = new API.GetMediaRequest()
@@ -239,14 +238,16 @@ namespace caveCache
             var request = context.Request;
             var response = context.Response;
 
-            API.SetMediaRequest setMedia = new API.SetMediaRequest();
-            setMedia.SessionId = request.Headers["CC-SessionId"];
-            setMedia.AttachType = request.Headers["CC-AttachType"];
-            setMedia.AttachToId = int.Parse(request.Headers["CC-AttachId"]);
-            setMedia.FileName = request.Headers["CC-FileName"];
-            setMedia.FileSize = (int)request.ContentLength64;
-            setMedia.MimeType = request.ContentType;
-            setMedia.Media = request.InputStream;
+            var setMedia = new API.SetMediaRequest()
+            {
+                SessionId = request.Headers["CC-SessionId"],
+                AttachType = request.Headers["CC-AttachType"],
+                AttachId = int.Parse(request.Headers["CC-AttachId"]),
+                FileName = request.Headers["CC-FileName"],
+                FileSize = (int)request.ContentLength64,
+                MimeType = request.ContentType,
+                Media = request.InputStream,
+            };
 
             API.SetMediaResponse setMediaResponse = null;
             lock (_cmd)

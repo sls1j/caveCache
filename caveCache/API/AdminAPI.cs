@@ -30,7 +30,7 @@ namespace caveCache.API
     
     class UserResetPasswordResponse : SessionResponse
     {
-        public string NewPassword;
+        public string NewPassword = string.Empty;        
     }
 
     class SessionListRequest : SessionRequest { }

@@ -8,6 +8,7 @@ namespace caveCache
     interface IMediaCache
     {
         Stream GetMediaDataStream(int mediaId);
+        bool RemoveMedia(int mediaId);
         bool SetMediaDataStream(int mediaId, Stream stream);
     }
 
@@ -36,6 +37,26 @@ namespace caveCache
                 return new FileStream(path, FileMode.Open, FileAccess.Read);
             else
                 throw new FileNotFoundException($"File for media {mediaId} not found at expected location '{path}'");
+        }
+
+        public bool RemoveMedia(int mediaId)
+        {
+            string path = BuildFilePath(mediaId);
+            if (File.Exists(path))
+            {
+                try
+                {
+                    File.Delete(path);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unable to removed file. Error {ex.GetType().Name} '{ex.Message}'");
+                    return false;
+                }
+            }
+            else
+                return true;
         }
 
         public bool SetMediaDataStream(int mediaId, Stream stream)

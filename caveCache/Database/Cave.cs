@@ -117,6 +117,37 @@ namespace caveCache.Database
         }
     }
 
+    class CaveNote
+    {
+        public int NoteId { get; set; }
+        public int CaveId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string Notes { get; set; }
+
+        public static void OnModelCreating(ModelBuilder mb)
+        {
+            var tbl = mb.Entity<CaveNote>();
+
+            tbl.HasKey(t => new { t.CaveId, t.NoteId });
+
+            tbl.HasKey("NoteId");
+            tbl.Property(t => t.Notes)
+                .IsRequired();
+
+            tbl.Property(t => t.CaveId)
+                .IsRequired();
+
+            tbl.Property(t => t.CreatedDate)
+                .IsRequired();
+
+        }
+
+        public CaveNote Clone()
+        {
+            return MemberwiseClone() as CaveNote;
+        }
+    }
+
     public static class Units
     {
         public const string Emprial = "Emperial";

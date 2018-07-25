@@ -34,12 +34,14 @@ namespace caveCache.API
         [Parameter("A list of custom data items.")]
         public Database.Data[] Data;
         [Parameter("Notes pertaining to the cave.")]
-        public string Notes;
+        public Database.CaveNote[] Notes;
 
         public CaveUpdateRequest()
         {
+            CaveId = 0;
             Locations = new Database.CaveLocation[0];
             Data = new Database.Data[0];
+            Notes = new Database.CaveNote[0];
         }
     }
 
@@ -84,11 +86,10 @@ namespace caveCache.API
         public string Name;
         public string Description;
         public int? LocationId;
-        public string Notes;
 
         public Database.Data[] CaveData;
         public Database.CaveLocation[] Locations;
-        public Database.Media[] Media;
+        public Database.CaveNote[] Notes;
     }
 
     [Request("Removes the cave include *all* of it's data.")]

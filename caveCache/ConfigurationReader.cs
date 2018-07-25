@@ -19,8 +19,7 @@ namespace caveCache
 
         private string GetValue(string key, string defaultValue = null)
         {
-            string v;
-            if (_Config.TryGetValue(key, out v))
+            if (_Config.TryGetValue(key, out string v))
                 return v;
             else
                 return defaultValue ?? string.Empty;
@@ -33,8 +32,7 @@ namespace caveCache
             get
             {
                 string v = GetValue("MaxMediaSize"); 
-                int iv;
-                if (int.TryParse(v, out iv))
+                if (int.TryParse(v, out int iv))
                     return iv;
                 else
                     return 5 * 1024 * 1024; // 5MB is the default max size of any piece of media                 

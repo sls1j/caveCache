@@ -10,8 +10,8 @@ namespace caveCache.API
 {
     class APIHelpGenerator
     {
-        string _html;
-        ExampleValueFactory _factory;
+        private readonly string _html;
+        private ExampleValueFactory _factory;
 
         public APIHelpGenerator()
         {
@@ -57,9 +57,8 @@ namespace caveCache.API
 
                 command.H(3, p.request.Name);
 
-                var requestAttr = p.request.GetCustomAttribute(typeof(RequestAttribute)) as RequestAttribute;
-                if (null != requestAttr)
-                    command.Div(requestAttr.Description);                
+                if (p.request.GetCustomAttribute(typeof(RequestAttribute)) is RequestAttribute requestAttr)
+                    command.Div(requestAttr.Description);
 
                 BuildClassHelp(command, p.request);
                 command.H(4, "Example:");
