@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 28, 2018 at 08:48 PM
+-- Generation Time: Jul 25, 2018 at 02:18 PM
 -- Server version: 5.5.58-0+deb8u1
 -- PHP Version: 5.6.30-0+deb8u1
 
@@ -29,13 +29,14 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `Cave` (
 `CaveId` int(11) NOT NULL,
   `Name` varchar(128) NOT NULL,
-  `Description` mediumtext NOT NULL,
+  `Description` mediumtext,
   `LocationId` int(11) DEFAULT NULL,
   `IsDeleted` tinyint(1) NOT NULL DEFAULT '0',
   `DateDeleted` datetime DEFAULT NULL,
   `CreatedDate` date NOT NULL,
-  `Saved` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8;
+  `Saved` tinyint(1) NOT NULL DEFAULT '0',
+  `Notes` mediumtext NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -74,12 +75,15 @@ CREATE TABLE IF NOT EXISTS `CaveLocation` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `CaveMedia`
+-- Table structure for table `CaveNote`
 --
 
-CREATE TABLE IF NOT EXISTS `CaveMedia` (
+CREATE TABLE IF NOT EXISTS `CaveNote` (
+  `NoteId` int(11) NOT NULL,
+  `CreatedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `CaveId` int(11) NOT NULL,
-  `MediaId` int(11) NOT NULL
+  `Notes` text NOT NULL,
+  `UserId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -146,7 +150,7 @@ CREATE TABLE IF NOT EXISTS `History` (
   `EventDateTime` datetime NOT NULL,
   `Description` text NOT NULL,
   `Data` mediumtext NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=423 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -156,12 +160,13 @@ CREATE TABLE IF NOT EXISTS `History` (
 
 CREATE TABLE IF NOT EXISTS `Media` (
 `MediaId` int(11) NOT NULL,
-  `Name` varchar(128) NOT NULL,
-  `Description` mediumtext NOT NULL,
   `FileName` varchar(1024) NOT NULL,
   `MimeType` varchar(256) NOT NULL,
-  `FileSize` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `FileSize` int(11) NOT NULL,
+  `CreatedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `AttachId` int(11) NOT NULL,
+  `AttachType` tinytext NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -200,17 +205,6 @@ CREATE TABLE IF NOT EXISTS `ProjectData` (
   `Type` varchar(128) NOT NULL,
   `MetaData` text NOT NULL,
   `Value` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `ProjectMedia`
---
-
-CREATE TABLE IF NOT EXISTS `ProjectMedia` (
-  `ProjectId` int(11) NOT NULL,
-  `MediaId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -293,10 +287,10 @@ ALTER TABLE `CaveLocation`
  ADD PRIMARY KEY (`LocationId`,`CaveId`), ADD KEY `CaveId` (`CaveId`);
 
 --
--- Indexes for table `CaveMedia`
+-- Indexes for table `CaveNote`
 --
-ALTER TABLE `CaveMedia`
- ADD PRIMARY KEY (`CaveId`,`MediaId`), ADD KEY `MediaId` (`MediaId`);
+ALTER TABLE `CaveNote`
+ ADD PRIMARY KEY (`NoteId`,`CaveId`), ADD KEY `UserId` (`UserId`), ADD KEY `CaveId` (`CaveId`);
 
 --
 -- Indexes for table `CaveUser`
@@ -341,12 +335,6 @@ ALTER TABLE `ProjectData`
  ADD KEY `ProjectId` (`ProjectId`);
 
 --
--- Indexes for table `ProjectMedia`
---
-ALTER TABLE `ProjectMedia`
- ADD KEY `ProjectId` (`ProjectId`), ADD KEY `MediaId` (`MediaId`);
-
---
 -- Indexes for table `ProjectUser`
 --
 ALTER TABLE `ProjectUser`
@@ -378,17 +366,17 @@ ALTER TABLE `UserSession`
 -- AUTO_INCREMENT for table `Cave`
 --
 ALTER TABLE `Cave`
-MODIFY `CaveId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=82;
+MODIFY `CaveId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=90;
 --
 -- AUTO_INCREMENT for table `History`
 --
 ALTER TABLE `History`
-MODIFY `HistoryId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=151;
+MODIFY `HistoryId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=423;
 --
 -- AUTO_INCREMENT for table `Media`
 --
 ALTER TABLE `Media`
-MODIFY `MediaId` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `MediaId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=25;
 --
 -- AUTO_INCREMENT for table `User`
 --
@@ -411,11 +399,11 @@ ALTER TABLE `CaveLocation`
 ADD CONSTRAINT `CaveLocation_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
--- Constraints for table `CaveMedia`
+-- Constraints for table `CaveNote`
 --
-ALTER TABLE `CaveMedia`
-ADD CONSTRAINT `CaveMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`) ON DELETE CASCADE,
-ADD CONSTRAINT `CaveMedia_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
+ALTER TABLE `CaveNote`
+ADD CONSTRAINT `CaveNote_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `User` (`UserId`),
+ADD CONSTRAINT `CaveNote_ibfk_2` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`CaveId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `CaveUser`
@@ -436,13 +424,6 @@ ADD CONSTRAINT `ProjectCave_ibfk_1` FOREIGN KEY (`CaveId`) REFERENCES `Cave` (`C
 --
 ALTER TABLE `ProjectData`
 ADD CONSTRAINT `ProjectData_ibfk_1` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE;
-
---
--- Constraints for table `ProjectMedia`
---
-ALTER TABLE `ProjectMedia`
-ADD CONSTRAINT `ProjectMedia_ibfk_2` FOREIGN KEY (`MediaId`) REFERENCES `Media` (`MediaId`) ON DELETE CASCADE,
-ADD CONSTRAINT `ProjectMedia_ibfk_1` FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `ProjectUser`
