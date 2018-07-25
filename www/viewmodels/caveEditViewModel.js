@@ -182,9 +182,13 @@ function CaveEditViewModel(nav, agent) {
     }
 
     public.deleteLocation = function(location) {
-        public.Cave.Locations.removeAll( l => l.locationId === location.locationId);
-        private.nav.navigateTo("cave-edit", {method:"update"});
-        console.info("deleteLocation: ", location);        
+        executeMessageBox("Are you sure you want to delete the location?", (yes) => {
+            if (yes) {
+                public.Cave.Locations.removeAll(l => l.locationId === location.locationId);
+                private.nav.navigateTo("cave-edit", {method: "update"});
+                console.info("deleteLocation: ", location);
+            }
+        });
     }
 
     public.addLocation = function() {
@@ -195,7 +199,7 @@ function CaveEditViewModel(nav, agent) {
     public.selectLocation = function(location) {
         console.info("selectLocation: ", location);
         public.Cave.LocationId = location.LocationId;
-        private.nav.navigateTo("cave-edit", {method:"update"});
+        private.nav.navigateTo("cave-edit", {method: "update"});
     }
 
     public.addNote = function() {
@@ -212,8 +216,12 @@ function CaveEditViewModel(nav, agent) {
     }
 
     public.deleteNote = function(note) {
-        public.Cave.Notes.removeAll(n => n.NoteId === note.NoteId);
-        private.nav.navigateTo("cave-edit", {method:"update"});
+        executeMessageBox("Are you sure you want to delete the location?", (yes) => {
+            if (yes) {
+                public.Cave.Notes.removeAll(n => n.NoteId === note.NoteId);
+                private.nav.navigateTo("cave-edit", {method: "update"});
+            }
+        });
     }
 
 
