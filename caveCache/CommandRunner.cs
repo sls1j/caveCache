@@ -492,7 +492,7 @@ namespace caveCache
             if (_db.Caves.Count() > 0)
                 nameId = _db.Caves.Max(c => c.CaveId) + 1;
 
-            Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now, Notes = string.Empty };
+            Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
             _db.Caves.Add(cave);
             _db.SaveChanges();
 
