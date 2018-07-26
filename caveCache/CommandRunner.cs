@@ -144,6 +144,14 @@ namespace caveCache
             var user = _db.Users.FirstOrDefault(u => u.Email == request.Email);
             if (null == user)
             {
+                
+                HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
+                return new API.LoginResponse() { RequestId = request.RequestId, Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
+            }
+
+            // only allow the admin password via the command line
+            if (user.Email == "admin" && !_isCommandLine)
+            {
                 HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
                 return new API.LoginResponse() { RequestId = request.RequestId, Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
             }
