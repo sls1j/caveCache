@@ -144,7 +144,7 @@ namespace caveCache
             var user = _db.Users.FirstOrDefault(u => u.Email == request.Email);
             if (null == user)
             {
-                
+
                 HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
                 return new API.LoginResponse() { RequestId = request.RequestId, Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
             }
@@ -319,6 +319,19 @@ namespace caveCache
 
             return response;
         }
+
+        private T Succes<T>(API.SessionRequest request) where T : API.SessionResponse, new()
+        {
+            var response = new T()
+            {
+                RequestId = request.RequestId,
+                SessionId = request.SessionId,
+                Status = (int)HttpStatusCode.OK
+            };
+
+            return response;
+        }
+
 
         public API.UserAddResponse AddUser(API.UserAddRequest request)
         {
@@ -526,7 +539,7 @@ namespace caveCache
             if (null == cave)
                 return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
 
-            cave.LocationId = null;            
+            cave.LocationId = null;
             _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => cl.CaveId == cave.CaveId).ToArray());
             _db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => cn.CaveId == cave.CaveId).ToArray());
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
@@ -751,17 +764,68 @@ namespace caveCache
 
                 _db.SaveChanges();
 
-                return new CleanMediaResponse()
-                {
-                    RequestId = request.RequestId,
-                    SessionId = request.SessionId,
-                    Status = (int)HttpStatusCode.OK,
-                    StatusDescription = "OK"
-                };
+                return Succes<CleanMediaResponse>(request);
             }
             else
                 return Fail<CleanMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
         }
+
+        public API.CaveShareResponse ShareCave(API.CaveShareRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+                // make sure the user can share the cave                
+                if (_db.CaveUsers.Any(cu => cu.UserId == session.UserId && cu.CaveId == request.CaveId))
+                {
+                    if (_db.Users.Any(u => u.UserId == request.UserId))
+                    {
+                        var caveUser = new CaveUser()
+                        {
+                            CaveId = request.CaveId,
+                            UserId = request.UserId,
+                            Note = $"Shared by {session.User.Name} ({session.User.Email})"
+                        };
+
+                        _db.CaveUsers.Add(caveUser);
+                        _db.SaveChanges();
+
+                        return Succes<CaveShareResponse>(request);
+                    }
+                    else
+                        return Fail<CaveShareResponse>(request, HttpStatusCode.BadRequest, "Unknown user id.");
+                }
+                else
+                    return Fail<CaveShareResponse>(request, HttpStatusCode.BadRequest, "Unknown cave id.");
+            }
+            else
+                return Fail<CaveShareResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }
+
+        public API.UserGetShareListResponse UserGetShareList(API.UserGetShareListRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+                // make sure the cave exists
+                if (_db.CaveUsers.Any(c => c.CaveId == request.CaveId))
+                {
+                    var users = _db.Users.Select(u => new UserShort(u.UserId, u.Name, u.Email)).ToList();
+                    var caveUsers = _db.CaveUsers.Where(cu => cu.CaveId == request.CaveId).Select(cu => cu.UserId).ToHashSet();
+                    // remove users that already have access to the cave.
+                    users.RemoveAll(u => caveUsers.Contains(u.UserId));
+                    
+                    var response = Succes<UserGetShareListResponse>(request);
+                    response.Users = users.ToArray();
+                    return response;
+                }
+                else
+                    return Fail<UserGetShareListResponse>(request, HttpStatusCode.BadRequest, "Unknown cave.");
+            }
+            else
+                return Fail<UserGetShareListResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+        }
+
 
         //public API.DataTemplateAddUpdateResponse DataTemplateAddUpdate(API.DataTemplateAddUpdateRequest request)
         //{

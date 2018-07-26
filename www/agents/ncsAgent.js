@@ -118,9 +118,48 @@ function NewCaveSurveyAgent(url) {
         });
     }
 
-    public.caveGetMedia = function(caveId) {
+    public.userGetShareList = function(caveId) {
         return new Promise((resolve, reject) => {
-            reject("Not yet implemented");
+            let cmd = {
+                RequestType: "UserGetShareListRequest",
+                SessionId: private.sessionId,
+                RequestId: private.nextRequestId++,
+                CaveId: caveId
+            };
+
+            private.sendCommand(cmd).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(response);
+                    else
+                        reject("UserGetShareListRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+
+            );
+        });
+    }
+
+    public.shareCave = function(caveId, userId)
+    {
+        return new Promise((resolve, reject) => {
+            let cmd = {
+                RequestType: "CaveShareRequest",
+                SessionId: private.sessionId,
+                RequestId: private.nextRequestId++,
+                CaveId: caveId,
+                UserId: userId
+            };
+
+            private.sendCommand(cmd).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(true);
+                    else
+                        reject("CaveShareRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+            );
         });
     }
 

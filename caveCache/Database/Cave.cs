@@ -55,6 +55,7 @@ namespace caveCache.Database
     {
         public int CaveId { get; set; }
         public int UserId { get; set; }
+        public string Note { get; set; }
         public User User { get; set; }
         public Cave Cave { get; set; }
 
@@ -63,6 +64,8 @@ namespace caveCache.Database
             var tbl = mb.Entity<CaveUser>();
             tbl.ToTable("CaveUser");
             tbl.HasKey(cu => new { cu.UserId, cu.CaveId });
+            tbl.Property(t => t.Note)
+                .HasMaxLength(255);
         }
     }
 

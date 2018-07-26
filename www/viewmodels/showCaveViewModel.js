@@ -5,9 +5,20 @@ function ShowCaveViewModel(nav, agent) {
     var protected = public.protected;
 
     public.Cave = null;
+    public.DeprivedUsers = ko.observableArray();
+    public.SelectedUser = ko.observable();
 
     protected.navigatedTo = function (data) {
             public.Cave = data.data;
+
+            agent.userGetShareList(public.Cave.CaveId)
+                .then( (response)=>{
+                    for(let i=0; i < response.Users.length; i++ )
+                    {
+                        let u = response.Users[i];
+                        public.DeprivedUsers.push(u);
+                    }
+                });
 
             let grid = document.getElementById("cave-data-grid");
             DynoGrid(grid, false);
@@ -35,6 +46,16 @@ function ShowCaveViewModel(nav, agent) {
 
     public.isSelected = function(location){
         return location.LocationId === public.Cave.LocationId;
+    }
+
+    public.shareCave = function()
+    {
+        if ( public.SelectedUser() )
+        {
+            let u = public.SelectedUser();
+            agent.shareCave(public.Cave.CaveId, u.UserId)
+                .then( result => alert("Cave shared!"));
+        }
     }
 
     private.GetMap = function()

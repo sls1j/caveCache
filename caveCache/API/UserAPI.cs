@@ -55,4 +55,36 @@ namespace caveCache.API
     class UserVerifyPasswordRestResponse : Response
     {        
     }
+
+    [Request("Get a list of users that you can share a cave with.  Excludes individuals that already have access to the cave.")]
+    class UserGetShareListRequest : SessionRequest
+    {
+        [Parameter("The cave that you are interested in sharing.")]
+        public int CaveId;
+    }
+
+    class UserGetShareListResponse : SessionResponse
+    {
+        [Parameter("This list of users that you can share the cave with.")]
+        public UserShort[] Users;
+    }
+
+    class UserShort
+    {
+        public int UserId;
+        public string Name;
+        public string Email;
+
+        public UserShort()
+        {
+
+        }
+
+        public UserShort(int userId, string name, string email)
+        {
+            this.UserId = userId;
+            this.Name = name;
+            this.Email = email;
+        }
+    }
 }

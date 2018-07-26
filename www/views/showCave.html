@@ -1,8 +1,13 @@
 <div>
     <div>
         <h1>Cave:
-            <span data-bind="text: Cave.Name"></span>
+            <span data-bind="text: Cave.Name"></span>(<span data-bind="text: Cave.CaveId"></span>)
         </h1>
+        <div>
+            <lable>Share</lable>
+            <select data-bind="options: DeprivedUsers, optionsText: 'Name', value: SelectedUser, optionsCaption: 'Choose...'"></select>
+            <button data-bind="click: shareCave">Share</button>
+        </div>
         <div data-bind="text: Cave.Description"></div>
         <div id="map" class="show-cave-map">
             

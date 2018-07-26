@@ -44,7 +44,7 @@ namespace caveCache.API
             Notes = new Database.CaveNote[0];
         }
     }
-
+    
     class CaveUpdateResponse : SessionResponse
     {
         [Parameter("The cave identifier of the cave that was updated.")]
@@ -104,6 +104,21 @@ namespace caveCache.API
     }
 
     class CaveRemoveResponse : SessionResponse
+    {
+    }
+
+    [Request("Share a cave record with another user.")]
+    class CaveShareRequest : SessionRequest
+    {
+        [Parameter("The identifier of the cave to share.")]
+        public int CaveId;
+        [Parameter("The identifier of the user to share the cave with.")]
+        public int UserId;
+        [Parameter("A note for who and why it's being shared.")]
+        public string Note;
+    }
+
+    class CaveShareResponse : SessionResponse
     {
     }
 }
