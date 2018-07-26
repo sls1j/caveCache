@@ -711,12 +711,48 @@ namespace caveCache
                 Permissions = user.Permissions,
                 Status = (int)HttpStatusCode.OK,
                 Data = user.Data.Select(d => d.Clone()).ToArray()
-            };            
+            };
 
             // get cave data
             response.Caves = GetCaveInfo().Where(c => c.UserId == user.UserId).Select(c => c.Cave).OrderBy(c => c.Name).ToArray();
 
             return response;
+        }
+
+        public API.CleanMediaResponse CleanMedia(API.CleanMediaRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session != null)
+            {
+                var deadMedia = new List<Media>();
+
+                foreach (var m in _db.Media.Where(m2 => m2.AttachType == "cave" || m2.AttachType == "0"))
+                {
+                    string src = $"src=\"/Media/{m.MediaId}\"";
+                    if (!_db.CaveNote.Any(cn => cn.Notes.Contains(src)))
+                        deadMedia.Add(m);
+                }
+
+                // remove the dead media
+                foreach (var m in deadMedia)
+                {
+                    Console.WriteLine($"Deleting Media {m.MediaId}");
+                    _cache.RemoveMedia(m.MediaId);
+                    _db.Remove(m);
+                }
+
+                _db.SaveChanges();
+
+                return new CleanMediaResponse()
+                {
+                    RequestId = request.RequestId,
+                    SessionId = request.SessionId,
+                    Status = (int)HttpStatusCode.OK,
+                    StatusDescription = "OK"
+                };
+            }
+            else
+                return Fail<CleanMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
         }
 
         //public API.DataTemplateAddUpdateResponse DataTemplateAddUpdate(API.DataTemplateAddUpdateRequest request)

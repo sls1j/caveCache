@@ -256,6 +256,9 @@ namespace caveCache
                 case "usergetinfo":
                     response = cmd.UserGetInfo(new API.UserGetInfoRequest() { SessionId = sessionId });
                     break;
+                case "cleanmedia":
+                    response = cmd.CleanMedia(new API.CleanMediaRequest() { SessionId = sessionId });
+                    break;
                 case "http":
                     using (var api = new CaveCacheHttp(_config, _mediaCache, _db))
                     {

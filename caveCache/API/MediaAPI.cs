@@ -31,5 +31,13 @@ namespace caveCache.API
     {
         public int MediaId;
         public Stream Stream;
-    }    
+    }
+
+    class CleanMediaRequest : SessionRequest
+    {
+    }
+
+    class CleanMediaResponse : SessionResponse
+    {
+    }
 }
