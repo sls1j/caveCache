@@ -17,7 +17,6 @@ namespace caveCache.Database
         public int? LocationId { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? DateDeleted { get; set; }
-        public string Notes { get; set; }
         public ICollection<CaveData> Data { get; set; }
         public ICollection<CaveLocation> Locations { get; set; }
 
@@ -34,8 +33,6 @@ namespace caveCache.Database
                 .IsRequired()
                 .HasMaxLength(128);
             tbl.Property(t => t.Description)
-                .HasColumnType("mediumtext");
-            tbl.Property(t => t.Notes)
                 .HasColumnType("mediumtext");
 
             CaveData.OnModelCreating(mb);
@@ -80,6 +77,7 @@ namespace caveCache.Database
         public decimal? AltitudeAccuracy { get; set; }
         public string Unit { get; set; }
         public string Source { get; set; }
+        public string Notes { get; set; }
 
         public static void OnModelCreating(ModelBuilder mb)
         {
@@ -104,6 +102,9 @@ namespace caveCache.Database
             tbl.Property(t => t.Source)
                 .IsRequired()
                 .HasColumnType("text");
+            tbl.Property(t => t.Notes)
+                .IsRequired()
+                .HasColumnType("mediumText");
         }
 
         public CaveLocation Clone()
