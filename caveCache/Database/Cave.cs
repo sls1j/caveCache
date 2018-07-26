@@ -19,6 +19,7 @@ namespace caveCache.Database
         public DateTime? DateDeleted { get; set; }
         public ICollection<CaveData> Data { get; set; }
         public ICollection<CaveLocation> Locations { get; set; }
+        public ICollection<CaveNote> Notes { get; set; }
 
         public Cave()
         {
@@ -114,7 +115,7 @@ namespace caveCache.Database
         }
     }
 
-    class CaveNote
+    public class CaveNote
     {
         public int NoteId { get; set; }
         public int CaveId { get; set; }
@@ -125,10 +126,9 @@ namespace caveCache.Database
         public static void OnModelCreating(ModelBuilder mb)
         {
             var tbl = mb.Entity<CaveNote>();
-
+            tbl.ToTable("CaveNote");
             tbl.HasKey(t => new { t.CaveId, t.NoteId });
 
-            tbl.HasKey("NoteId");
             tbl.Property(t => t.Notes)
                 .IsRequired();
 

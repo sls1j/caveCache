@@ -526,7 +526,7 @@ namespace caveCache
             if (null == cave)
                 return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
 
-            cave.LocationId = null;
+            cave.LocationId = null;            
             _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => cl.CaveId == cave.CaveId).ToArray());
             _db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => cn.CaveId == cave.CaveId).ToArray());
             _db.CaveData.RemoveRange(_db.CaveData.Where(cd => cd.CaveId == cave.CaveId).ToArray());
