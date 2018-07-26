@@ -35,6 +35,13 @@ body{
     overflow-y: auto;
 }
 
+.home-cave-table td
+{
+    padding: 1px !important; 
+    padding-left:4px !important;
+    padding-right: 4px !important;
+}
+
 .home-cave-table td:nth-child(1){
     width: 18em;    
 }
@@ -45,15 +52,23 @@ body{
 }
 
 .home-cave-table td:nth-child(3){
+    width: 12em;
+}
+
+.home-cave-table td:nth-child(5){
     width: 8em;
 }
 
-.home-cave-table td:nth-child(4){
-    width: 8em;
+.home-map
+{
+    position: relative;
+    width: 100%;
+    height: 600px;
 }
 
-.home-cave-table td:nth-child(6){
-    width: 8em;
+.home-push-pin
+{
+    font-size: 4px !important;
 }
 
 

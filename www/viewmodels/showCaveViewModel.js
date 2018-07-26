@@ -12,6 +12,8 @@ function ShowCaveViewModel(nav, agent) {
             let grid = document.getElementById("cave-data-grid");
             DynoGrid(grid, false);
             grid.addRows(public.Cave.CaveData);
+
+            private.GetMap();
     }
 
     protected.navigatingFrom = function (data) {
@@ -31,11 +33,31 @@ function ShowCaveViewModel(nav, agent) {
         return "<no value>";
     }
 
-    public.getMapSource = function(){
-        return "https://maps.google.com/maps?q="+public.Cave.Latitude+"%20"+public.Cave.Longitude+"&t=k&z=14&ie=UTF8&iwloc=&output=embed";
-    }
-
     public.isSelected = function(location){
         return location.LocationId === public.Cave.LocationId;
+    }
+
+    private.GetMap = function()
+    {   
+        function makeLoc(lat,long)     
+        {
+            return new Microsoft.Maps.Location(lat,long);
+        }
+
+        function makePin(lat,long)
+        {
+            let loc = makeLoc(lat,long);
+            return new Microsoft.Maps.Pushpin(loc,{color: 'green'});
+        }
+
+        let map = new Microsoft.Maps.Map('#map', {
+            credentials: 'AvqRAHT_GY-E5tkeeYC8qFIfEZC_9UGC9SnXhS9Z94KsZhwoV-g-4lmcTFenisSn',
+            center: new Microsoft.Maps.Location(public.Cave.Latitude, public.Cave.Longitude),
+            mapTypeId: Microsoft.Maps.MapTypeId.aerial,
+            zoom: 14
+        });
+
+        let pin = makePin(public.Cave.Latitude, public.Cave.Longitude);
+        map.entities.push(pin);
     }
 }

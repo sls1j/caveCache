@@ -4,11 +4,8 @@
             <span data-bind="text: Cave.Name"></span>
         </h1>
         <div data-bind="text: Cave.Description"></div>
-        <div class="show-cave-map">
-            <div class="show-cave-gmap-canvas">
-                <iframe data-bind="attr: {src: getMapSource()}" width="500" height="300" id="gmap_canvas" src="https://maps.google.com/maps?q=42.00000000%20-111.00000000&t=&z=14&ie=UTF8&iwloc=&output=embed"
-                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-            </div>            
+        <div id="map" class="show-cave-map">
+            
         </div>
         <h2>Positional Data</h2>
         <div>
