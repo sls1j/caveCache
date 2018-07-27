@@ -87,8 +87,10 @@ namespace caveCache
 
         private void HandlePostAPI(HttpListenerContext context)
         {
+            var request = context.Request;
+            var response = context.Response;
             var raw = context.Request.RawUrl;
-            Console.WriteLine("POST {0}", raw);
+            Console.WriteLine($"Rcv: POST {request.RemoteEndPoint} {raw}");
 
             if (raw.StartsWith("/API/"))
                 RunAPICommand(context);
@@ -97,7 +99,8 @@ namespace caveCache
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
-            Console.WriteLine("POST {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
+            Console.WriteLine($"Snd: Post {request.RemoteEndPoint} {raw} RESPONSE {response.StatusCode} {response.StatusDescription}");
+
         }
 
         private void RunAPICommand(HttpListenerContext context)
@@ -153,6 +156,8 @@ namespace caveCache
 
         private void HandleGetAPI(HttpListenerContext context)
         {
+            var request = context.Request;
+            var response = context.Response;
             var raw = context.Request.RawUrl;
             Console.WriteLine("GET {0}", raw);
 
@@ -163,7 +168,7 @@ namespace caveCache
             else
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
-            Console.WriteLine("GET {0} RESPONSE {1}", context.Request.RawUrl, context.Response.StatusCode);
+            Console.WriteLine($"GET {request.RemoteEndPoint} {raw} RESPONSE {response.StatusCode} {response.StatusDescription}");
         }
 
         private void Handle_GenerateHelp(HttpListenerContext context)
