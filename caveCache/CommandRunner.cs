@@ -60,16 +60,16 @@ namespace caveCache
 
         public void Cleanup()
         {
-            DateTime now = DateTime.Now;
-            // clean up unsaved caves older than 1 day
-            var uncleanCaves = _db.Caves.Where(c => (!c.Saved) && (now - c.CreatedDate).TotalDays >= 1.0).ToArray();
-            var caveIds = new HashSet<int>(uncleanCaves.Select(c => c.CaveId));
-            _db.CaveData.RemoveRange(_db.CaveData.Where(cd => caveIds.Contains(cd.CaveId)));
-            _db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => caveIds.Contains(cl.CaveId)));
-            _db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => caveIds.Contains(cn.CaveId)));
-            _db.CaveUsers.RemoveRange(_db.CaveUsers.Where(cu => caveIds.Contains(cu.CaveId)));
-            _db.Caves.RemoveRange(uncleanCaves);
-            _db.SaveChanges();
+            //DateTime now = DateTime.Now;
+            //// clean up unsaved caves older than 1 day
+            //var uncleanCaves = _db.Caves.Where(c => (!c.Saved) && (now - c.CreatedDate).TotalDays >= 1.0).ToArray();
+            //var caveIds = new HashSet<int>(uncleanCaves.Select(c => c.CaveId));
+            //_db.CaveData.RemoveRange(_db.CaveData.Where(cd => caveIds.Contains(cd.CaveId)));
+            //_db.CaveLocation.RemoveRange(_db.CaveLocation.Where(cl => caveIds.Contains(cl.CaveId)));
+            //_db.CaveNote.RemoveRange(_db.CaveNote.Where(cn => caveIds.Contains(cn.CaveId)));
+            //_db.CaveUsers.RemoveRange(_db.CaveUsers.Where(cu => caveIds.Contains(cu.CaveId)));
+            //_db.Caves.RemoveRange(uncleanCaves);
+            //_db.SaveChanges();
         }
 
         public void BootStrap()

@@ -114,34 +114,25 @@ function HomeViewModel(nav, agent) {
 
             return pin;
         }
-
-        let centerX = 0;
-        let centerY = 0;
-        // find center of map
-        if (private.allCaves.length > 0) {
-            let lat = private.allCaves[0].Latitude;
-            let lon = private.allCaves[0].Longitude;
-            for (let i = 1; i < private.allCaves.length; i++) {
-                let c = private.allCaves[i];
-                lat += c.Latitude;
-                lon += c.Longitude;
-            }
-            centerX = lon / private.allCaves.length;
-            centerY = lat / private.allCaves.length;
-        }
-        else {
-            centerX = 41;
-            centerY = -111;
-        }
-
-        // make map
-
+            
         let map = new Microsoft.Maps.Map('#map', {
             credentials: 'AvqRAHT_GY-E5tkeeYC8qFIfEZC_9UGC9SnXhS9Z94KsZhwoV-g-4lmcTFenisSn',
-            center: new Microsoft.Maps.Location(centerY, centerX),
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
-            zoom: 10
         });
+
+        let locs = [];
+        for(let i=0; i < private.allCaves.length; i++)
+        {
+            let c = private.allCaves[i];
+            if ( c.Latitude != 0 || c.Longitude != 0)
+            {
+                var loc = new Microsoft.Maps.Location(c.Latitude, c.Longitude);
+                locs.push(loc);
+            }
+        }
+        var rect = Microsoft.Maps.LocationRect.fromLocations(locs);  
+
+        map.setView({bounds: rect, padding: 80});
 
         // add caves
         for (let i = 0; i < private.allCaves.length; i++) {
