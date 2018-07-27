@@ -5,11 +5,14 @@ function HomeViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    protected.navigatedTo = function(data) {
-        private.doLoadUserdata();
+    protected.navigatedTo = function(evt) {
+        if (evt.data)
+            private.doLoadUserdata(evt.data.mapData);
+        else
+            private.doLoadUserdata();
     }
 
-    private.doLoadUserdata = function() {
+    private.doLoadUserdata = function(mapData) {
         private.agent.userGetInfo()
             .then(userInfo => {
                 public.Caves.removeAll();
@@ -26,7 +29,7 @@ function HomeViewModel(nav, agent) {
                 });
                 private.allCaves = userInfo.Caves;
                 console.log(userInfo);
-                private.GetMap();
+                private.GetMap(mapData);
             },
                 rejectData => {
 
@@ -89,14 +92,14 @@ function HomeViewModel(nav, agent) {
     }
 
     public.showCave = function() {
-        private.nav.navigateTo("cave-show", this);
+        private.nav.navigateTo("cave-show", {cave: this, mapData: private.map.getBounds()});
     }
 
     public.importCaves = function() {
         private.nav.navigateTo("caves-import", null);
     }
 
-    private.GetMap = function() {
+    private.GetMap = function(mapData) {
         function makeLoc(lat, long) {
             return new Microsoft.Maps.Location(lat, long);
         }
@@ -120,24 +123,32 @@ function HomeViewModel(nav, agent) {
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
         });
 
-        let locs = [];
-        for (let i = 0; i < private.allCaves.length; i++) {
-            let c = private.allCaves[i];
-            if (c.Latitude != 0 || c.Longitude != 0) {
-                var loc = new Microsoft.Maps.Location(c.Latitude, c.Longitude);
-                locs.push(loc);
-            }
-        }
-        var rect = Microsoft.Maps.LocationRect.fromLocations(locs);
+        private.map = map;
 
-        map.setView({bounds: rect, padding: 80});
+        if (mapData !== undefined) {
+            map.setView({bounds: mapData, padding: 0});
+        }
+        else {
+            let locs = [];
+            for (let i = 0; i < private.allCaves.length; i++) {
+                let c = private.allCaves[i];
+                if (c.Latitude != 0 || c.Longitude != 0) {
+                    var loc = new Microsoft.Maps.Location(c.Latitude, c.Longitude);
+                    locs.push(loc);
+                }
+            }
+            var rect = Microsoft.Maps.LocationRect.fromLocations(locs);
+            map.setView({bounds: rect, padding: 80});
+        }
+
+
 
         // add caves
         for (let i = 0; i < private.allCaves.length; i++) {
             let c = private.allCaves[i];
             if (c.Latitude != 0 || c.Longitude != 0) {
                 let pin = makePin(c.Latitude, c.Longitude, c.Name, () => {
-                    private.nav.navigateTo("cave-show", c);
+                    private.nav.navigateTo("cave-show", {cave: c, mapData: private.map.getBounds()});
                 });
                 map.entities.push(pin);
             }

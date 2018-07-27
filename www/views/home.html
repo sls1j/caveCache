@@ -1,5 +1,12 @@
 <div>
     <div class="section-header">
+        <h2>Profile</h2>
+    </div>
+    <h2>Map</h2>
+    <div id="map" class="home-map">
+        
+    </div>
+    <div class="section-header">
         <h2>Caves</h2>
         <input type="search" data-bind="value: search, valueUpdate: 'keyup'">
     </div>
@@ -40,10 +47,7 @@
         <a href="#" data-bind="click: importCaves" style="float:right">Import from CSV</a>
     </div>
 
-    <h2>Map</h2>
-    <div id="map" class="home-map">
-        
-    </div>
+    
    
     <div class="home-button-panel">
         <button data-bind="click: loadData" class="btn btn-primary">Refresh</button>

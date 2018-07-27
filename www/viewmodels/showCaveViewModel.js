@@ -8,8 +8,9 @@ function ShowCaveViewModel(nav, agent) {
     public.DeprivedUsers = ko.observableArray();
     public.SelectedUser = ko.observable();
 
-    protected.navigatedTo = function (data) {
-            public.Cave = data.data;
+    protected.navigatedTo = function (evt) {
+            public.Cave = evt.data.cave;
+            private.mapData = evt.data.mapData;
 
             agent.userGetShareList(public.Cave.CaveId)
                 .then( (response)=>{
@@ -31,7 +32,7 @@ function ShowCaveViewModel(nav, agent) {
     }
 
     public.returnToHome = function(){
-        private.nav.navigateTo("home");
+        private.nav.navigateTo("home", {mapData: private.mapData});
     }
 
     public.getData = function(key){
