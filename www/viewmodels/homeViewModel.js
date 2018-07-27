@@ -114,33 +114,33 @@ function HomeViewModel(nav, agent) {
 
             return pin;
         }
-            
+
         let map = new Microsoft.Maps.Map('#map', {
             credentials: 'AvqRAHT_GY-E5tkeeYC8qFIfEZC_9UGC9SnXhS9Z94KsZhwoV-g-4lmcTFenisSn',
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
         });
 
         let locs = [];
-        for(let i=0; i < private.allCaves.length; i++)
-        {
+        for (let i = 0; i < private.allCaves.length; i++) {
             let c = private.allCaves[i];
-            if ( c.Latitude != 0 || c.Longitude != 0)
-            {
+            if (c.Latitude != 0 || c.Longitude != 0) {
                 var loc = new Microsoft.Maps.Location(c.Latitude, c.Longitude);
                 locs.push(loc);
             }
         }
-        var rect = Microsoft.Maps.LocationRect.fromLocations(locs);  
+        var rect = Microsoft.Maps.LocationRect.fromLocations(locs);
 
         map.setView({bounds: rect, padding: 80});
 
         // add caves
         for (let i = 0; i < private.allCaves.length; i++) {
             let c = private.allCaves[i];
-            let pin = makePin(c.Latitude, c.Longitude, c.Name, () => {
-                private.nav.navigateTo("cave-show", c);
-            });
-            map.entities.push(pin);
+            if (c.Latitude != 0 || c.Longitude != 0) {
+                let pin = makePin(c.Latitude, c.Longitude, c.Name, () => {
+                    private.nav.navigateTo("cave-show", c);
+                });
+                map.entities.push(pin);
+            }
         }
     }
 
