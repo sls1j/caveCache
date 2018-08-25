@@ -17,6 +17,10 @@ namespace caveCache.API
 
     class LoginResponse : SessionResponse
     {
+        public int UserId;
+        public string Name;
+        public string Profile;
+        public string Permissions;
     }
 
     [Request("Retrieve all the user, survey, media, and cave data associated with the current session")]
@@ -33,6 +37,35 @@ namespace caveCache.API
         public string Permissions;
         public Database.Data[] Data;
         public CaveInfo[] Caves;
+    }
+
+    [Request("Retrieve the profile information of the user.")]
+    class UserGetProfileRequest : SessionRequest
+    {
+    }
+
+    class UserGetProfileResponse : SessionResponse
+    {
+        public int UserId;
+        public string Email;
+        public string Name;
+        public string Profile;
+        public string Permissions;
+    }
+
+    [Request("Set the profile information of the user.")]
+    class UserSetProfileRequest : SessionRequest
+    {
+        [Parameter("The login.")]
+        public string Email;
+        [Parameter("The name of the person")]
+        public string Name;
+        [Parameter("Information about the person.")]
+        public string Profile;
+    }
+
+    class UserSetProfileResponse : SessionResponse
+    {
     }
 
     [Request("Begins the process to reset the user's password.  If successful a verification link is sent via email.")]
@@ -55,6 +88,20 @@ namespace caveCache.API
     class UserVerifyPasswordRestResponse : Response
     {        
     }
+
+    [Request("Sets the current user's password.")]
+    class UserSetPasswordRequest : SessionRequest
+    {
+        [Parameter("The old password")]
+        public string OldPassword;
+        [Parameter("The new password")]
+        public string NewPassword;
+    }
+
+    class UserSetPasswordResponse : SessionResponse
+    {
+    }
+
 
     [Request("Get a list of users that you can share a cave with.  Excludes individuals that already have access to the cave.")]
     class UserGetShareListRequest : SessionRequest
@@ -86,5 +133,5 @@ namespace caveCache.API
             this.Name = name;
             this.Email = email;
         }
-    }
+    }    
 }

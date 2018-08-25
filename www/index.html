@@ -21,6 +21,7 @@
     <script src="views/navigator.js"></script>
     <script src="agents/ncsAgent.js"></script>
     <script src="viewmodels/viewModel.js"></script>
+    <script src="controls/menu.js"></script>
     <script src="viewmodels/loginViewModel.js"></script>
     <script src="viewmodels/homeViewModel.js"></script>
     <script src="viewmodels/showCaveViewModel.js"></script>
@@ -30,6 +31,9 @@
     <script src="viewmodels/caveMediaViewModel.js"></script>
     <script src="viewmodels/caveMediaAddViewModel.js"></script>
     <script src="viewmodels/noteEditViewModel.js"></script>
+    <script src="viewmodels/mapViewModel.js"></script>
+    <script src="viewmodels/tableViewModel.js"></script>
+    <script src="viewmodels/profileViewModel.js"></script>
 </head>
 
 <body>
@@ -70,6 +74,8 @@
         var nav = new PageNavigator(document.getElementById("page-container"));
         nav.addPage("login", "views/login.html");
         nav.addPage("home", "views/home.html");
+        nav.addPage("map", "views/map.html");
+        nav.addPage("table", "views/table.html")
         nav.addPage("cave-show", "views/showCave.html");
         nav.addPage("cave-edit", "views/editCave.html");
         nav.addPage("caves-import", "views/cavesImport.html");
@@ -77,8 +83,9 @@
         nav.addPage("cave-media", "views/caveMedia.html");
         nav.addPage("cave-media-add", "views/caveMediaAdd.html");
         nav.addPage("note-edit", "views/editNote.html");
+        nav.addPage("profile", "views/profile.html")
 
-        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel,CaveMediaViewModel,CaveMediaAddViewModel, EditNoteViewModel];
+        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel,CaveMediaViewModel,CaveMediaAddViewModel, EditNoteViewModel, MapViewModel, TableViewModel, ProfileViewModel];
         var viewModels = [];
         for (let i = 0; i < viewModelClasses.length; i++) {
             let classCon = viewModelClasses[i];

@@ -1,0 +1,50 @@
+<div>
+        @@views/menu.html@@
+        <div>
+            <span>Search </span>
+            <input type="search" data-bind="value: search, valueUpdate: 'keyup'">
+        </div>
+        <br>
+        <div class="home-cave-section">
+            <table class="table table-bordered table-sm home-cave-table">
+                <thead class="thread-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th nowrap>Lat,Long</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: Caves">
+                    <tr>
+                        <td>
+                            <a href="#" data-bind="click: $parent.showCave">
+                                <span data-bind="text: Name"></span>
+                            </a>
+                        </td>
+                        <td data-bind="text: CaveId"></td>
+                        <td nowrap>
+                            <span data-bind="text: Latitude"></span>,
+                            <span data-bind="text: Longitude"></span>
+                        </td>
+                        <td data-bind="text: Description"></td>
+                        <td>
+                            <a href="#" data-bind="click: $parent.editCave">Edit</a>
+                            <a href="#" data-bind="click: $parent.removeCave">Remove</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <a href="#" data-bind="click: addCave">Add Cave</a>
+            <a href="#" data-bind="click: importCaves" style="float:right">Import from CSV</a>
+        </div>
+    
+        
+       
+        <div class="home-button-panel">
+            <button data-bind="click: loadData" class="btn btn-primary">Refresh</button>
+        </div>
+    </div>

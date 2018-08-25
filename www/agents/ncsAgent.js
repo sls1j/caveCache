@@ -163,6 +163,73 @@ function NewCaveSurveyAgent(url) {
         });
     }
 
+    public.userGetProfile = function()
+    {
+        return new Promise((resolve, reject) =>{
+            let cmd = {
+                RequestType: "UserGetProfileRequest",
+                SessionId: private.sessionId, 
+            };
+
+            private.sendCommand(cmd).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(response);
+                    else
+                        reject("UserGetProfileRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+            );
+        });
+    }
+
+    public.userSetProfile = function(email, name, profile)
+    {
+        return new Promise((resolve, reject) =>{
+            let cmd = {
+                RequestType: "UserSetProfileRequest",
+                SessionId: private.sessionId, 
+                RequestId: private.nextRequestId++,
+                Email: email,
+                Name: name,
+                Profile: profile
+            };
+
+            private.sendCommand(cmd).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(true);
+                    else
+                        reject("UserSetProfileRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+            );
+        });
+    }
+
+    public.setPassword = function( oldPassword, newPassword )
+    {
+        return new Promise((resolve, reject) =>{
+            let cmd = {
+                RequestType: "UserSetPasswordRequest",
+                SessionId: private.sessionId, 
+                RequestId: private.nextRequestId++,
+                OldPassword: oldPassword,
+                NewPassword: newPassword
+            };
+
+            private.sendCommand(cmd).then(
+                response => {
+                    if (response.Status == 200)
+                        resolve(true);
+                    else
+                        reject("UserSetPasswordRequest failed:  " + response.Status + " " + response.StatusDescription);
+                },
+                err => reject("API command failed: " + err.status + "," + err, statusText)
+            );
+        });
+    }
+
     public.mediaSave = function(attachType, attachId, name, description, file) {
         return new Promise((resolve, reject) => {
             let mediaSave = {

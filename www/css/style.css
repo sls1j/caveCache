@@ -1,5 +1,5 @@
 body{
-    padding-bottom: 10em;
+    padding-bottom: 10em;    
 }
 .container-fluid{
     padding-left: 48px;
@@ -29,7 +29,6 @@ body{
     font-size: 12px;
     padding: 0.2em;
 }
-
 
 .login-innerbox{
     position: absolute;

@@ -17,6 +17,7 @@ function ViewModel(public, name, nav, agent) {
             if (protected.navigatedTo)
                 protected.navigatedTo(data);
 
+            ko.cleanNode(container);
             ko.applyBindings(public, container);
         }
     }

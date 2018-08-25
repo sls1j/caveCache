@@ -11,9 +11,11 @@ function ShowCaveViewModel(nav, agent) {
     protected.navigatedTo = function (evt) {
             public.Cave = evt.data.cave;
             private.mapData = evt.data.mapData;
+            private.returnTo = evt.from;
 
             agent.userGetShareList(public.Cave.CaveId)
                 .then( (response)=>{
+                    public.DeprivedUsers = [];
                     for(let i=0; i < response.Users.length; i++ )
                     {
                         let u = response.Users[i];
@@ -32,7 +34,7 @@ function ShowCaveViewModel(nav, agent) {
     }
 
     public.returnToHome = function(){
-        private.nav.navigateTo("home", {mapData: private.mapData});
+        private.nav.navigateTo(private.returnTo, {mapData: private.mapData});
     }
 
     public.getData = function(key){

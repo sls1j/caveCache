@@ -1,0 +1,40 @@
+<div>
+    @@views/menu.html@@
+
+    <div class="jumbotron">
+        <h3>Profile Info</h3>
+        <div class="form-group">
+            <label>Login/Email</label>
+            <input class="form-control" type="text" data-bind="value: Email" />
+        </div>
+        <div class="form-group">
+            <label>Name</label>
+            <input class="form-control" type="text" data-bind="value: Name" />
+        </div>
+        <div class="form-group">
+            <label>Profile</label>
+            <textarea class="form-control" style="width: 100%" data-bind="value: Profile"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" data-bind="click: saveProfile">Save</button>
+    </div>
+
+    <div class="jumbotron">
+        <h3>Change Password</h3>
+        <div class="form-group">
+            <label>Old Password</label>
+            <input class="form-control" type="password" data-bind="value: OldPassword">
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <input class="form-control" type="password" data-bind="value: NewPassword_1">
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <input class="form-control" type="password" data-bind="value: NewPassword_2">
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" data-bind="click: savePassword">Save</button>
+        </div>
+    </div>
+</div>

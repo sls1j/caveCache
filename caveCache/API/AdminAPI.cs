@@ -16,6 +16,7 @@ namespace caveCache.API
 
     class UserAddResponse : SessionResponse
     {
+        public int UserId;
         public string Password;
     }
 

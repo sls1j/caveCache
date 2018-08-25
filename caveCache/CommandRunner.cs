@@ -144,7 +144,6 @@ namespace caveCache
             var user = _db.Users.FirstOrDefault(u => u.Email == request.Email);
             if (null == user)
             {
-
                 HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
                 return new API.LoginResponse() { RequestId = request.RequestId, Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
             }
@@ -190,6 +189,10 @@ namespace caveCache
             {
                 RequestId = request.RequestId,
                 SessionId = session.SessionId,
+                UserId = user.UserId,
+                Name = user.Name,
+                Profile = user.Profile,
+                Permissions = user.Permissions,                
                 Status = (int)HttpStatusCode.OK
             };
         }
@@ -337,7 +340,7 @@ namespace caveCache
         {
             // look for session
             var session = FindSession(request.SessionId);
-            if (!session.User.Permissions.Contains("admin"))
+            if (null == session || !session.User.Permissions.Contains("admin"))
             {
                 HistoryEntry(session.User.UserId, null, null, null, "{0} Failed to create user {1}.  Not authorized", session.User, request.Email);
                 return Fail<API.UserAddResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
@@ -378,6 +381,7 @@ namespace caveCache
             // return user object
             return new API.UserAddResponse()
             {
+                UserId = user.UserId,
                 Password = request.Password,
                 RequestId = request.RequestId,
                 SessionId = request.SessionId,
@@ -421,7 +425,6 @@ namespace caveCache
             session.User = u;
             return session;
         }
-
 
         private UserSession FindSession(string sessionId)
         {
@@ -740,6 +743,57 @@ namespace caveCache
             return response;
         }
 
+        public API.UserGetProfileResponse UserGetProfile(API.UserGetProfileRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session == null)
+                return Fail<API.UserGetProfileResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+
+            var user = session.User;
+
+            var response = Succes<API.UserGetProfileResponse>(request);
+            response.Email = user.Email;
+            response.Name = user.Name;
+            response.Permissions = user.Permissions;
+            response.Profile = user.Profile;
+
+            return response;
+        }
+
+        public API.UserSetProfileResponse UserSetProfile(API.UserSetProfileRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session == null)
+                return Fail<API.UserSetProfileResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+
+            var user = session.User;
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                user.Email = request.Email;
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                user.Name = request.Name;
+            user.Profile = request.Profile;
+            _db.SaveChanges();
+
+            return Succes<API.UserSetProfileResponse>(request);
+        }
+
+        public API.UserSetPasswordResponse UserSetPassword(API.UserSetPasswordRequest request)
+        {
+            var session = FindSession(request.SessionId);
+            if (session == null)
+                return Fail<API.UserSetPasswordResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+
+            var hash = HashPassword(request.OldPassword, session.User.PasswordSalt);
+            if (hash != session.User.PasswordHash)
+                return Fail<API.UserSetPasswordResponse>(request, HttpStatusCode.Unauthorized, "Old password didn't match.");
+ 
+                GenerateUserPasswordHash(session.User, request.NewPassword);
+
+            _db.SaveChanges();
+
+            return Succes<API.UserSetPasswordResponse>(request);
+        }
+
         public API.CleanMediaResponse CleanMedia(API.CleanMediaRequest request)
         {
             var session = FindSession(request.SessionId);
@@ -810,7 +864,7 @@ namespace caveCache
                 // make sure the cave exists
                 if (_db.CaveUsers.Any(c => c.CaveId == request.CaveId))
                 {
-                    var users = _db.Users.Select(u => new UserShort(u.UserId, u.Name, u.Email)).ToList();
+                    var users = _db.Users.Select(u => new UserShort(u.UserId, u.Name, u.Email)).ToList();                    
                     var caveUsers = _db.CaveUsers.Where(cu => cu.CaveId == request.CaveId).Select(cu => cu.UserId).ToHashSet();
                     // remove users that already have access to the cave.
                     users.RemoveAll(u => caveUsers.Contains(u.UserId));

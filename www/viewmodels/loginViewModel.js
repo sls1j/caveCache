@@ -13,7 +13,7 @@ function LoginViewModel(nav, agent) {
             private.agent.login(email, password)
                 .then(sessionId => {                    
                     console.log("logged in with sessionId: ", sessionId);
-                    private.nav.navigateTo("home");
+                    private.nav.navigateTo("map");
                     document.cookie = "sessionId=" + sessionId;
                 },
                 reason => {
