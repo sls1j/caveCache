@@ -7,6 +7,7 @@ function CaveEditViewModel(nav, agent) {
 
     protected.navigatedTo = function(evt) {
         private.method = evt.data.method;
+        private.back_to = evt.from;
 
         if (private.method === "edit" || private.method === "add") {
             if (evt.data.method === "edit") {
@@ -94,6 +95,14 @@ function CaveEditViewModel(nav, agent) {
                 }
             }
 
+            //set note summary
+            let n = document.createElement("div");
+            n.innerHTML = note.Notes;
+            let noteText = n.innerText;
+            note.Summary = noteText.substring(0, 128);
+            if (noteText.length < note.Summary)
+                note.Summary = note.Summary + "...";
+
             public.Cave.Notes.push(note);
             public.Cave.Notes.sort((a, b) => b.CreatedDate - a.CreatedDate);
         }
@@ -138,7 +147,7 @@ function CaveEditViewModel(nav, agent) {
     }
 
     public.returnToHome = function() {
-        private.nav.navigateTo("home");
+        private.nav.navigateTo(private.back_to);
     }
 
     public.save = function() {
@@ -167,13 +176,13 @@ function CaveEditViewModel(nav, agent) {
         // send off to the agent
         private.agent.caveUpdate(cave)
             .then(() => {
-                private.nav.navigateTo("home");
+                private.nav.navigateTo(private.back_to);
             },
                 () => {});
     }
 
     public.cancel = function() {
-        private.nav.navigateTo("home");
+        private.nav.navigateTo(private.back_to);
     }
 
     public.editLocation = function(location) {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace caveCache.Database
-{   
+{
     public class Cave
     {
         public int CaveId { get; set; }
@@ -87,7 +87,7 @@ namespace caveCache.Database
         {
             var tbl = mb.Entity<CaveLocation>();
             tbl.ToTable("CaveLocation");
-            tbl.HasKey( t => new { t.CaveId, t.LocationId });
+            tbl.HasKey(t => new { t.CaveId, t.LocationId });
             tbl.Property(t => t.Latitude)
                 .IsRequired()
                 .HasColumnType("decimal(11,8)");
@@ -125,6 +125,7 @@ namespace caveCache.Database
         public DateTime CreatedDate { get; set; }
         public string Notes { get; set; }
         public int UserId { get; set; }
+        public string Summary { get; set; }
 
         public static void OnModelCreating(ModelBuilder mb)
         {

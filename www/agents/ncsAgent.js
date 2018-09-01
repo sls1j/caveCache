@@ -362,7 +362,7 @@ function Location(loc = null) {
 
 var $Note_Empty = {
     NoteId: -1, CreatedTimestamp: null,
-    Notes: "", AttachId: -1, AttachType: "", UserId: -1
+    Notes: "", AttachId: -1, AttachType: "", UserId: -1, Summary: ""
 };
 
 function Note(note = null) {

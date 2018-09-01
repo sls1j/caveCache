@@ -63,12 +63,14 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>Date</th>
+                        <th>Summary</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="notes" data-bind="foreach: Cave.Notes">
                     <tr>
                         <td data-bind="text: CreatedDate"></td>
+                        <td data-bind="text: Summary"></td>
                         <td>
                             <a href="#" data-bind="click: $parent.editNote">Edit</a>
                             <a href="#" data-bind="click: $parent.deleteNote">Delete</a>

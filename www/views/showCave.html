@@ -66,10 +66,13 @@
         <div id="cave-data-grid"></div>
 
         <h2>Notes</h2>
-        <div data-bind="foreach: Cave.Notes">
-            <hr>
-            <h3 data-bind="text: CreatedDate"></h3>
-            <div class="notes" data-bind="html: Notes"></div>
+        <div data-bind="foreach: Cave.Notes" class="accordion" id="noteContainer">
+            <div class="note-container">
+                <div class="note-header" data-bind="click: $parent.toggleNote">
+                    <i class="fas fa-plus-square"></i>  <span data-bind="text: CreatedDate"></span> - <span data-bind="text: Summary"></span>
+                </div>
+                <div class="notes" style="display: none" data-bind="html: Notes"></div>
+            </div>
         </div>
     </div>
     <a href="#" data-bind="click: returnToHome">Back</a>

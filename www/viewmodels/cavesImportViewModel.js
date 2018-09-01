@@ -6,6 +6,7 @@ function CavesImportViewModel(nav, agent) {
     var protected = public.protected;
 
     protected.navigatedTo = function (data) {
+        private.back_to = data.from;
         public.logs("");
         public.csvData("");
     }
@@ -87,7 +88,7 @@ function CavesImportViewModel(nav, agent) {
 
     private.saveCaves = function (index, caves) {
         if (index >= caves.length) {
-            private.nav.navigateTo("home");
+            private.nav.navigateTo(private.back_to);
             return;
         }
 
@@ -104,7 +105,7 @@ function CavesImportViewModel(nav, agent) {
     }
 
     public.cancelImport = function () {
-        private.nav.navigateTo("home");
+        private.nav.navigateTo(private.back_to);
     }
 
     public.csvData = ko.observable("");

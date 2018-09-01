@@ -84,4 +84,19 @@ function ShowCaveViewModel(nav, agent) {
         let pin = makePin(public.Cave.Latitude, public.Cave.Longitude);
         map.entities.push(pin);
     }
+
+    public.toggleNote = function(note, evt)
+    {
+        let button = evt.currentTarget;
+        let token = button.children[0];
+        let collapsed = button.nextElementSibling;
+        if ( collapsed.style.display === "none"){
+            collapsed.style.display = "block";
+            token.className = "fas fa-minus-square";
+        }
+        else{
+            collapsed.style.display = "none";
+            token.className = "fas fa-plus-square";
+        }
+    }
 }

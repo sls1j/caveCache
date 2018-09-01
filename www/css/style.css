@@ -156,6 +156,15 @@ body{
     width: 500px;
 }
 
+.note-container{
+    margin-bottom: 2px;
+}
+
+.note-header{
+    padding: 4px;
+    border: 1px solid black;
+}
+
 .notes{
     padding: 12px;
     border: 1px solid black;

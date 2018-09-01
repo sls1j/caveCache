@@ -7,6 +7,7 @@ function CaveMediaViewModel(nav, agent) {
 
     protected.navigatedTo = function(data) {
         private.method = data.data.method;
+        private.back_to = data.from;
 
         if (private.method === "add") {
                 public.Cave = Object.deepClone(data.data.cave);                
@@ -28,7 +29,7 @@ function CaveMediaViewModel(nav, agent) {
     }
 
     public.returnToHome = function() {
-        private.nav.navigateTo("home");
+        private.nav.navigateTo(private.back_to);
     }
 
 
