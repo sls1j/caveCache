@@ -6,11 +6,11 @@ function CaveEditViewModel(nav, agent) {
     var protected = public.protected;
 
     protected.navigatedTo = function(evt) {
-        private.method = evt.data.method;
-        private.back_to = evt.from;
+        private.method = evt.data.method;        
 
         if (private.method === "edit" || private.method === "add") {
             if (evt.data.method === "edit") {
+                private.back_to = evt.from;
                 public.Cave = Object.deepClone(evt.data.cave);
                 private.userInfo = evt.data.userInfo;
                 console.info(public.Cave);
