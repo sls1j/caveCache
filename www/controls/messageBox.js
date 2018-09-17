@@ -2,7 +2,7 @@ function executeMessageBox(message, callback) {
     let messageBox = document.getElementById("messagebox");
     let messageContainer = document.getElementById("messagebox-message");
     let yesButton = document.getElementById("messagebox-yes");
-    let noButton = documen.getElementById("messagebox-no");
+    let noButton = document.getElementById("messagebox-no");
 
     yesButton.style.display = "block";
     yesButton.innerHTML = "Yes";
