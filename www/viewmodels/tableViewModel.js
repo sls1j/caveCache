@@ -71,9 +71,10 @@ function TableViewModel(nav, agent) {
         // ask are you sure?
         var caveId = this.CaveId;
         executeMessageBox("Are you sure you want to delete the cave.  It will delete everything.",
-            () => {
-                private.agent.caveRemove(caveId)
-                    .then(() => {private.doLoadUserdata()});
+            (yes) => {
+                if ( yes )
+                    private.agent.caveRemove(caveId)
+                        .then(() => {private.doLoadUserdata()});
             });
     }
 
