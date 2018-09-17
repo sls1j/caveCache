@@ -4,9 +4,9 @@ function executeMessageBox(message, callback) {
     let yesButton = document.getElementById("messagebox-yes");
     let noButton = document.getElementById("messagebox-no");
 
-    yesButton.style.display = "block";
+    yesButton.style.display = "inline";
     yesButton.innerHTML = "Yes";
-    noButton.style.display = "block";
+    noButton.style.display = "inline";
 
     yesButton.onclick = function(evt) {
         if (callback)
@@ -21,7 +21,7 @@ function executeMessageBox(message, callback) {
 
     messageContainer.innerHTML = "";
     messageContainer.appendChild(document.createTextNode(message));
-    messageBox.style.display = "block";
+    messageBox.style.display = "inline";
 
 }
 
