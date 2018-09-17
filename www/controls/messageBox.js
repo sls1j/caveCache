@@ -31,7 +31,7 @@ function executeMessageBox_ok(message, callback) {
     let yesButton = document.getElementById("messagebox-yes");
     let noButton = document.getElementById("messagebox-no");
 
-    yesButton.style.display = "block";
+    yesButton.style.display = "inline";
     yesButton.innerHTML = "OK";
     noButton.style.display = "none";
 
@@ -43,6 +43,6 @@ function executeMessageBox_ok(message, callback) {
 
     messageContainer.innerHTML = "";
     messageContainer.appendChild(document.createTextNode(message));
-    messageBox.style.display = "block";
+    messageBox.style.display = "inline";
 
 }
