@@ -49,6 +49,7 @@ namespace caveCache.MongoDb
       var global = col.AsQueryable().FirstOrDefault();
       if (null == global)
       {
+        global = new Global();
         global.IsBootStrapped = false;
         global.CaveNumber = 1;
         col.InsertOne(global);

@@ -86,7 +86,7 @@ namespace caveCache
       // create admin user
       User user = new User()
       {
-        UserId = AdminObjectId,
+        Id = AdminObjectId,
         Created = DateTime.Now,
         Email = "admin",
         Expire = null,
@@ -173,18 +173,18 @@ namespace caveCache
         IsCommandLine = _isCommandLine,
         SessionId = Convert.ToBase64String(sessionKey),
         Timeout = now.AddHours(1),
-        UserId = user.UserId
+        UserId = user.Id
       };
 
       var deadSessions = _db.UserSessions.DeleteMany(s => s.Timeout < now);
       _db.UserSessions.InsertOne(session);
-      _db.History.InsertOne(HistoryEntry(user.UserId, null, null, null, "User {0} logged in.", user));
+      _db.History.InsertOne(HistoryEntry(user.Id, null, null, null, "User {0} logged in.", user));
 
       return new API.LoginResponse()
       {
         RequestId = request.RequestId,
         SessionId = session.SessionId,
-        UserId = user.UserId,
+        UserId = user.Id,
         Name = user.Name,
         Profile = user.Profile,
         Permissions = user.Permissions,
@@ -263,12 +263,12 @@ namespace caveCache
 
         _db.Media.InsertOne(media);
 
-        if (_cache.SetMediaDataStream(media.MediaId, request.Media))
+        if (_cache.SetMediaDataStream(media.Id, request.Media))
         {
 
           var resp = new SetMediaResponse()
           {
-            MediaId = media.MediaId,
+            MediaId = media.Id,
             RequestId = request.RequestId,
             SessionId = request.SessionId,
             StatusDescription = string.Empty,
@@ -280,7 +280,7 @@ namespace caveCache
         else
         {
           // remove the record that failed to save.
-          _db.Media.DeleteOne(m => m.MediaId == media.MediaId);
+          _db.Media.DeleteOne(m => m.Id == media.Id);
 
           return Fail<SetMediaResponse>(request, HttpStatusCode.InternalServerError, "Failed to save the media. Disk IO error.");
         }
@@ -335,14 +335,14 @@ namespace caveCache
       var session = FindSession(request.SessionId);
       if (null == session || !session.User.Permissions.Contains("admin"))
       {
-        HistoryEntry(session.User.UserId, null, null, null, "{0} Failed to create user {1}.  Not authorized", session.User, request.Email);
+        HistoryEntry(session.User.Id, null, null, null, "{0} Failed to create user {1}.  Not authorized", session.User, request.Email);
         return Fail<API.UserAddResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
       }
 
       // check that there isn't already a user      
       if (_db.Users.AsQueryable().Any(u => string.Equals(u.Email, request.Email, StringComparison.CurrentCultureIgnoreCase)))
       {
-        _db.History.InsertOne(HistoryEntry(session.User.UserId, null, null, null, "{0}Failed to create user with email {0}.  Already exists", session.User.Name, request.Email));
+        _db.History.InsertOne(HistoryEntry(session.User.Id, null, null, null, "{0}Failed to create user with email {0}.  Already exists", session.User.Name, request.Email));
         return Fail<API.UserAddResponse>(request, HttpStatusCode.BadRequest, "User already exists.");
       }
 
@@ -370,7 +370,7 @@ namespace caveCache
       // return user object
       return new API.UserAddResponse()
       {
-        UserId = user.UserId.ToString(),
+        UserId = user.Id.ToString(),
         Password = request.Password,
         RequestId = request.RequestId,
         SessionId = request.SessionId,
@@ -439,7 +439,7 @@ namespace caveCache
         session.Timeout = DateTime.UtcNow.AddHours(1);
       }
 
-      session.User = _db.Users.Find(u => u.UserId == session.UserId).First();
+      session.User = _db.Users.Find(u => u.Id == session.UserId).First();
 
       return session;
     }
@@ -487,7 +487,7 @@ namespace caveCache
 
       Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
       _db.Caves.InsertOne(cave);
-      _db.Users.UpdateOne(u => u.UserId == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
+      _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
       _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));      
 
       return new CaveCreateResponse()
@@ -539,7 +539,7 @@ namespace caveCache
       foreach (var caveMedia in _db.Media.AsQueryable().Where(m => m.AttachId == cave.Id && m.AttachType == "cave"))
       {
         bool notFound = true;
-        var reference = $"src=\"/Media/{caveMedia.MediaId}\"";
+        var reference = $"src=\"/Media/{caveMedia.Id}\"";
         // check to see if it's contained in one of the notes
         foreach (var n in request.Notes)
         {
@@ -551,7 +551,7 @@ namespace caveCache
         }
 
         if (notFound)
-          deadMedia.Add(caveMedia.MediaId);
+          deadMedia.Add(caveMedia.Id);
       }
 
       if (deadMedia.Count > 0)
@@ -561,7 +561,7 @@ namespace caveCache
           _cache.RemoveMedia(m);
 
         // remove the database entries
-        _db.Media.DeleteMany(m => deadMedia.Contains(m.MediaId));
+        _db.Media.DeleteMany(m => deadMedia.Contains(m.Id));
       }
 
       return new API.CaveUpdateResponse()
@@ -591,7 +591,7 @@ namespace caveCache
       }
 
       session.User.Caves.Remove(request.CaveId);
-      _db.Users.UpdateOne(u => u.UserId == session.UserId, Builders<User>.Update.Set(u => u.Caves, session.User.Caves));
+      _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.Set(u => u.Caves, session.User.Caves));
       _db.History.InsertOne(HistoryEntry(session.UserId, request.CaveId, null, null, $"{session.User.Name} no longer has access to cave {request.CaveId}"));
 
       return new API.CaveRemoveResponse() { RequestId = request.RequestId, SessionId = request.SessionId, Status = (int)HttpStatusCode.OK, StatusDescription = "OK" };
@@ -615,17 +615,17 @@ namespace caveCache
       API.CaveListResponse response = new API.CaveListResponse() { RequestId = request.RequestId, SessionId = request.SessionId, Status = (int)HttpStatusCode.OK };
 
       if (session.User.Permissions.Contains("admin") && request.allCaves)
-        response.Caves = GetCaveInfo(c => true).OrderBy(c => c.Name).ToArray();
+        response.Caves = GetCaveInfo("").OrderBy(c => c.Name).ToArray();
       else
-        response.Caves = GetCaveInfo(c => session.User.Caves.Contains(c.Id)).OrderBy(c => c.Name).ToArray();
+        response.Caves = GetCaveInfo(Builders<Cave>.Filter.In( c => c.Id,  session.User.Caves)).OrderBy(c => c.Name).ToArray();
 
       return response;
     }
 
-    private IEnumerable<CaveInfo> GetCaveInfo(Predicate<Cave> pred)
+    private IEnumerable<CaveInfo> GetCaveInfo(FilterDefinition<Cave> filter)
     {
-      return _db.Caves.AsQueryable()
-        .Where(c => pred(c))
+      return _db.Caves.Find(filter)
+        .ToList()
         .Select(c => new CaveInfo(c));
     }
 
@@ -641,7 +641,7 @@ namespace caveCache
       {
         RequestId = request.RequestId,
         SessionId = request.SessionId,
-        UserId = user.UserId,
+        UserId = user.Id,
         Name = user.Name,
         Profile = user.Profile,
         Permissions = user.Permissions,
@@ -650,7 +650,7 @@ namespace caveCache
       };
 
       // get cave data
-      response.Caves = GetCaveInfo(c => user.Caves.Contains(c.Id)).OrderBy(c => c.Name).ToArray();
+      response.Caves = GetCaveInfo(Builders<Cave>.Filter.In( c => c.Id, user.Caves)).OrderBy(c => c.Name).ToArray();
 
       return response;
     }
@@ -685,7 +685,7 @@ namespace caveCache
         user.Name = request.Name;
       user.Profile = request.Profile;
 
-      _db.Users.ReplaceOne(u => u.UserId == user.UserId, user);
+      _db.Users.ReplaceOne(u => u.Id == user.Id, user);
 
       return Succes<API.UserSetProfileResponse>(request);
     }
@@ -701,7 +701,7 @@ namespace caveCache
         return Fail<API.UserSetPasswordResponse>(request, HttpStatusCode.Unauthorized, "Old password didn't match.");
 
       GenerateUserPasswordHash(session.User, request.NewPassword);
-      _db.Users.ReplaceOne(u => u.UserId == session.UserId, session.User);
+      _db.Users.ReplaceOne(u => u.Id == session.UserId, session.User);
 
       return Succes<API.UserSetPasswordResponse>(request);
     }
@@ -715,9 +715,9 @@ namespace caveCache
 
         foreach (var m in _db.Media.AsQueryable().Where(m2 => m2.AttachType == "cave" || m2.AttachType == "0"))
         {
-          string src = $"src=\"/Media/{m.MediaId}\"";
+          string src = $"src=\"/Media/{m.Id}\"";
           if (!_db.Caves.AsQueryable().Any(c => c.Notes.Any( cn => cn.Note.Contains(src))))
-            deadMedia.Add(m.MediaId);
+            deadMedia.Add(m.Id);
         }
 
         // remove the dead media
@@ -727,7 +727,7 @@ namespace caveCache
           _cache.RemoveMedia(m);          
         }
 
-        _db.Media.DeleteMany(m => deadMedia.Contains(m.MediaId));
+        _db.Media.DeleteMany(m => deadMedia.Contains(m.Id));
 
         return Succes<CleanMediaResponse>(request);
       }
@@ -743,9 +743,9 @@ namespace caveCache
         // make sure the user can share the cave                
         if (session.User.Caves.Contains(request.CaveId))
         {
-          if (_db.Users.CountDocuments(u => u.UserId == request.UserId) == 1 )
+          if (_db.Users.CountDocuments(u => u.Id == request.UserId) == 1 )
           {
-            _db.Users.UpdateOne(u => u.UserId == request.UserId, Builders<User>.Update.AddToSet(u => u.Caves, request.CaveId));
+            _db.Users.UpdateOne(u => u.Id == request.UserId, Builders<User>.Update.AddToSet(u => u.Caves, request.CaveId));
 
             return Succes<CaveShareResponse>(request);
           }
@@ -767,7 +767,7 @@ namespace caveCache
         // make sure the cave exists
         if (_db.Caves.CountDocuments(c => c.Id == request.CaveId) > 0)
         {
-          var users = _db.Users.Find( u => !u.Caves.Contains(request.CaveId)).ToList().Select(u => new UserShort(u.UserId, u.Name, u.Email)).ToList();
+          var users = _db.Users.Find( u => !u.Caves.Contains(request.CaveId)).ToList().Select(u => new UserShort(u.Id, u.Name, u.Email)).ToList();
           
           var response = Succes<UserGetShareListResponse>(request);
           response.Users = users.ToArray();

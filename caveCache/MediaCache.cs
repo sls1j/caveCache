@@ -21,7 +21,17 @@ namespace caveCache
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        private string BuildFilePath(ObjectId mediaId)
+    private string BuildFilePathFromIntId(int mediaId)
+    {
+      string subDir = (mediaId / 1000 * 1000 + 1).ToString();
+      string dir = Path.Combine(_config.ImageDirectory, subDir);
+      if (!Directory.Exists(dir))
+        Directory.CreateDirectory(dir);
+
+      return Path.Combine(dir, $"{mediaId:0000}.bin");
+    }
+
+    private string BuildFilePath(ObjectId mediaId)
         {
             string subDir = mediaId.ToString().Substring(4);
             string dir = Path.Combine(_config.ImageDirectory, subDir);

@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,9 @@ namespace caveCache.MongoDb
 {
   public class Cave
   {
+    [BsonId]
     public ObjectId Id { get; set; }
+    public int CaveNumber { get; set; }
     public bool Saved { get; set; }
     public DateTime CreatedDate { get; set; }
     public string Name { get; set; }
@@ -25,15 +28,7 @@ namespace caveCache.MongoDb
     public Cave()
     {
     }
-  }
-
-  public class CaveUser
-  {
-    public ObjectId Id { get; set; }
-    public ObjectId UserId { get; set; }
-    public ObjectId CaveId { get; set; }
-    public string Note { get; set; }
-  }
+  } 
 
   public class CaveLocation
   {
