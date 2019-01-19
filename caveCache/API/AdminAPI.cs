@@ -16,7 +16,7 @@ namespace caveCache.API
 
     class UserAddResponse : SessionResponse
     {
-        public int UserId;
+        public string UserId;
         public string Password;
     }
 
@@ -26,7 +26,7 @@ namespace caveCache.API
 
     class UserListResponse : SessionResponse
     {
-        public Database.User[] Users;
+        public MongoDb.User[] Users;
     }
     
     class UserResetPasswordResponse : SessionResponse
@@ -37,6 +37,6 @@ namespace caveCache.API
     class SessionListRequest : SessionRequest { }
     class SessionListResponse : SessionResponse
     {
-        public Database.UserSession[] Sessions;
+        public MongoDb.UserSession[] Sessions;
     }    
 }

@@ -7,6 +7,8 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading;
+using caveCache.MongoDb;
+using MongoDB.Bson;
 
 namespace caveCache
 {
@@ -14,12 +16,12 @@ namespace caveCache
     {
         private ExecutionGuard _guard;
         private HttpListener _listener;
-        private CommandRunner _cmd;
+        private CommandRunnerMongo _cmd;
         private readonly Timer _timer;
 
-        public CaveCacheHttp(IConfiguration conf, IMediaCache cache, Database.CaveCacheContext db)
+        public CaveCacheHttp(IConfiguration conf, IMediaCache cache, CaveContext db)
         {
-            _cmd = new CommandRunner(conf, cache, db, false);
+            _cmd = new CommandRunnerMongo(conf, cache, db, false);
             _guard = new ExecutionGuard();
 
             _listener = new HttpListener();
@@ -188,7 +190,7 @@ namespace caveCache
 
             var sessionId = request.Cookies["SessionId"].Value;
             var mediaIdStr = request.RawUrl.Split('/').Last();
-            if (int.TryParse(mediaIdStr, out int mediaId))
+            if (ObjectId.TryParse(mediaIdStr, out ObjectId mediaId))
             {
                 // build the commandRunner command
                 API.GetMediaRequest getMediaStream = new API.GetMediaRequest()
@@ -247,7 +249,7 @@ namespace caveCache
             {
                 SessionId = request.Headers["CC-SessionId"],
                 AttachType = request.Headers["CC-AttachType"],
-                AttachId = int.Parse(request.Headers["CC-AttachId"]),
+                AttachId = ObjectId.Parse(request.Headers["CC-AttachId"]),
                 FileName = request.Headers["CC-FileName"],
                 FileSize = (int)request.ContentLength64,
                 MimeType = request.ContentType,

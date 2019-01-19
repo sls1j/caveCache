@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,9 +8,9 @@ namespace caveCache
 {
     interface IMediaCache
     {
-        Stream GetMediaDataStream(int mediaId);
-        bool RemoveMedia(int mediaId);
-        bool SetMediaDataStream(int mediaId, Stream stream);
+        Stream GetMediaDataStream(ObjectId mediaId);
+        bool RemoveMedia(ObjectId mediaId);
+        bool SetMediaDataStream(ObjectId mediaId, Stream stream);
     }
 
     class MediaCache : IMediaCache
@@ -20,9 +21,9 @@ namespace caveCache
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        private string BuildFilePath(int mediaId)
+        private string BuildFilePath(ObjectId mediaId)
         {
-            string subDir = (mediaId / 1000 * 1000 + 1).ToString();
+            string subDir = mediaId.ToString().Substring(4);
             string dir = Path.Combine(_config.ImageDirectory, subDir);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
@@ -30,7 +31,7 @@ namespace caveCache
             return Path.Combine(dir, $"{mediaId:0000}.bin");
         }
 
-        public Stream GetMediaDataStream(int mediaId)
+        public Stream GetMediaDataStream(ObjectId mediaId)
         {
             string path = BuildFilePath(mediaId);
             if (File.Exists(path))
@@ -39,7 +40,7 @@ namespace caveCache
                 throw new FileNotFoundException($"File for media {mediaId} not found at expected location '{path}'");
         }
 
-        public bool RemoveMedia(int mediaId)
+        public bool RemoveMedia(ObjectId mediaId)
         {
             string path = BuildFilePath(mediaId);
             if (File.Exists(path))
@@ -59,7 +60,7 @@ namespace caveCache
                 return true;
         }
 
-        public bool SetMediaDataStream(int mediaId, Stream stream)
+        public bool SetMediaDataStream(ObjectId mediaId, Stream stream)
         {
             try
             {

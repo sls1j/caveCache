@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,13 +16,13 @@ namespace caveCache
         }
 
         private ConfigurationReader _config;
-        private Database.CaveCacheContext _db;
+        private MongoDb.CaveContext _db;
         private MediaCache _mediaCache;
 
         void ProgMain(string[] args)
         {
             _config = new ConfigurationReader();
-            _db = new Database.CaveCacheContext(_config.ConnectionString);
+            _db = new MongoDb.CaveContext(_config.ConnectionString);
             _mediaCache = new MediaCache(_config);
             //var loggerFactory = db.GetService<ILoggerFactory>();
             //loggerFactory.AddProvider(new ConsoleLoggerProvider());
@@ -32,7 +33,7 @@ namespace caveCache
                 {
                     // initialize the database
                     
-                    CommandRunner cmd = new CommandRunner(_config, _mediaCache, _db, true);
+                    CommandRunnerMongo cmd = new CommandRunnerMongo(_config, _mediaCache, _db, true);
 
                     if (args.Length > 0 && args[0] == "-i")
                     {
@@ -138,7 +139,7 @@ namespace caveCache
             return args.ToArray();
         }
 
-        private void RunCommand(string[] args, CommandRunner cmd)
+        private void RunCommand(string[] args, CommandRunnerMongo cmd)
         {
             string sessionId = cmd.GetAdminSession();
             Console.WriteLine("sessionId = {0}", sessionId);
@@ -221,9 +222,8 @@ namespace caveCache
                             Name = args[1],
                             Description = args[2],
                             LocationId = 1,
-                            Locations = new Database.CaveLocation[]{
-                                new Database.CaveLocation{
-                                    LocationId = 1,
+                            Locations = new MongoDb.CaveLocation[]{
+                                new MongoDb.CaveLocation{
                                     Latitude = decimal.Parse(args[3]),
                                     Longitude = decimal.Parse(args[4]),
                                     Accuracy = int.Parse(args[5]),
@@ -236,7 +236,7 @@ namespace caveCache
                     if (args.Length < 2)
                         response = "Invalid Command: removecave <cave id>";
                     else
-                        response = cmd.CaveRemove(new API.CaveRemoveRequest() { CaveId = int.Parse(args[1]) });
+                        response = cmd.CaveRemove(new API.CaveRemoveRequest() { CaveId = ObjectId.Parse(args[1]) });
                     break;
                 case "sharecave":
                     break;

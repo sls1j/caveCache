@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace caveCache.API
 
     class LoginResponse : SessionResponse
     {
-        public int UserId;
+        public ObjectId UserId;
         public string Name;
         public string Profile;
         public string Permissions;
@@ -31,11 +32,11 @@ namespace caveCache.API
 
     class UserGetInfoResponse : SessionResponse
     {
-        public int UserId;
+        public ObjectId UserId;
         public string Name;
         public string Profile;
         public string Permissions;
-        public Database.Data[] Data;
+        public MongoDb.Data[] Data;
         public CaveInfo[] Caves;
     }
 
@@ -107,7 +108,7 @@ namespace caveCache.API
     class UserGetShareListRequest : SessionRequest
     {
         [Parameter("The cave that you are interested in sharing.")]
-        public int CaveId;
+        public ObjectId CaveId;
     }
 
     class UserGetShareListResponse : SessionResponse
@@ -118,7 +119,7 @@ namespace caveCache.API
 
     class UserShort
     {
-        public int UserId;
+        public ObjectId UserId;
         public string Name;
         public string Email;
 
@@ -127,7 +128,7 @@ namespace caveCache.API
 
         }
 
-        public UserShort(int userId, string name, string email)
+        public UserShort(ObjectId userId, string name, string email)
         {
             this.UserId = userId;
             this.Name = name;

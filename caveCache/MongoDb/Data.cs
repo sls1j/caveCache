@@ -1,12 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace caveCache.Database
+namespace caveCache.MongoDb
 {
     public class Data
     {
@@ -31,26 +29,9 @@ namespace caveCache.Database
             return (Data)this.MemberwiseClone();
         }
 
-
         public override string ToString()
         {
             return $"{Name}=>{Value}";
-        }
-
-        public static void OnSubModelCreating<T>(EntityTypeBuilder<T> tbl) where T : Data
-        {
-            tbl.Property(t => t.Name)
-                .IsRequired()
-                .HasMaxLength(64);
-            tbl.Property(t => t.Value)
-                .IsRequired()
-                .HasColumnType("tinytext");
-            tbl.Property(t => t.Type)
-                .IsRequired()
-                .HasColumnType("tinytext");
-            tbl.Property(t => t.MetaData)
-                .IsRequired()
-                .HasColumnType("text");
         }
     }
 }

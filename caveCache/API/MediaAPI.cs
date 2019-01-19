@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,7 +10,7 @@ namespace caveCache.API
     class SetMediaRequest : SessionRequest
     {
         public string AttachType; // user, cave, survey
-        public int AttachId;
+        public ObjectId AttachId;
         public string FileName;
         public string MimeType;
         public int FileSize;
@@ -18,18 +19,18 @@ namespace caveCache.API
 
     class SetMediaResponse : SessionResponse
     {
-        public int? MediaId;
+        public ObjectId? MediaId;
     }
 
     [HelpIgnore]
     class GetMediaRequest : SessionRequest
     {
-        public int MediaId;
+        public ObjectId MediaId;
     }
 
     class GetMediaResponse : SessionResponse
     {
-        public int MediaId;
+        public ObjectId MediaId;
         public Stream Stream;
     }
 

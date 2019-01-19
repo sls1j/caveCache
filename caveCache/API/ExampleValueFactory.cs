@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Linq;
+using MongoDB.Bson;
 
 namespace caveCache.API
 {
@@ -34,7 +35,7 @@ namespace caveCache.API
                     SessionId = _sessionId,
                     Cave = new CaveInfo(){
                         Name = "CC 34",
-                        CaveId = 2,
+                        CaveId = ObjectId.GenerateNewId(),
                         Description = "New Cave"                        
                     },
                     StatusDescription = "OK",
@@ -55,19 +56,17 @@ namespace caveCache.API
                     Status = (int)HttpStatusCode.OK,
                     Caves = new CaveInfo[]{
                         new CaveInfo(){
-                            CaveId = 1,
+                            CaveId = ObjectId.GenerateNewId(),
                             Description = "A simple cave",
                             LocationId = 1,
-                            Locations = new Database.CaveLocation[]{
-                                new Database.CaveLocation(){
-                                LocationId = 1,
+                            Locations = new MongoDb.CaveLocation[]{
+                                new MongoDb.CaveLocation(){
                                 Latitude = 41.0m, Longitude = -111.0m,Altitude = 1234,
-                                Accuracy = 3, AltitudeAccuracy = 19,
-                                CaveId = 1, CaptureDate = DateTime.Now,
+                                Accuracy = 3, AltitudeAccuracy = 19,                                
                                 Notes = "Blah blah blah", Source = "My head", Unit = "Imperial"
                             }
                         },
-                        CaveData = new Database.Data[0],
+                        CaveData = new MongoDb.Data[0],
                         Name = "Simple Cave"
                         }
                     }
