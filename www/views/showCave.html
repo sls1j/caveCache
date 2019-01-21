@@ -3,7 +3,7 @@
         <h1>
             Cave:
             <span data-bind="text: Cave.Name"></span>(
-            <span data-bind="text: Cave.CaveId"></span>)
+            <span data-bind="text: Cave.Number"></span>)
         </h1>
 
         <div>
@@ -71,7 +71,7 @@
                 <div class="note-header" data-bind="click: $parent.toggleNote">
                     <i class="fas fa-plus-square"></i>  <span data-bind="text: CreatedDate"></span> - <span data-bind="text: Summary"></span>
                 </div>
-                <div class="notes" style="display: none" data-bind="html: Notes"></div>
+                <div class="notes" style="display: none" data-bind="html: Note"></div>
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,7 +109,7 @@ namespace caveCache.API
     class UserGetShareListRequest : SessionRequest
     {
         [Parameter("The cave that you are interested in sharing.")]
-        public ObjectId CaveId;
+        public string CaveId;
     }
 
     class UserGetShareListResponse : SessionResponse

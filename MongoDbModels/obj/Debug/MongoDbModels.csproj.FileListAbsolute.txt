@@ -15,4 +15,3 @@ C:\code\caveCache\MongoDbModels\bin\Debug\MongoDB.Driver.Core.xml
 C:\code\caveCache\MongoDbModels\obj\Debug\MongoDbModels.csproj.CopyComplete
 C:\code\caveCache\MongoDbModels\obj\Debug\MongoDbModels.exe
 C:\code\caveCache\MongoDbModels\obj\Debug\MongoDbModels.pdb
-C:\code\caveCache\MongoDbModels\obj\Debug\MongoDbModels.csprojAssemblyReference.cache

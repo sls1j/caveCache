@@ -5,15 +5,23 @@
     <meta charset="utf-8" />
     <title>Cave Cache</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>    
-    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=AvqRAHT_GY-E5tkeeYC8qFIfEZC_9UGC9SnXhS9Z94KsZhwoV-g-4lmcTFenisSn' async defer></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet", type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" , type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/messageBox.css">
     <link href="/thirdparty/fontawesome-free-5.2.0-web/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
     <script language="JavaScript" type="text/javascript" src="/thirdparty/openwysiwyg_v1.4.7/scripts/wysiwyg.js"></script>
     <script language="JavaScript" type="text/javascript" src="/thirdparty/openwysiwyg_v1.4.7/scripts/wysiwyg-settings.js"></script>
     <script src="controls/messageBox.js"></script>
@@ -24,7 +32,7 @@
     <script src="viewmodels/viewModel.js"></script>
     <script src="controls/menu.js"></script>
     <script src="viewmodels/loginViewModel.js"></script>
-    <script src="viewmodels/homeViewModel.js"></script>
+    <!--<script src="viewmodels/homeViewModel.js"></script>-->
     <script src="viewmodels/showCaveViewModel.js"></script>
     <script src="viewmodels/caveEditViewModel.js"></script>
     <script src="viewmodels/cavesImportViewModel.js"></script>
@@ -40,7 +48,7 @@
 <body>
     <div class="container-fluid">
         <div class="banner">
-            <h1>Cave Cache</h1>            
+            <h1>Cave Cache</h1>
         </div>
         <div style="position: relative">
             <div id="messagebox" class="messagebox" style="display:none">
@@ -59,9 +67,9 @@
     <script>
         var wysiwygSettings = new WYSIWYG.Settings();
         var baseDir = "/thirdparty/openwysiwyg_v1.4.7/";
-        wysiwygSettings.ImagesDir = baseDir + "images/";        
+        wysiwygSettings.ImagesDir = baseDir + "images/";
         wysiwygSettings.PopupsDir = baseDir + "popups/";
-        wysiwygSettings.ImagePopupFile = "/controls/insert_image.html";        
+        wysiwygSettings.ImagePopupFile = "/controls/insert_image.html";
         wysiwygSettings.CSSFile = baseDir + "styles/wysiwyg.css";
         wysiwygSettings.removeToolbarElement("save");
 
@@ -74,7 +82,7 @@
         var agent = new NewCaveSurveyAgent(url);
         var nav = new PageNavigator(document.getElementById("page-container"));
         nav.addPage("login", "views/login.html");
-        nav.addPage("home", "views/home.html");
+        //nav.addPage("home", "views/home.html");
         nav.addPage("map", "views/map.html");
         nav.addPage("table", "views/table.html")
         nav.addPage("cave-show", "views/showCave.html");
@@ -86,7 +94,7 @@
         nav.addPage("note-edit", "views/editNote.html");
         nav.addPage("profile", "views/profile.html")
 
-        var viewModelClasses = [LoginViewModel, HomeViewModel, ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel,CaveMediaViewModel,CaveMediaAddViewModel, EditNoteViewModel, MapViewModel, TableViewModel, ProfileViewModel];
+        var viewModelClasses = [LoginViewModel, /*HomeViewModel,*/ ShowCaveViewModel, CaveEditViewModel, CavesImportViewModel, EditLocationViewModel, CaveMediaViewModel, CaveMediaAddViewModel, EditNoteViewModel, MapViewModel, TableViewModel, ProfileViewModel];
         var viewModels = [];
         for (let i = 0; i < viewModelClasses.length; i++) {
             let classCon = viewModelClasses[i];

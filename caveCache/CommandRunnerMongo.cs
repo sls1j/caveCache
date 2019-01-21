@@ -225,7 +225,8 @@ namespace caveCache
       {
         if (CheckGetMediaPermission(session, request.MediaId))
         {
-          var stream = _cache.GetMediaDataStream(request.MediaId);
+          var media = _db.Media.AsQueryable().First(m => m.Id == request.MediaId);
+          var stream = (media.OldId.HasValue)?_cache.GetMediaDataStream(media.OldId.Value):_cache.GetMediaDataStream(request.MediaId);
           return new GetMediaResponse()
           {
             RequestId = request.RequestId,
@@ -488,7 +489,7 @@ namespace caveCache
       Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
       _db.Caves.InsertOne(cave);
       _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
-      _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));      
+      _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));
 
       return new CaveCreateResponse()
       {
@@ -536,6 +537,7 @@ namespace caveCache
 
       // get list of all associated media
       var deadMedia = new HashSet<ObjectId>();
+      var deadMediaInt = new HashSet<int>();
       foreach (var caveMedia in _db.Media.AsQueryable().Where(m => m.AttachId == cave.Id && m.AttachType == "cave"))
       {
         bool notFound = true;
@@ -551,7 +553,12 @@ namespace caveCache
         }
 
         if (notFound)
-          deadMedia.Add(caveMedia.Id);
+        {
+          if (caveMedia.OldId.HasValue)
+            deadMediaInt.Add(caveMedia.OldId.Value);
+          else
+            deadMedia.Add(caveMedia.Id);
+        }
       }
 
       if (deadMedia.Count > 0)
@@ -617,7 +624,7 @@ namespace caveCache
       if (session.User.Permissions.Contains("admin") && request.allCaves)
         response.Caves = GetCaveInfo("").OrderBy(c => c.Name).ToArray();
       else
-        response.Caves = GetCaveInfo(Builders<Cave>.Filter.In( c => c.Id,  session.User.Caves)).OrderBy(c => c.Name).ToArray();
+        response.Caves = GetCaveInfo(Builders<Cave>.Filter.In(c => c.Id, session.User.Caves)).OrderBy(c => c.Name).ToArray();
 
       return response;
     }
@@ -650,7 +657,7 @@ namespace caveCache
       };
 
       // get cave data
-      response.Caves = GetCaveInfo(Builders<Cave>.Filter.In( c => c.Id, user.Caves)).OrderBy(c => c.Name).ToArray();
+      response.Caves = GetCaveInfo(Builders<Cave>.Filter.In(c => c.Id, user.Caves)).OrderBy(c => c.Name).ToArray();
 
       return response;
     }
@@ -716,7 +723,7 @@ namespace caveCache
         foreach (var m in _db.Media.AsQueryable().Where(m2 => m2.AttachType == "cave" || m2.AttachType == "0"))
         {
           string src = $"src=\"/Media/{m.Id}\"";
-          if (!_db.Caves.AsQueryable().Any(c => c.Notes.Any( cn => cn.Note.Contains(src))))
+          if (!_db.Caves.AsQueryable().Any(c => c.Notes.Any(cn => cn.Note.Contains(src))))
             deadMedia.Add(m.Id);
         }
 
@@ -724,7 +731,7 @@ namespace caveCache
         foreach (var m in deadMedia)
         {
           Console.WriteLine($"Deleting Media {m}");
-          _cache.RemoveMedia(m);          
+          _cache.RemoveMedia(m);
         }
 
         _db.Media.DeleteMany(m => deadMedia.Contains(m.Id));
@@ -743,7 +750,7 @@ namespace caveCache
         // make sure the user can share the cave                
         if (session.User.Caves.Contains(request.CaveId))
         {
-          if (_db.Users.CountDocuments(u => u.Id == request.UserId) == 1 )
+          if (_db.Users.CountDocuments(u => u.Id == request.UserId) == 1)
           {
             _db.Users.UpdateOne(u => u.Id == request.UserId, Builders<User>.Update.AddToSet(u => u.Caves, request.CaveId));
 
@@ -764,11 +771,12 @@ namespace caveCache
       var session = FindSession(request.SessionId);
       if (session != null)
       {
+        ObjectId caveId = ObjectId.Parse(request.CaveId);
         // make sure the cave exists
-        if (_db.Caves.CountDocuments(c => c.Id == request.CaveId) > 0)
+        if (_db.Caves.CountDocuments(c => c.Id == caveId) > 0)
         {
-          var users = _db.Users.Find( u => !u.Caves.Contains(request.CaveId)).ToList().Select(u => new UserShort(u.Id, u.Name, u.Email)).ToList();
-          
+          var users = _db.Users.Find(u => !u.Caves.Contains(caveId)).ToList().Select(u => new UserShort(u.Id, u.Name, u.Email)).ToList();
+
           var response = Succes<UserGetShareListResponse>(request);
           response.Users = users.ToArray();
           return response;
@@ -778,7 +786,7 @@ namespace caveCache
       }
       else
         return Fail<UserGetShareListResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
-    }  
+    }
 
     public object GenericInvokeCommand(object request)
     {

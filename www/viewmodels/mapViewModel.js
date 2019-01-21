@@ -5,7 +5,7 @@ function MapViewModel(nav, agent) {
     var private = public.private;
     var protected = public.protected;
 
-    protected.navigatedTo = function(evt) {
+    protected.navigatedTo = function (evt) {
         connect_menu(evt.to, nav);
         if (evt.data)
             private.doLoadUserdata(evt.data.mapData);
@@ -13,7 +13,7 @@ function MapViewModel(nav, agent) {
             private.doLoadUserdata();
     }
 
-    private.doLoadUserdata = function(mapData) {
+    private.doLoadUserdata = function (mapData) {
         private.agent.userGetInfo()
             .then(userInfo => {
                 public.Caves.removeAll();
@@ -35,102 +35,67 @@ function MapViewModel(nav, agent) {
                 rejectData => {
 
                 });
-    }   
+    }
 
-    public.loadData = function() {
+    public.loadData = function () {
         private.doLoadUserdata();
     }
 
-    public.logOut = function() {
+    public.logOut = function () {
         private.nav.navigateTo("login");
     }
 
     public.Caves = ko.observableArray();
 
-    public.removeCave = function() {
+    public.removeCave = function () {
         // ask are you sure?
         var caveId = this.CaveId;
         executeMessageBox("Are you sure you want to delete the cave.  It will delete everything.",
             () => {
                 private.agent.caveRemove(caveId)
-                    .then(() => {private.doLoadUserdata()});
+                    .then(() => { private.doLoadUserdata() });
             });
     }
 
-    public.editCave = function() {
-        private.nav.navigateTo("cave-edit", {method: "edit", cave: this, userInfo: private.userInfo});
+    public.editCave = function () {
+        private.nav.navigateTo("cave-edit", { method: "edit", cave: this, userInfo: private.userInfo });
     }
 
-    public.addCave = function() {
+    public.addCave = function () {
 
         agent.caveAdd().then(response => {
             var cave = response.Cave;
             Cave(cave);
             public.Caves().push(cave);
-            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave, userInfo: private.userInfo});
+            private.nav.navigateTo("cave-edit", { method: "edit", cave: cave, userInfo: private.userInfo });
         });
     }
 
-    public.showCave = function() {
-        private.nav.navigateTo("cave-show", {cave: this, mapData: private.map.getBounds()});
+    public.showCave = function () {
+        private.nav.navigateTo("cave-show", { cave: this, mapData: private.map.getBounds() });
     }
 
-    public.importCaves = function() {
+    public.importCaves = function () {
         private.nav.navigateTo("caves-import", null);
     }
 
-    private.GetMap = function(mapData) {
-        function makeLoc(lat, long) {
-            return new Microsoft.Maps.Location(lat, long);
-        }
+    private.GetMap = function (mapData) {
+        let map = L.map('map').setView([51.505, -0.09], 13);
 
-        function makePin(lat, long, title, callback) {
-            let loc = makeLoc(lat, long);
-            let pin = new Microsoft.Maps.Pushpin(loc, {
-                color: 'green',
-                title: title,
-                enableHoverStyle: true,
-                typeName: 'home-push-pin'
-            });
-
-            Microsoft.Maps.Events.addHandler(pin, 'click', callback);
-
-            return pin;
-        }
-
-        let map = new Microsoft.Maps.Map('#map', {
-            credentials: 'AvqRAHT_GY-E5tkeeYC8qFIfEZC_9UGC9SnXhS9Z94KsZhwoV-g-4lmcTFenisSn',
-            mapTypeId: Microsoft.Maps.MapTypeId.aerial,
-        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
         private.map = map;
 
-        if (mapData !== undefined) {
-            map.setView({bounds: mapData, padding: 0});
-        }
-        else {
-            let locs = [];
-            for (let i = 0; i < private.allCaves.length; i++) {
-                let c = private.allCaves[i];
-                if (c.Latitude != 0 || c.Longitude != 0) {
-                    var loc = new Microsoft.Maps.Location(c.Latitude, c.Longitude);
-                    locs.push(loc);
-                }
-            }
-            var rect = Microsoft.Maps.LocationRect.fromLocations(locs);
-            map.setView({bounds: rect, padding: 80});
-        }
-
-
-
-        // add caves
+        let locs = [];
         for (let i = 0; i < private.allCaves.length; i++) {
             let c = private.allCaves[i];
             if (c.Latitude != 0 || c.Longitude != 0) {
-                let pin = makePin(c.Latitude, c.Longitude, c.Name, () => {
-                    private.nav.navigateTo("cave-show", {cave: c, mapData: private.map.getBounds()});
-                });
-                map.entities.push(pin);
+                L.marker([c.Latitude, c.Longitude])
+                    .addTo(map)
+                    .bindPopup(c.Name)
+                    .openPopup();
             }
         }
     }

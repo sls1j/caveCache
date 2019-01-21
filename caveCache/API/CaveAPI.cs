@@ -84,6 +84,7 @@ namespace caveCache.API
   class CaveInfo
   {
     public ObjectId CaveId;
+    public int Number;
     public string Name;
     public string Description;
     public int? LocationId;
@@ -101,6 +102,7 @@ namespace caveCache.API
     {
       CaveData = c.Data.ToArray();
       CaveId = c.Id;
+      Number = c.CaveNumber;
       Description = c.Description;
       Locations = c.Locations.ToArray();
       Name = c.Name;
