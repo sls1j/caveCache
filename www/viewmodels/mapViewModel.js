@@ -92,10 +92,15 @@ function MapViewModel(nav, agent) {
         for (let i = 0; i < private.allCaves.length; i++) {
             let c = private.allCaves[i];
             if (c.Latitude != 0 || c.Longitude != 0) {
-                L.marker([c.Latitude, c.Longitude])
+                let marker = L.marker([c.Latitude, c.Longitude])
                     .addTo(map)
-                    .bindPopup(c.Name)
-                    .openPopup();
+                    .bindPopup(c.Name);
+
+                marker.caveId = c.CaveId;
+
+                marker.on('mouseover', e => e.target.openPopup());
+                marker.on('mouseout', e => e.target.closePopup());
+                marker.on('click', e => private.nav.navigateTo("cave-show", { cave: c }));
             }
         }
     }

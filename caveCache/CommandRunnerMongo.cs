@@ -10,6 +10,7 @@ using MongoDB.Bson;
 using caveCache.MongoDb;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver;
+using System.IO;
 
 namespace caveCache
 {
@@ -223,22 +224,22 @@ namespace caveCache
       var session = FindSession(request.SessionId);
       if (session != null)
       {
-        if (CheckGetMediaPermission(session, request.MediaId))
-        {
-          var media = _db.Media.AsQueryable().First(m => m.Id == request.MediaId);
-          var stream = (media.OldId.HasValue)?_cache.GetMediaDataStream(media.OldId.Value):_cache.GetMediaDataStream(request.MediaId);
-          return new GetMediaResponse()
-          {
-            RequestId = request.RequestId,
-            SessionId = request.SessionId,
-            MediaId = request.MediaId,
-            Stream = stream,
-            StatusDescription = string.Empty,
-            Status = (int)HttpStatusCode.OK
-          };
-        }
+        Stream stream = null;
+        if (request.MediaId.HasValue)
+          stream = _cache.GetMediaDataStream(request.MediaId.Value);
         else
-          return Fail<GetMediaResponse>(request, HttpStatusCode.BadRequest, "Do not have permissions to access requested media.");
+          stream = _cache.GetMediaDataStream(request.OldMediaId.Value);
+
+        return new GetMediaResponse()
+        {
+          RequestId = request.RequestId,
+          SessionId = request.SessionId,
+          MediaId = request.MediaId,
+          OldMediaId = request.OldMediaId,
+          Stream = stream,
+          StatusDescription = string.Empty,
+          Status = (int)HttpStatusCode.OK
+        };
       }
       else
         return Fail<GetMediaResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
