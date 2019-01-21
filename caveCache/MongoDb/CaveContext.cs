@@ -14,6 +14,7 @@ namespace caveCache.MongoDb
 
     public CaveContext(string connectionString)
     {
+      Console.WriteLine($"Connecting to '{connectionString}'");
       _connectionString = connectionString;
       _client = new MongoClient(_connectionString);
       _db = _client.GetDatabase(DatabaseName);
