@@ -60,11 +60,12 @@ function ShowCaveViewModel(nav, agent) {
 
     private.GetMap = function () {
         let map = L.map('map').setView([public.Cave.Latitude, public.Cave.Longitude], 13);
-        let layer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        //let layer = 'http://c.tiles.wmflabs.org/hillshading/${z}/${x}/${y}.png'
-        L.tileLayer(layer , {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        let baseMaps = {
+            "Topo" : L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYnJpYW4tZGlja2V5IiwiYSI6ImNqcjZ6YWhoZzAxank0YXMzNm44YmJsYzUifQ.jBgCFt06nwAWC6jFmDrqVg', {}),
+            "Sat" :  L.tileLayer('https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYnJpYW4tZGlja2V5IiwiYSI6ImNqcjZ6YWhoZzAxank0YXMzNm44YmJsYzUifQ.jBgCFt06nwAWC6jFmDrqVg', {})
+        };
+
+        L.control.layers(baseMaps, {}).addTo(map);
 
         private.map = map;
 

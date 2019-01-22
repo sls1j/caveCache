@@ -100,13 +100,13 @@ namespace caveCache.API
 
     public CaveInfo(Cave c)
     {
-      CaveData = c.Data.ToArray();
+      CaveData = (c.Data?.ToArray())??new Data[0];
       CaveId = c.Id;
       Number = c.CaveNumber;
       Description = c.Description;
-      Locations = c.Locations.ToArray();
+      Locations = (c.Locations?.ToArray())??new CaveLocation[0];
       Name = c.Name;
-      Notes = c.Notes.ToArray();
+      Notes = (c.Notes?.ToArray())??new CaveNote[0];
     }
   }
 
