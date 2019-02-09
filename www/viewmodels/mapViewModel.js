@@ -81,22 +81,8 @@ function MapViewModel(nav, agent) {
 
     private.GetMap = function (mapData) {
         let map = L.map('map').setView([41.8924361,-111.6350057], 13);
-        setupMapLayers(map);
-        /*let geo = L.tileLayer('https://webmaps.geology.utah.gov/arcgis/rest/services/GeolMap/30x60_Quads/MapServer/tile/{z}/{y}/{x}?blankTile=false');
-        let geo_topo = L.tileLayer(
-            'https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYnJpYW4tZGlja2V5IiwiYSI6ImNqcjZ6YWhoZzAxank0YXMzNm44YmJsYzUifQ.jBgCFt06nwAWC6jFmDrqVg',
-             {"opacity" : 0.6});
-        
-        let geo_group = L.layerGroup([geo,geo_topo]);
-        let baseMaps = {
-            "Topo" : L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYnJpYW4tZGlja2V5IiwiYSI6ImNqcjZ6YWhoZzAxank0YXMzNm44YmJsYzUifQ.jBgCFt06nwAWC6jFmDrqVg', {}).addTo(map),
-            "Sat" :  L.tileLayer('https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYnJpYW4tZGlja2V5IiwiYSI6ImNqcjZ6YWhoZzAxank0YXMzNm44YmJsYzUifQ.jBgCFt06nwAWC6jFmDrqVg', {}),
-            "Geo" : geo_group
-        };
-
-        L.control.layers(baseMaps, {}).addTo(map);*/
-
         private.map = map;
+        setupMapLayers(map);    
 
         let locs = [];
         for (let i = 0; i < private.allCaves.length; i++) {
