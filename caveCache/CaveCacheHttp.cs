@@ -21,6 +21,16 @@ namespace caveCache
 
     public CaveCacheHttp(IConfiguration conf, IMediaCache cache, CaveContext db)
     {
+      JsonConvert.DefaultSettings = () =>
+      {
+        var settings = new JsonSerializerSettings()
+        {
+          Converters = new List<JsonConverter>() { new ObjectIdConverter() }
+        };
+
+        return settings;
+      };
+
       _cmd = new CommandRunnerMongo(conf, cache, db, false);
       _guard = new ExecutionGuard();
 
@@ -31,6 +41,36 @@ namespace caveCache
       Console.WriteLine("Listening");
 
       _timer = new Timer(OnUpdate, null, 0, 60 * 1000);
+    }
+
+    public class ObjectIdConverter : JsonConverter
+    {
+      public override bool CanConvert(Type objectType)
+      {
+        return objectType == typeof(ObjectId);
+      }
+
+      public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+      {
+        if (reader.TokenType != JsonToken.String)
+          throw new Exception($"Unexpected token parsing ObjectId. Expected String, got {reader.TokenType}.");
+
+        var value = (string)reader.Value;
+        return string.IsNullOrEmpty(value) ? ObjectId.Empty : new ObjectId(value);
+      }
+
+      public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+      {
+        if (value is ObjectId)
+        {
+          var objectId = (ObjectId)value;
+          writer.WriteValue(objectId != ObjectId.Empty ? objectId.ToString() : string.Empty);
+        }
+        else
+        {
+          throw new Exception("Expected ObjectId value.");
+        }
+      }
     }
 
     private void OnUpdate(object state)
@@ -49,11 +89,11 @@ namespace caveCache
        var listener = ar.AsyncState as HttpListener;
        var context = listener.EndGetContext(ar);
 
-       // allows handling multiple requests at the same time
-       listener.BeginGetContext(HandleAPI, listener);
+         // allows handling multiple requests at the same time
+         listener.BeginGetContext(HandleAPI, listener);
 
-       // allows for cross-domain access from a script.
-       var response = context.Response;
+         // allows for cross-domain access from a script.
+         var response = context.Response;
        var request = context.Request;
        response.AddHeader("Access-Control-Allow-Origin", "*");
        response.AddHeader("Access-Control-Allow-Credentials", "true");
@@ -117,7 +157,7 @@ namespace caveCache
         using (var reader = new StreamReader(context.Request.InputStream))
         {
           string json = reader.ReadToEnd();
-          request = JsonConvert.DeserializeObject(json, mt);
+          request = JsonConvert.DeserializeObject(json, mt, JsonConvert.DefaultSettings());
         }
 
         if (request != null)

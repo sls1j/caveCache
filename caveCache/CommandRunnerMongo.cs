@@ -11,6 +11,8 @@ using caveCache.MongoDb;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver;
 using System.IO;
+using Newtonsoft.Json;
+using MongoDB.Integrations.JsonDotNet.Converters;
 
 namespace caveCache
 {
@@ -29,8 +31,7 @@ namespace caveCache
     {
       _config = config ?? throw new ArgumentNullException(nameof(config));
       _cache = cache ?? throw new ArgumentNullException(nameof(config));
-      _db = db ?? throw new ArgumentNullException(nameof(db));
-
+      _db = db ?? throw new ArgumentNullException(nameof(db));      
 
       this._isCommandLine = isCommandLine;
 
@@ -535,6 +536,7 @@ namespace caveCache
       }
 
       _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Cave {cave.Id} updated by {session.User.Name}"));
+      _db.Caves.ReplaceOne(Builders<Cave>.Filter.Eq(c => c.Id, cave.Id), cave);
 
       // get list of all associated media
       var deadMedia = new HashSet<ObjectId>();
