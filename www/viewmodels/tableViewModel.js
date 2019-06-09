@@ -82,14 +82,12 @@ function TableViewModel(nav, agent) {
         private.nav.navigateTo("cave-edit", {method: "edit", cave: this, userInfo: private.userInfo});
     }
 
-    public.addCave = function() {
-
-        agent.caveAdd().then(response => {
-            var cave = response.Cave;
-            Cave(cave);
-            public.Caves().push(cave);
-            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave, userInfo: private.userInfo});
-        });
+    public.addCave = function () {
+        var cave = new Cave();
+        cave.Name = "New Cave";
+        cave.CreatedDate = new Date();
+        public.Caves().push(cave);
+        private.nav.navigateTo("cave-edit", { method: "edit", cave: cave, userInfo: private.userInfo });
     }
 
     public.showCave = function() {

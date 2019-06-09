@@ -31,7 +31,7 @@ namespace caveCache
     {
       _config = config ?? throw new ArgumentNullException(nameof(config));
       _cache = cache ?? throw new ArgumentNullException(nameof(config));
-      _db = db ?? throw new ArgumentNullException(nameof(db));      
+      _db = db ?? throw new ArgumentNullException(nameof(db));
 
       this._isCommandLine = isCommandLine;
 
@@ -480,27 +480,27 @@ namespace caveCache
       };
     }
 
-    public API.CaveCreateResponse CaveCreate(API.CaveCreateRequest request)
-    {
-      var session = FindSession(request.SessionId);
-      if (session == null)
-        return Fail<API.CaveCreateResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
+    //public API.CaveCreateResponse CaveCreate(API.CaveCreateRequest request)
+    //{
+    //  var session = FindSession(request.SessionId);
+    //  if (session == null)
+    //    return Fail<API.CaveCreateResponse>(request, HttpStatusCode.Unauthorized, "Unauthorized");
 
-      int nameId = _db.GetNextCaveNumber();
+    //  int caveNumber = _db.GetNextCaveNumber();
 
-      Cave cave = new Cave() { Name = $"CC #{nameId}", Description = string.Empty, CreatedDate = DateTime.Now };
-      _db.Caves.InsertOne(cave);
-      _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
-      _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));
+    //  Cave cave = new Cave() { Name = $"CC #{caveNumber}", Description = string.Empty, CreatedDate = DateTime.Now, CaveNumber = caveNumber };
+    //  _db.Caves.InsertOne(cave);
+    //  _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
+    //  _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));
 
-      return new CaveCreateResponse()
-      {
-        Cave = new CaveInfo(cave),
-        SessionId = request.SessionId,
-        RequestId = request.RequestId,
-        Status = (int)HttpStatusCode.OK
-      };
-    }
+    //  return new CaveCreateResponse()
+    //  {
+    //    Cave = new CaveInfo(cave),
+    //    SessionId = request.SessionId,
+    //    RequestId = request.RequestId,
+    //    Status = (int)HttpStatusCode.OK
+    //  };
+    //}
 
     public API.CaveUpdateResponse CaveAddUpdate(API.CaveUpdateRequest request)
     {
@@ -512,9 +512,17 @@ namespace caveCache
         return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cave must have a name.");
 
       Cave cave = null;
-      cave = _db.Caves.Find(c => c.Id == request.CaveId).Single();
+      cave = _db.Caves.Find(c => c.Id == request.CaveId).SingleOrDefault();
       if (null == cave)
-        return Fail<API.CaveUpdateResponse>(request, HttpStatusCode.BadRequest, "Cannot update a non-existant cave.");
+      {
+        int caveNumber = _db.GetNextCaveNumber();
+        cave = new Cave() { Name = $"CC #{caveNumber}", Description = string.Empty, CreatedDate = DateTime.Now, CaveNumber = caveNumber };
+        
+        _db.Caves.InsertOne(cave);
+        _db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
+        _db.History.InsertOne(HistoryEntry(session.UserId, cave.Id, null, null, $"Created new cave {cave.Name}:{cave.Id}"));
+      }
+
 
       cave.Name = request.Name;
       cave.Description = request.Description ?? string.Empty;
@@ -625,7 +633,7 @@ namespace caveCache
       API.CaveListResponse response = new API.CaveListResponse() { RequestId = request.RequestId, SessionId = request.SessionId, Status = (int)HttpStatusCode.OK };
 
       if (session.User.Permissions.Contains("admin") && request.allCaves)
-        response.Caves = GetCaveInfo("").OrderBy(c => c.Name).ToArray();
+        response.Caves = GetCaveInfo("{}").OrderBy(c => c.Name).ToArray();
       else
         response.Caves = GetCaveInfo(Builders<Cave>.Filter.In(c => c.Id, session.User.Caves)).OrderBy(c => c.Name).ToArray();
 

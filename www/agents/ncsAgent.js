@@ -47,27 +47,7 @@ function NewCaveSurveyAgent(url) {
                 err => reject("API command failed: " + err.status + "," + err, statusText)
             );
         });
-    }
-
-    public.caveAdd = function() {
-        return new Promise((resolve, reject) => {
-            let newCave = {
-                RequestType: "CaveCreateRequest",
-                SessionId: private.sessionId,
-                RequestId: private.nextRequestId
-            };
-
-            private.sendCommand(newCave).then(
-                response => {
-                    if (response.Status == 200)
-                        resolve(response);
-                    else
-                        reject("CaveCreateRequest failed: " + response.Status + " " + response.StatusDescription);
-                },
-                err => reject("API command failed: " + err.status + " " + err.statusText)
-            )
-        });
-    }
+    }  
 
     public.caveUpdate = function(cave) {
         return new Promise((resolve, reject) => {
@@ -370,6 +350,15 @@ function Note(note = null) {
         note = this;
 
     return Object.deepExtend($Note_Empty, note);
+}
+
+function CaveData(name,type,value,metadata)
+{
+    var cd = this;
+    cd.Name = name;
+    cd.Type = type;
+    cd.Value = value;
+    cd.MetaData = metadata;    
 }
 
 function Cave(cave = null) {

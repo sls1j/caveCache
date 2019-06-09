@@ -1,26 +1,22 @@
-﻿using caveCache.MongoDb;
+﻿using System.Linq;
+using caveCache.MongoDb;
 using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace caveCache.API
 {
   [Request("Allocates a caveId and associates the cave with the current user and default values.  This must be done before adding details, custom data, locations, or media")]
-  class CaveCreateRequest : SessionRequest
+  internal class CaveCreateRequest : SessionRequest
   {
   }
 
-  class CaveCreateResponse : SessionResponse
+  internal class CaveCreateResponse : SessionResponse
   {
     [Parameter("The unique cave identifier.")]
     public CaveInfo Cave;
   }
 
   [Request("Update the details, locations, and custom data of the specified cave.")]
-  class CaveUpdateRequest : SessionRequest
+  internal class CaveUpdateRequest : SessionRequest
   {
     [Parameter("The cave identifier")]
     public ObjectId CaveId;
@@ -46,26 +42,25 @@ namespace caveCache.API
     }
   }
 
-  class CaveUpdateResponse : SessionResponse
+  internal class CaveUpdateResponse : SessionResponse
   {
     [Parameter("The cave identifier of the cave that was updated.")]
     public ObjectId CaveId;
   }
 
   [Request("Lists all of the visible caves.")]
-  class CaveListRequest : SessionRequest
+  internal class CaveListRequest : SessionRequest
   {
     public bool allCaves; // is ignored if not an admin account        
   }
 
-
-  class CaveListResponse : SessionResponse
+  internal class CaveListResponse : SessionResponse
   {
     public CaveInfo[] Caves;
   }
 
   [Request("Lists all of the visible caves within the given distance.")]
-  class CaveListByLocationRequestion : SessionRequest
+  internal class CaveListByLocationRequestion : SessionRequest
   {
     [Parameter("The Latitude of the search location")]
     public decimal Latitude;
@@ -76,12 +71,12 @@ namespace caveCache.API
     internal string Unit;
   }
 
-  class CaveListByLocationResponse : SessionResponse
+  internal class CaveListByLocationResponse : SessionResponse
   {
     public CaveInfo[] Caves;
   }
 
-  class CaveInfo
+  internal class CaveInfo
   {
     public ObjectId CaveId;
     public int Number;
@@ -100,18 +95,32 @@ namespace caveCache.API
 
     public CaveInfo(Cave c)
     {
-      CaveData = (c.Data?.ToArray())??new Data[0];
+      CaveData = (c.Data?.ToArray()) ?? new Data[0];
       CaveId = c.Id;
       Number = c.CaveNumber;
       Description = c.Description;
-      Locations = (c.Locations?.ToArray())??new CaveLocation[0];
+      Locations = (c.Locations?.ToArray()) ?? new CaveLocation[0];
       Name = c.Name;
-      Notes = (c.Notes?.ToArray())??new CaveNote[0];
+      Notes = (c.Notes?.ToArray()) ?? new CaveNote[0];
+    }
+
+    public string LocalString
+    {
+      get
+      {
+        var loc = Locations.FirstOrDefault(l => l.IsActive)??Locations.FirstOrDefault();
+        if (loc != null)
+        {
+          return $"{loc.Latitude:0.000000},{loc.Longitude:0.000000}";
+        }
+
+        return "--,--";
+      }
     }
   }
 
   [Request("Removes the cave include *all* of it's data.")]
-  class CaveRemoveRequest : SessionRequest
+  internal class CaveRemoveRequest : SessionRequest
   {
     public CaveRemoveRequest()
     {
@@ -121,12 +130,12 @@ namespace caveCache.API
     public ObjectId CaveId { get; set; }
   }
 
-  class CaveRemoveResponse : SessionResponse
+  internal class CaveRemoveResponse : SessionResponse
   {
   }
 
   [Request("Share a cave record with another user.")]
-  class CaveShareRequest : SessionRequest
+  internal class CaveShareRequest : SessionRequest
   {
     [Parameter("The identifier of the cave to share.")]
     public ObjectId CaveId;
@@ -136,7 +145,7 @@ namespace caveCache.API
     public string Note;
   }
 
-  class CaveShareResponse : SessionResponse
+  internal class CaveShareResponse : SessionResponse
   {
   }
 }

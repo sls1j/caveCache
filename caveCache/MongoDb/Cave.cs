@@ -10,12 +10,13 @@ namespace caveCache.MongoDb
 {
   public class Cave
   {
-    [BsonId]
+    [BsonId, BsonIgnoreIfNull]
     public ObjectId Id { get; set; }
     public int CaveNumber { get; set; }
     public bool Saved { get; set; }
     public DateTime CreatedDate { get; set; }
     public string Name { get; set; }
+    public CaveSubType SubType { get; set; }
     public string Description { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? DateDeleted { get; set; }
@@ -30,6 +31,8 @@ namespace caveCache.MongoDb
     }
   } 
 
+  public enum CaveSubType { Cave, Pit, Sink, Karst, Spring }
+
   public class CaveLocation
   {
     public bool IsActive { get; set; }
@@ -42,6 +45,7 @@ namespace caveCache.MongoDb
     public string Unit { get; set; }
     public string Source { get; set; }
     public string Notes { get; set; }
+    
 
     public CaveLocation Clone()
     {

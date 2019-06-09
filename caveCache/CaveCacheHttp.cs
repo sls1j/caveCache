@@ -23,10 +23,9 @@ namespace caveCache
     {
       JsonConvert.DefaultSettings = () =>
       {
-        var settings = new JsonSerializerSettings()
-        {
-          Converters = new List<JsonConverter>() { new ObjectIdConverter() }
-        };
+        var settings = new JsonSerializerSettings();
+        settings.Converters.Add(new ObjectIdConverter());
+        settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
 
         return settings;
       };
@@ -35,7 +34,7 @@ namespace caveCache
       _guard = new ExecutionGuard();
 
       _listener = new HttpListener();
-      _listener.Prefixes.Add("http://*:1222/");
+      _listener.Prefixes.Add("http://127.0.0.1:1222/");
       _listener.Start();
       _listener.BeginGetContext(HandleAPI, _listener);
       Console.WriteLine("Listening");

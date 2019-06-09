@@ -82,13 +82,15 @@ function HomeViewModel(nav, agent) {
     }
 
     public.addCave = function() {
-
-        agent.caveAdd().then(response => {
-            var cave = response.Cave;
-            Cave(cave);
-            public.Caves().push(cave);
-            private.nav.navigateTo("cave-edit", {method: "edit", cave: cave, userInfo: private.userInfo});
-        });
+        var cave = {
+            Name = "New Cave",
+            Description = "",
+            CreatedDate = new Date(),            
+        };
+        
+        Cave(cave);
+        public.Caves().push(cave);
+        private.nav.navigateTo("cave-edit", {method: "edit", cave: cave, userInfo: private.userInfo});
     }
 
     public.showCave = function() {

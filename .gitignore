@@ -10,3 +10,6 @@
 /cave-data
 /MongoDbModels/obj/Debug/MongoDbModels.csprojAssemblyReference.cache
 /MongoDbModels/obj/Debug/DesignTimeResolveAssemblyReferences.cache
+/MongoDbModels/bin/Debug
+/packages
+/MongoDbModels/obj/Debug/MongoDbModels.exe.config

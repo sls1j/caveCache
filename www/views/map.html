@@ -1,16 +1,37 @@
 <div>
     @@views/menu.html@@
 
-    <div id="map" class="home-map">
-
-    </div>
-
     <div>
         <a href="#" data-bind="click: addCave">Add Cave</a>
         <a href="#" data-bind="click: importCaves" style="float:right">Import from CSV</a>
     </div>
+    <div>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Lat/Long</th>
+                <th>Category</th>
+            </tr>
+            <tr>
+                <td><input type="text" data-bind="value: quickName" /></td>
+                <td><input type="text" data-bind="value: quickLatLng" /></td>
+                <td>
+                    <select data-bind="value: quickCategory">
+                        <option value="Cave">Cave</option>
+                        <option value="Dig">Dig</option>
+                        <option value="Karst">Karst</option>
+                        <option value="Lead">Lead</option>
+                        <option value="Spring">Spring</option>
+                    </select>
+                </td>
+                <td><button data-bind="click: quickAddCave">Quick Add</button></td>
+            </tr>
+        </table>
+    </div>
 
-
+    <div id="mapstatus"></div>
+    <div id="map" class="home-map">
+    </div>
 
     <div class="home-button-panel">
         <button data-bind="click: loadData" class="btn btn-primary">Refresh</button>

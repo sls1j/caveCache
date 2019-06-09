@@ -38,7 +38,7 @@ namespace caveCache.MongoDb
     }
     public int GetNextCaveNumber()
     {
-      int returnValue = Globals.Find(g => true).Project(g => g.CaveNumber).Single();
+      int returnValue = Globals.Find(g => true).Project(g => g.CaveNumber).Single() + 1;
 
       Globals.UpdateOne(g => true, Builders<Global>.Update.Set(g => g.CaveNumber, returnValue));
       return returnValue;

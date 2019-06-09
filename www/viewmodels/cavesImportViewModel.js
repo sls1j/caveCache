@@ -94,7 +94,7 @@ function CavesImportViewModel(nav, agent) {
 
         let cave = caves[index];
 
-        private.agent.caveSave(cave)
+        private.agent.caveUpdate(cave)
             .then((result) => {
                 console.log(result);
                 private.saveCaves(index + 1, caves);

@@ -47,6 +47,11 @@ function MapViewModel(nav, agent) {
 
     public.Caves = ko.observableArray();
 
+    public.quickName = ko.observable();
+    public.quickLatLng = ko.observable();
+    public.quickCategory = ko.observable();
+    
+
     public.removeCave = function () {
         // ask are you sure?
         var caveId = this.CaveId;
@@ -62,13 +67,38 @@ function MapViewModel(nav, agent) {
     }
 
     public.addCave = function () {
+        var cave = new Cave();
+        cave.Name = "New Cave";
+        cave.CreatedDate = new Date();
+        public.Caves().push(cave);
+        private.nav.navigateTo("cave-edit", { method: "edit", cave: cave, userInfo: private.userInfo });
+    }
 
-        agent.caveAdd().then(response => {
-            var cave = response.Cave;
-            Cave(cave);
-            public.Caves().push(cave);
-            private.nav.navigateTo("cave-edit", { method: "edit", cave: cave, userInfo: private.userInfo });
-        });
+    public.quickAddCave = function () {
+        var cave = new Cave();
+        cave.Name = public.quickName();
+        cave.CreatedDate = new Date();
+        cave.CaveData.push(new CaveData("Catagory", "text", public.quickCategory()));
+        let loc = cave.Locations[0];
+        try {
+            let latLngStr = public.quickLatLng();
+            let latLng = latLngStr.split(" ", 2);
+            if (latLng.length === 2) {
+                let lat = parseFloat(latLng[0]);
+                let lng = parseFloat(latLng[1]);
+
+                loc.Latitude = lat;
+                loc.Longitude = lng;
+            }
+        }
+        catch
+        {
+            console.write("Couldn't parse lat/lng quitting");
+            return;
+        }
+
+        private.agent.caveUpdate(cave)
+            .then(response => { private.doLoadUserdata(); });            
     }
 
     public.showCave = function () {
@@ -80,9 +110,12 @@ function MapViewModel(nav, agent) {
     }
 
     private.GetMap = function (mapData) {
-        let map = L.map('map').setView([41.8924361,-111.6350057], 13);
+        let map = L.map('map').setView([41.8924361, -111.6350057], 13);
         private.map = map;
-        setupMapLayers(map);    
+        let mapstatus = document.getElementById("mapstatus");
+        let contextMenu = document.createElement("a");
+        contextMenu.addEventListener('click', ()=>alert("Yes!"));
+        setupMapLayers(map, mapstatus, contextMenu);
 
         let locs = [];
         for (let i = 0; i < private.allCaves.length; i++) {
