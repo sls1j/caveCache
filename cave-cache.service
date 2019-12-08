@@ -1,0 +1,11 @@
+[Unit]
+Description=Cave Cache Web Service
+After=network.target
+
+[Service]
+ExecStart=/opt/dotnet/dotnet /opt/caveCache/caveCache.dll
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
