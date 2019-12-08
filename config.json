@@ -1,0 +1,4 @@
+﻿{
+  "ConnectionString": "mongodb://192.168.4.10:27017",
+  "MediaDirectory" :  "/home/brian/caveCacheMedia"
+}
