@@ -717,6 +717,8 @@ namespace caveCache
       if (hash != session.User.PasswordHash)
         return Fail<API.UserSetPasswordResponse>(request, HttpStatusCode.Unauthorized, "Old password didn't match.");
 
+      request.NewPassword = GenerateUserPassword();
+
       GenerateUserPasswordHash(session.User, request.NewPassword);
       _db.Users.ReplaceOne(u => u.Id == session.UserId, session.User);
 
