@@ -19,7 +19,7 @@ namespace CaveCache.Verbs
        {
          ko.Listen(IPAddress.Loopback, 1222);
          ko.Limits.MaxRequestBodySize = 50 * 1024 * 1024;
-         ko.Limits.MaxConcurrentConnections = 20;
+         ko.Limits.MaxConcurrentConnections = 20;         
        })
         .ConfigureServices( cs =>
         {

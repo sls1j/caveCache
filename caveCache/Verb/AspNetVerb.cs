@@ -30,7 +30,7 @@ namespace caveCache
           cs.AddRouting();
         })
         .Configure((wb, app) =>
-          {
+          {            
             app.UseRouting();
             app.UseEndpoints(epb =>
             {
