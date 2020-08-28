@@ -27,10 +27,14 @@
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
-    <script language="JavaScript" type="text/javascript"
-        src="/thirdparty/openwysiwyg_v1.4.7/scripts/wysiwyg.js"></script>
-    <script language="JavaScript" type="text/javascript"
-        src="/thirdparty/openwysiwyg_v1.4.7/scripts/wysiwyg-settings.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/suneditor@latest/dist/css/suneditor.min.css" rel="stylesheet">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/suneditor@latest/assets/css/suneditor.css" rel="stylesheet"> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/suneditor@latest/assets/css/suneditor-contents.css" rel="stylesheet"> -->
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@latest/dist/suneditor.min.js"></script>
+    <!-- languages (Basic Language: English/en) -->
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@latest/src/lang/ko.js"></script>
+
     <script src="controls/messageBox.js"></script>
     <script src="utils/utils.js"></script>
     <script src="utils/maps.js"></script>
@@ -110,13 +114,14 @@
         })(window)
 
 
-        var wysiwygSettings = new WYSIWYG.Settings();
-        var baseDir = "/thirdparty/openwysiwyg_v1.4.7/";
-        wysiwygSettings.ImagesDir = baseDir + "images/";
-        wysiwygSettings.PopupsDir = baseDir + "popups/";
-        wysiwygSettings.ImagePopupFile = "/controls/insert_image.html";
-        wysiwygSettings.CSSFile = baseDir + "styles/wysiwyg.css";
-        wysiwygSettings.removeToolbarElement("save");
+        // var wysiwygSettings = new WYSIWYG.Settings();
+        // var baseDir = "/thirdparty/openwysiwyg_v1.4.7/";
+        // wysiwygSettings.ImagesDir = baseDir + "images/";
+        // wysiwygSettings.PopupsDir = baseDir + "popups/";
+        // wysiwygSettings.ImagePopupFile = "/controls/insert_image.html";
+        // wysiwygSettings.CSSFile = baseDir + "styles/wysiwyg.css";
+        // wysiwygSettings.removeToolbarElement("save");
+        // wysiwygSettings.removeToolbarElement("image");
 
         let url = null;
         if (window.location.hostname === "localhost")

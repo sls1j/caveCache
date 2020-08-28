@@ -16,19 +16,25 @@ function EditNoteViewModel(nav, agent) {
         public.CreatedDate(note.CreatedDate);
         public.Notes(note.Notes);          
         
-        document.getElementById("ce_notes").value = note.Notes;
-        wysiwygSettings.ImagePopupExtraUrlParameters = "sessionId="+encodeURIComponent(agent.sessionId())+"&mediaAttachmentHandle="+note.CaveId + "&mediaAttachmentType=cave";
-        WYSIWYG.attachAll(wysiwygSettings);      
+        var notes = document.getElementById("notes");
+        notes.value = note.Notes;
+        private.editor = SUNEDITOR.create('notes',{
+            // All of the plugins are loaded in the "window.SUNEDITOR" object in dist/suneditor.min.js file
+            // Insert options
+            // Language global object (default: en)
+            //lang: SUNEDITOR_LANG['ko']
+        });
     }
 
-    public.save = function () {
-        WYSIWYG.updateTextArea("ce_notes");
-
+    public.save = function () {        
+        private.editor.save();
+        let notes = document.getElementById("notes");
+        console.log(notes.value);
         let n = new Note();
         let orignalNote = private.note;
         n.NoteId = orignalNote.NoteId;
         n.CreatedDate = orignalNote.CreatedDate;
-        n.Notes = document.getElementById("ce_notes").value;
+        n.Notes = notes.value;
         n.UserId = orignalNote.UserId;
         n.CaveId = orignalNote.CaveId;
 
