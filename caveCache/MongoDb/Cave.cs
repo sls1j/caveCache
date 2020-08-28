@@ -25,13 +25,14 @@ namespace caveCache.MongoDb
     public List<CaveLocation> Locations { get; set; }
     public List<CaveNote> Notes { get; set; }
     public List<CaveSurvey> Surveys { get; set; }
+    public List<string> Media { get; set; }
 
     public Cave()
     {
     }
   } 
 
-  public enum CaveSubType { Cave, Pit, Sink, Karst, Spring }
+  public enum CaveSubType { VerticalCave, HorizontalCave, PotentialCave, Pit, Dig, Grotto, Spring};
 
   public class CaveLocation
   {

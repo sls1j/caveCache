@@ -1,0 +1,17 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:16131",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "CaveCache": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:4200"
+    }
+  }
+}

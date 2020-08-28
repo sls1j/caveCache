@@ -217,6 +217,25 @@ namespace caveCache
       }
     }
 
+    public GetMediaByAttachResponse GetMediaByAttach(GetMediaByAttachRequest request)
+    {      
+      var session = FindSession(request.SessionId);
+      if (session != null)
+      {
+        var medias = _db.Media.Find(m => m.AttachId == request.AttachId && m.AttachType == request.AttachType).ToList().ToArray();
+        return new GetMediaByAttachResponse()
+        {
+          RequestId = request.RequestId,
+          SessionId = request.SessionId,
+          medias = medias,
+          StatusDescription = string.Empty,
+          Status = (int)HttpStatusCode.OK
+        };
+      }
+      else
+        return Fail<GetMediaByAttachResponse>(request, HttpStatusCode.Forbidden, "Must login first.");
+    }
+
     public GetMediaResponse GetMediaStream(GetMediaRequest request)
     {
       var resp = new GetMediaResponse();
@@ -342,7 +361,7 @@ namespace caveCache
       }
 
       // check that there isn't already a user      
-      if (_db.Users.AsQueryable().Any(u => string.Equals(u.Email, request.Email, StringComparison.CurrentCultureIgnoreCase)))
+      if (_db.Users.AsQueryable().Any(u => u.Email == request.Email))
       {
         _db.History.InsertOne(HistoryEntry(session.User.Id, null, null, null, "{0}Failed to create user with email {0}.  Already exists", session.User.Name, request.Email));
         return Fail<API.UserAddResponse>(request, HttpStatusCode.BadRequest, "User already exists.");
@@ -524,6 +543,7 @@ namespace caveCache
 
 
       cave.Name = request.Name;
+      cave.SubType = request.SubType;
       cave.Description = request.Description ?? string.Empty;
       cave.IsDeleted = false;
 
@@ -535,6 +555,10 @@ namespace caveCache
       if (request.Locations != null)
       {
         cave.Locations = request.Locations.ToList();
+        if ( cave.Locations.Count > 0 && cave.Locations.All(c => c.IsActive == false))
+        {
+          cave.Locations[0].IsActive = true;
+        }
       }
 
       if (request.Notes != null)

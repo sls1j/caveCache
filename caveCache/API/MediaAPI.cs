@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using caveCache.MongoDb;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,5 +43,16 @@ namespace caveCache.API
 
   class CleanMediaResponse : SessionResponse
   {
+  }
+
+  class GetMediaByAttachRequest : SessionRequest
+  {
+    public string AttachType;
+    public ObjectId AttachId;
+  }
+
+  class GetMediaByAttachResponse : SessionResponse
+  {
+    public Media[] medias;
   }
 }

@@ -58,7 +58,6 @@ namespace caveCache.API
                         new CaveInfo(){
                             CaveId = ObjectId.GenerateNewId(),
                             Description = "A simple cave",
-                            LocationId = 1,
                             Locations = new MongoDb.CaveLocation[]{
                                 new MongoDb.CaveLocation(){
                                 Latitude = 41.0m, Longitude = -111.0m,Altitude = 1234,

@@ -26,6 +26,8 @@ namespace caveCache.API
     public string Description;
     [Parameter("The identifier of the location that will be displayed.  A cave may have more than one location depending on collection methods.  Phone, GPS, from Map etc.")]
     public int? LocationId;
+    [Parameter("The type of cave object")]
+    public CaveSubType SubType;
 
     [Parameter("A list of locations.")]
     public MongoDb.CaveLocation[] Locations;
@@ -82,7 +84,7 @@ namespace caveCache.API
     public int Number;
     public string Name;
     public string Description;
-    public int? LocationId;
+    public CaveSubType SubType;
 
     public MongoDb.Data[] CaveData;
     public MongoDb.CaveLocation[] Locations;
@@ -99,6 +101,7 @@ namespace caveCache.API
       CaveId = c.Id;
       Number = c.CaveNumber;
       Description = c.Description;
+      SubType = c.SubType;
       Locations = (c.Locations?.ToArray()) ?? new CaveLocation[0];
       Name = c.Name;
       Notes = (c.Notes?.ToArray()) ?? new CaveNote[0];

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using MongoDB.Bson;
 
 namespace caveCache
@@ -10,7 +14,16 @@ namespace caveCache
   {
     private static void Main(string[] args)
     {
-      var p = new Program();
+      //AspNetVerb.Start(new Action<IEndpointRouteBuilder>[]
+      //{
+      //  builder => builder.MapGet("/hello", async ctx =>
+      //  {
+      //    ctx.Response.StatusCode = (int)HttpStatusCode.OK;
+      //    byte[] buffer = Encoding.UTF8.GetBytes("<h1>Hello World</h1>");
+      //    await ctx.Response.Body.WriteAsync(buffer, 0, buffer.Length);
+      //  })
+      //});
+      //var p = new Program();
       p.ProgMain(args);
     }
 
@@ -213,8 +226,15 @@ namespace caveCache
                 email = a.a[1];
                 password = a.a[2];
               }
-              else
+              else if ( a.a.Length == 2)
+              {
                 password = a.a[1];
+                a.response = "Invalid Command: login <Name> <Password>";
+              }
+              else
+              {
+                password = "@$#%@#$%@#$%@$^@$@#$%@#%@#%@#%@%@$^$#%^#$%^@$@$#%#@$%@$^#$%^#%^!@#%@3";
+              }
 
               var login = new API.LoginRequest()
               {

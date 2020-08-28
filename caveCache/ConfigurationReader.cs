@@ -39,7 +39,7 @@ namespace caveCache
       }
     }
 
-    public ConfigurationReader()
+    public ConfigurationReader() 
     {
       string fileName = Path.GetFullPath("config.json");
       Console.WriteLine($"Reading config from '{fileName}'");
