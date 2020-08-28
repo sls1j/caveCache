@@ -12,10 +12,10 @@ namespace CaveCache.Nouns.Database
   {
     [BsonId]
     public string Id { get; set; }
-    public string? UserId { get; set; }
-    public string? CaveId { get; set; }
-    public string? SurveyId { get; set; }
-    public string? MediaId { get; set; }
+    public string UserId { get; set; }
+    public string CaveId { get; set; }
+    public string SurveyId { get; set; }
+    public string MediaId { get; set; }
     public DateTime EventDateTime { get; set; }
     public string Description { get; set; }
     public BsonDocument Data { get; set; }
