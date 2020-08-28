@@ -23,7 +23,7 @@ namespace caveCache
       //    await ctx.Response.Body.WriteAsync(buffer, 0, buffer.Length);
       //  })
       //});
-      //var p = new Program();
+      var p = new Program();
       p.ProgMain(args);
     }
 
