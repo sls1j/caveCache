@@ -121,14 +121,14 @@ namespace CaveCache.Verbs
 
           if (db.Users.DeleteOne(u => u.Id == id).DeletedCount > 0)
           {
-            response.Status = HttpStatusCode.OK;
+            response.Status = (int)HttpStatusCode.OK;
             db.History.InsertOne(HistoryEntry(id, null, null, null, "User Deleted"));
             
 
           }
           else
           {
-            response.Status = HttpStatusCode.BadRequest;
+            response.Status = (int)HttpStatusCode.BadRequest;
             response.StatusDescription = $"No user with id {id}";
           }
 
@@ -146,7 +146,7 @@ namespace CaveCache.Verbs
 
           if ( user == null )          
           {
-            response.Status = HttpStatusCode.NotFound;
+            response.Status = (int)HttpStatusCode.NotFound;
             response.StatusDescription = $"User {id} not found.";
           }
           else
@@ -202,14 +202,14 @@ namespace CaveCache.Verbs
       if (null == user)
       {
         HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
-        return new LoginResponse() { Status = HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
+        return new LoginResponse() { Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
       }
 
       // only allow the admin password via the command line
       if (user.Email == "admin" && !isCommandLine())
       {
         HistoryEntry(null, null, null, null, "Failed login for bad user {0}", request.Email);
-        return new LoginResponse() { Status = HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
+        return new LoginResponse() { Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
       }
 
       // verify password
@@ -217,7 +217,7 @@ namespace CaveCache.Verbs
       if (hash != user.PasswordHash)
       {
         HistoryEntry(null, null, null, null, "Failed login for user {0}. Bad password.", user);
-        return new LoginResponse() { Status = HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
+        return new LoginResponse() { Status = (int)HttpStatusCode.Unauthorized, StatusDescription = "Username or Password is incorrect" };
       }
 
       var sessionKey = getRandomBytes(8);
@@ -246,7 +246,7 @@ namespace CaveCache.Verbs
         Name = user.Name,
         Profile = user.Profile,
         Permissions = user.Permissions,
-        Status = HttpStatusCode.OK
+        Status = (int)HttpStatusCode.OK
       };
     }
 

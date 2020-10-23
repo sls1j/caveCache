@@ -8,7 +8,7 @@ namespace CaveCache.Nouns.Http
 {
   public class Response
   {
-    public HttpStatusCode Status;
+    public int Status;
     public string StatusDescription;
   }
 }
