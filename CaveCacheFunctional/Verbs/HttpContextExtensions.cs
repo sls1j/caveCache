@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,12 @@ namespace CaveCache.Verbs
 {
   public static class HttpContextExtensions
   {
+    private static JsonSerializerSettings settings = new JsonSerializerSettings()
+    {
+      Converters = new List<JsonConverter>() { new StringEnumConverter() },
+      Formatting = Formatting.Indented
+    };
+
     public static void Unauthorized(this HttpContext ctx)
     {
       ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -20,7 +27,7 @@ namespace CaveCache.Verbs
     public async static Task<T> ReadBody<T>(this HttpContext ctx)
     {
       string json = await ctx.ReadBodyAsString();
-      return JsonConvert.DeserializeObject<T>(json);
+      return JsonConvert.DeserializeObject<T>(json, settings);
     }
 
     public async static Task<string> ReadBodyAsString(this HttpContext ctx)
@@ -47,7 +54,7 @@ namespace CaveCache.Verbs
 
     public async static Task WriteBodyObject(this HttpContext ctx, object body)
     {
-      string json = JsonConvert.SerializeObject(body);
+      string json = JsonConvert.SerializeObject(body, settings);
       await ctx.WriteBodyString(json);
     }
 

@@ -18,21 +18,20 @@ namespace CaveCache.Verbs
        {
          await handleSession(ctx, async session =>
          {
-           var caves =
-           db.Caves.Find(c => session.User.Caves.Contains(c.Id))
-           .ToList()
-           .Select(c => new
-           {
-             c.Id,
-             Number = c.CaveNumber,
-             c.Name,
-             c.Description,
-             c.SubType,
-             CaveData = c.Data ?? new List<Data>(),
-             Locations = c.Locations ?? new List<CaveLocation>(),
-             Notes = c.Notes ?? new List<CaveNote>()
-           })
-           .ToArray();
+           var dbCaves = db.Caves.Find("{}").ToList();
+           var caves = dbCaves           
+             .Select(c => new
+             {
+               c.Id,
+               Number = c.CaveNumber,
+               c.Name,
+               c.Description,
+               c.SubType,
+               CaveData = c.Data ?? new List<Data>(),
+               Locations = c.Locations ?? new List<CaveLocation>(),
+               Notes = c.Notes ?? new List<CaveNote>()
+             })
+             .ToArray();
 
            var response = new { Caves = caves, Status = 200 };
 
@@ -50,7 +49,11 @@ namespace CaveCache.Verbs
           var request = await ctx.ReadBody<CaveUpdateRequest>();
 
           Cave cave = null;
-          cave = db.Caves.Find(c => c.Id == request.CaveId).SingleOrDefault();
+          if (!string.IsNullOrEmpty(request.CaveId))
+          {
+            cave = db.Caves.Find(c => c.Id == request.CaveId).SingleOrDefault();
+          }
+
           if (null == cave)
           {
             int caveNumber = db.GetNextCaveNumber();

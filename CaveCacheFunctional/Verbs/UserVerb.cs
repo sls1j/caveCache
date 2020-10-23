@@ -93,7 +93,7 @@ namespace CaveCache.Verbs
 
          var user = db.Users.Find(u => u.Id == request.Id).FirstOrDefault();
 
-         if ( user == null)
+         if (user == null)
          {
            user = new User();
            user.Id = Guid.NewGuid().ToString("n");
@@ -111,7 +111,89 @@ namespace CaveCache.Verbs
          await ctx.WriteBodyObject(new { Status = HttpStatusCode.OK });
        });
       });
+
+      endPoints.Delete("/user/{id}", async ctx =>
+      {
+        await innerHandleSession(ctx, async session =>
+        {
+          Response response = new Response();
+          string id = ctx.Request.RouteValues["id"].ToString();
+
+          if (db.Users.DeleteOne(u => u.Id == id).DeletedCount > 0)
+          {
+            response.Status = HttpStatusCode.OK;
+            db.History.InsertOne(HistoryEntry(id, null, null, null, "User Deleted"));
+            
+
+          }
+          else
+          {
+            response.Status = HttpStatusCode.BadRequest;
+            response.StatusDescription = $"No user with id {id}";
+          }
+
+          await ctx.WriteHeader(Mimes.Json, HttpStatusCode.OK).WriteBodyObject(response);
+        });
+      });
+
+      endPoints.Get("/user/password/reset/{id}", async ctx =>
+      {
+        await innerHandleSession(ctx, async session =>
+        {
+          UserResetPasswordResponse response = new UserResetPasswordResponse();
+          string id = ctx.Request.RouteValues["id"].ToString();
+          User user = db.Users.Find(u => u.Id == id).FirstOrDefault();
+
+          if ( user == null )          
+          {
+            response.Status = HttpStatusCode.NotFound;
+            response.StatusDescription = $"User {id} not found.";
+          }
+          else
+          {
+            response.NewPassword = GenerateUserPassword();
+            byte[] salt = getRng(16);
+            user.PasswordSalt = Convert.ToBase64String(salt);
+            user.PasswordHash = HashPassword(response.NewPassword, user.PasswordSalt);
+            db.Users.ReplaceOne(u => u.Id == user.Id, user);
+          }
+
+          await ctx.WriteHeader(Mimes.Json, HttpStatusCode.OK).WriteBodyObject(response);
+        });
+      });
     }
+
+    readonly static string[] words = new[]{
+                "cave", "rope", "hole", "karst", "bat",
+                "flowstone", "bacon", "caver", "pit", "river",
+                "ascender", "descender", "squeeze", "ceiling", "floor",
+                "sloth", "snake", "cricket", "millipede", "rat",
+                "dark", "light", "boot", "suit", "compass",
+                "tree", "boulder", "rock", "log", "bone",
+                "crack", "explosive", "gloves", "bag", "rope",
+                "fall", "break", "fatal", "accident", "sprain",
+                "pencil", "pad", "laser", "clinometer", "tape",
+                "crawl", "climb", "jump", "eat", "sleep"};
+
+    private static string GenerateUserPassword()
+    {
+
+      Random r = new Random();
+
+      StringBuilder sb = new StringBuilder();
+      bool isFirst = true;
+      for (int i = 0; i < 4; i++)
+      {
+        if (isFirst)
+          isFirst = false;
+        else sb.Append(" ");
+        sb.Append(words[r.Next(words.Length)]);
+      }
+
+      return sb.ToString();
+    }
+
+
 
     public static LoginResponse Login(CaveDb db, Func<bool> isCommandLine, Func<int, byte[]> getRandomBytes, LoginRequest request)
     {

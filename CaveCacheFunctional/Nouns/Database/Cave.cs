@@ -29,6 +29,11 @@ namespace CaveCache.Nouns.Database
     public Cave()
     {
     }
+
+    public override string ToString()
+    {
+      return $"{Id} {CaveNumber} {Name} {SubType}";
+    }
   } 
 
   public enum CaveSubType { VerticalCave, HorizontalCave, PotentialCave, Pit, Dig, Grotto, Spring};
