@@ -19,7 +19,7 @@ namespace CaveCache.Verbs
          await handleSession(ctx, async session =>
          {
            var dbCaves = db.Caves.Find("{}").ToList();
-           var caves = dbCaves           
+           var caves = dbCaves
              .Select(c => new
              {
                c.Id,
@@ -57,7 +57,14 @@ namespace CaveCache.Verbs
           if (null == cave)
           {
             int caveNumber = db.GetNextCaveNumber();
-            cave = new Cave() { Name = $"CC #{caveNumber}", Description = string.Empty, CreatedDate = DateTime.Now, CaveNumber = caveNumber };
+            cave = new Cave()
+            {
+              Id = Guid.NewGuid().ToString(),
+              Name = $"CC #{caveNumber}",
+              Description = string.Empty,
+              CreatedDate = DateTime.Now,
+              CaveNumber = caveNumber
+            };
 
             db.Caves.InsertOne(cave);
             db.Users.UpdateOne(u => u.Id == session.UserId, Builders<User>.Update.AddToSet(u => u.Caves, cave.Id));
